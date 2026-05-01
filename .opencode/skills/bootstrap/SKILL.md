@@ -1,6 +1,6 @@
 ---
 name: bootstrap
-description: Complete project bootstrap. Asks structured questions, researches online, checks references, and proposes a tailored plan.
+description: Complete intelligent project bootstrap. Pre-flight check → questionnaire → deep research → agent team architecture → project generation.
 license: MIT
 compatibility: opencode
 metadata:
@@ -9,233 +9,357 @@ metadata:
 ---
 
 ## What It Does
-Transforms the generic Cortex template into a project-specific development environment. This is a multi-phase workflow: **Discover → Research → Synthesize → Generate**.
+Transforms the generic Cortex template into a fully specialized, professional-grade project environment with custom primary agents, specialized subagent teams, MCP servers, and tools — all tailored to the project's tech stack, domain, and architecture.
 
 ## When to Load
 - User types `/new-project`
 - User says "start a new project"
 - User says "adapt this system for my project"
-- The project appears to be unconfigured (no PROJECT.md content)
+
+---
+
+## Phase 0 — Pre-flight Check
+
+Before ANY questions, verify the system is functional. Run checks silently and report.
+
+### 0.1 Check Essential Tools
+```bash
+# Check Node.js (needed by GSD)
+node --version
+
+# Check GSD files exist
+ls .opencode/command/gsd-new-project.md .opencode/agents/gsd-planner.md 2>/dev/null
+
+# Check GSD runtime
+ls .opencode/get-shit-done/VERSION 2>/dev/null
+
+# Check Planning with Files
+ls .opencode/skills/planning-with-files/SKILL.md 2>/dev/null
+```
+
+### 0.2 Check Optional Tools
+```bash
+# Check Graphify
+python3 -c "import graphify" 2>/dev/null && echo "graphify OK"
+
+# Check graphify OpenCode hooks
+ls .opencode/plugins/graphify.js 2>/dev/null
+```
+
+### 0.3 Report
+Present findings:
+```
+╔══════════════════════════════════════════════════╗
+║          CORTEX — PRE-FLIGHT CHECK              ║
+╠══════════════════════════════════════════════════╣
+║  ✓ Node.js {version}                             ║
+║  ✓ GSD commands + runtime (v{v})                 ║
+║  ✓ Planning with Files                           ║
+║  ✓ Graphify {ok/not installed}                   ║
+║  ✓ 41 agents available                           ║
+║  ✓ 8 skills available                           ║
+╚══════════════════════════════════════════════════╝
+```
+If anything is missing, tell the user what to install.
 
 ---
 
 ## Phase 1 — Discovery: Structured Interview
 
-Ask questions ONE AT A TIME. Wait for the answer before asking the next one. Use the `question` tool for each.
+Ask questions ONE AT A TIME. Wait for each answer.
 
-### 1.1 Identity
-- "What is the project name?"
+### 1.1 Project Identity
+- "What is the project name?" (will be used for agent names: `<Name>Build`, `<Name>Plan`)
 - "Describe it in 1-2 sentences. What problem does it solve?"
-- "What type of project is it?" (web app, mobile app, CLI tool, API, library, game, data pipeline, other)
+- "What type?" (web app, mobile app, CLI tool, API, library, game, data pipeline, desktop app, SaaS platform, other)
 
 ### 1.2 Technical Context
-- "What's the tech stack? Any preferences for language, framework, database, infrastructure?"
-- "What's the target platform?" (browser, mobile, desktop, server, embedded)
-- "Any constraints to consider?" (performance, budget, timeline, team size, deployment)
+- "What's your tech stack preference? If unsure, I'll recommend based on research."
+  - Frontend: (React, Next.js, Vue, Svelte, none, other)
+  - Backend: (Node/Express, Python/FastAPI, Go, Rust, Java/Spring, Ruby/Rails, .NET, other)
+  - Database: (PostgreSQL, MySQL, MongoDB, SQLite, Redis, other)
+  - Infrastructure: (Docker, Kubernetes, Vercel, AWS, Cloudflare, bare metal, other)
 
 ### 1.3 Domain & Industry
-- "What domain or industry does this belong to?" (fintech, healthcare, e-commerce, SaaS, developer tools, gaming, education, etc.)
-- "Are there any regulations or compliance requirements?" (GDPR, HIPAA, PCI-DSS, SOC2)
+- "What domain does this belong to?" (fintech, healthcare, e-commerce, SaaS, dev tools, gaming, education, AI/ML, IoT, other)
+- "Any compliance requirements?" (GDPR, HIPAA, PCI-DSS, SOC2, none)
 
-### 1.4 References
-- "Do you have any reference materials?" (links to similar projects, design inspirations, documentation, existing codebases, competitor products)
-- "Any brand guidelines, logos, or color preferences?"
-- If they provide URLs → save them, they'll be researched in Phase 2
+### 1.4 Architecture Preferences
+- "How many users do you expect?" (prototype <100, small <10k, medium <100k, large >100k)
+- "Any specific architecture preferences?" (microservices, monolith, serverless, event-driven, CQRS)
+- "What's your deployment target?" (Vercel, AWS, GCP, Azure, bare metal, Docker host)
 
-### 1.5 Goals & Scope
-- "What are the top 3 goals for the MVP?"
-- "What is explicitly OUT of scope for now?"
-- "What would success look like in 3 months?"
+### 1.5 Team & Workflow
+- "How many developers will work on this?"
+- "What's your preferred workflow?" (GitHub Flow, GitFlow, trunk-based)
+- "Any existing code or is this from scratch?"
+
+### 1.6 References
+- "Do you have any reference materials?" (URLs to similar projects, design inspirations, API docs, competitor products, architecture articles, tech specs)
+- "Any brand guidelines or design preferences?"
 
 ---
 
-## Phase 2 — Research
+## Phase 2 — Deep Research
 
-After gathering all context, research the domain. Use `@researcher` via the Task tool.
+After gathering context, spawn parallel research agents.
 
-### 2.1 Tech Stack Research
-Spawn `@researcher` with this prompt:
+### 2.1 Tech Stack Validation → @researcher
 ```
-Research the following tech stack for a project:
-- Stack: {user's stack}
-- Type: {project type}
-- Domain: {industry}
-
+Research the tech stack for {projectName} ({projectType} in {domain}):
+- {frontend} + {backend} + {database} + {infra}
 Investigate:
-1. Best practices and common pitfalls for this stack
-2. Recommended libraries and tools for {domain}
-3. Architecture patterns commonly used
-4. Hosting and deployment options
-5. Monitoring and observability setup
+1. Is this stack proven for {domain}? Cite real projects using it.
+2. Common pitfalls and how to avoid them.
+3. Top 5 libraries/tools the community uses with this stack.
+4. Recent major version changes or deprecations to be aware of.
+5. Architecture patterns commonly used with this stack.
 ```
+Save to `wiki/sessions/{date}-stack-research.md`.
 
-Save findings to `wiki/sessions/{date}-tech-research.md`.
-
-### 2.2 Reference Analysis
-If the user provided reference URLs, analyze each one:
-- Read the URL content with `webfetch`
-- Extract: design patterns, architecture decisions, tech choices, unique features
-- Note what to adopt and what to avoid
-
-Save findings to `wiki/sessions/{date}-reference-analysis.md`.
-
-### 2.3 Industry & Compliance Research
-Spawn `@researcher` with:
+### 2.2 Architecture Recommendations → @researcher
 ```
-Research industry standards for {domain}:
-1. Common compliance requirements ({regulations mentioned})
-2. Security best practices
-3. Data handling requirements
-4. Industry-specific architecture patterns
+Research architecture for {projectType} in {domain} at {scale} users:
+1. What architecture pattern is industry standard?
+2. Folder/project structure conventions.
+3. Infrastructure requirements for {scale}.
+4. Monitoring and observability setup.
+5. CI/CD best practices.
+6. Security architecture for {domain} {compliance}.
 ```
+Save to `wiki/sessions/{date}-architecture-research.md`.
 
-Save findings to `wiki/sessions/{date}-industry-research.md`.
-
-### 2.4 Competitor / Similar Projects
-Spawn `@researcher` with:
+### 2.3 Industry & Competitor Research → @researcher
 ```
-Research similar projects to:
-- {project description}
-- What do competitors in this space use?
-- What common mistakes do first-time builders make?
-- What differentiators could this project focus on?
+Research the {domain} landscape:
+1. Top 3 successful {projectType}s in this space — what's their tech stack?
+2. Common mistakes first-time builders make in {domain}.
+3. Key differentiators for competitive advantage.
+4. Regulatory considerations for {compliance}.
 ```
+Save to `wiki/sessions/{date}-industry-research.md`.
 
-Save findings to `wiki/sessions/{date}-competitor-research.md`.
+### 2.4 Reference Analysis
+If the user provided reference URLs, analyze each:
+- Fetch with `webfetch`
+- Extract: patterns, tech choices, UX decisions, unique features
+- Note: what to adopt, what to avoid, what to differentiate on
+Save to `wiki/sessions/{date}-reference-analysis.md`.
 
 ---
 
-## Phase 3 — Synthesis
+## Phase 3 — Agent Team Architecture
 
-After research completes, synthesize everything into a coherent project plan.
+Based on all research, propose a **professional team structure**. Present to user for approval.
 
-### 3.1 Analyze Research
-Read all research files from `wiki/sessions/`. Identify:
-- **Key recommendations**: What to definitely do
-- **Pitfalls to avoid**: What the research warns against
-- **Technology decisions**: What stack choices are validated
-- **Architecture decisions**: Recommended patterns
+### 3.1 Determine Team Composition
 
-### 3.2 Build the Plan
-Create a structured proposal:
+Based on project type, determine which specialized agents are needed:
 
-```markdown
-## Project Proposal: {Name}
+| If project has... | Create these agents |
+|---|---|
+| Backend/API | `{name}-backend` |
+| Frontend/UI | `{name}-frontend` |
+| Database | `{name}-database` |
+| Auth/Sensitive data | `{name}-security` |
+| Deploy/Infra | `{name}-devops` |
+| Tests/Quality | `{name}-qa` |
 
-### Summary
-{concise overview}
+For a typical full-stack web app, create all 6. For a CLI tool, maybe just backend + qa. For an API, backend + database + security. Use judgment.
 
-### Recommended Stack
-- **Language**: {with rationale}
-- **Framework**: {with rationale}
-- **Database**: {with rationale}
-- **Infrastructure**: {with rationale}
+### 3.2 Propose Primary Agent Names
+Primary agents in Cortex are switched with Tab. For {PROJECT_NAME}:
+- **Build** → `{PROJECT_NAME}Build`
+- **Plan** → `{PROJECT_NAME}Plan`
 
-### Architecture
-{high-level architecture description}
+### 3.3 Propose MCP Servers & Skills
+Based on the stack, suggest:
+- **context7** (always recommended — doc search)
+- **github** (if using GitHub — PR/issue management)  
+- **sequential-thinking** (always recommended — complex reasoning)
+- **postgres** / **sqlite** (if using a database)
+- **sentry** (for error monitoring)
+- **brave-search** (if heavy research ongoing)
+- **puppeteer** (if testing a web frontend)
 
-### Phases
-| Phase | Focus | Key Deliverables |
-|-------|-------|------------------|
-| 1 | Project Setup | Dev environment, CI/CD, scaffolding |
-| 2 | Core Feature 1 | {feature}, tests, docs |
-| 3 | Core Feature 2 | {feature}, tests, docs |
-| 4 | Polish & Launch | Performance, security audit, deploy |
+### 3.4 Propose Design System
+If the project type needs a UI, suggest:
+- Update `DESIGN.md` with domain-appropriate colors/typography
+- If user gave brand guidelines, incorporate them
+- If no preferences, suggest based on {domain} best practices
 
-### Key Decisions
-| Decision | Choice | Why |
-|----------|--------|-----|
-| {decision} | {choice} | {rationale from research} |
-
-### Risks & Mitigations
-| Risk | Likelihood | Mitigation |
-|------|-----------|------------|
-| {risk} | {high/med/low} | {plan} |
+### 3.5 Present the Architecture Plan
 ```
-
-### 3.3 Present to User
-Use the `question` tool with options:
+╔══════════════════════════════════════════════════╗
+║            PROJECT ARCHITECTURE                  ║
+╠══════════════════════════════════════════════════╣
+║  Stack: {recommended stack}                      ║
+║  Architecture: {pattern}                         ║
+║                                                   ║
+║  Agent Team:                                      ║
+║    Primary: {Name}Build, {Name}Plan              ║
+║    Team:                                          ║
+║      • {name}-backend — API & business logic     ║
+║      • {name}-frontend — UI & components         ║
+║      • {name}-database — Data & migrations       ║
+║      • {name}-security — Audits & compliance     ║
+║      • {name}-devops — CI/CD & infra             ║
+║      • {name}-qa — Tests & quality               ║
+║                                                   ║
+║  MCP Servers: context7, github, ...               ║
+║  Design: {DESIGN.md updated}                     ║
+╚══════════════════════════════════════════════════╝
 ```
-Here's the project plan I've prepared based on our discussion and research.
-
-[Show the full proposal]
-
-What do you think?
-```
-- Option: "Looks good, create the project files"
-- Option: "I want to modify some things"
-- Option: "Let's discuss further"
-
-If they want modifications, adjust and re-present.
-If they approve, proceed to Phase 4.
+Ask user to approve or modify before proceeding.
 
 ---
 
-## Phase 4 — Generate Project Files
+## Phase 4 — Generate
 
-### 4.1 Files to Create/Update
+### 4.1 Create Primary Agents
 
-#### AGENTS.md
-Insert project context at the top (after the title):
+For each primary agent, create a new entry in `opencode.json` and a markdown file in `.opencode/agents/`. The original Build/Plan remain for generic use.
+
+**opencode.json** — Add under `agent`:
+```json
+"{name}Build": {
+  "mode": "primary",
+  "model": "anthropic/claude-sonnet-4-20250514",
+  "prompt": "{file:.opencode/agents/{name}-build.md}",
+  "permission": {
+    "edit": "allow",
+    "bash": "allow"
+  }
+},
+"{name}Plan": {
+  "mode": "primary", 
+  "model": "anthropic/claude-haiku-4-20250514",
+  "prompt": "{file:.opencode/agents/{name}-plan.md}",
+  "permission": {
+    "edit": "deny",
+    "bash": "deny"
+  }
+}
+```
+
+**.opencode/agents/{name}-build.md**:
 ```markdown
+---
+description: "{PROJECT_NAME} primary build agent. Full development capabilities for the {PROJECT_NAME} project."
+---
+
 ## Project Context
-- **Name**: {name}
-- **Description**: {description}
-- **Stack**: {stack}
-- **Type**: {type}
-- **Domain**: {domain}
-- **Goals**: {top 3 goals}
+- **Project**: {PROJECT_NAME}
+- **Description**: {PROJECT_DESCRIPTION}
+- **Stack**: {TECH_STACK}
+- **Architecture**: {ARCHITECTURE}
+
+## Your Role
+You are the primary build agent for {PROJECT_NAME}. You orchestrate the team of specialized agents:
+
+**Your Team:**
+- `@{name}-backend` — Backend development
+- `@{name}-frontend` — Frontend development
+- `@{name}-database` — Database engineering
+- `@{name}-security` — Security auditing
+- `@{name}-devops` — Infrastructure & deployment
+- `@{name}-qa` — Testing & quality
+
+Delegate through `@agent-name` for specialized work.
+
+## Code Standards
+- Follow {TECH_STACK} best practices
+- Atomic commits: one concern per commit
+- Write tests alongside implementation
+- All code must pass lint/typecheck before completion
 ```
+
+**.opencode/agents/{name}-plan.md**: Same pattern but read-only, for analysis and planning.
+
+### 4.2 Create Specialized Subagents
+
+For each agent in the team, copy from `.opencode/templates/agents/{role}.md` and replace placeholders:
+
+- `{PROJECT_NAME}` → actual name
+- `{PROJECT_DESCRIPTION}` → actual description
+- `{TECH_STACK}` → actual stack
+- `{ARCHITECTURE}` → recommended architecture
+- `{DOMAIN}` → domain/industry
+- `{COMPLIANCE}` → compliance requirements
+- `{DATABASE}` → database choice
+- `{DATA_LAYER}` → ORM or data layer
+- `{INFRASTRUCTURE}` → infra choice
+- `{DEPLOYMENT}` → deployment target
+- `{TESTING}` → testing framework
+- `{E2E_TOOL}` → e2e tool
+- `{DESIGN_SYSTEM}` → "DESIGN.md" or custom
+
+File naming: `{name}-{role}.md` in `.opencode/agents/` (e.g., `myapp-backend.md`).
+
+### 4.3 Generate Project Files
 
 #### .planning/PROJECT.md
-Full project description with tech stack, goals, constraints, key decisions from research.
+Full project description with stack, goals, architecture decisions.
 
-#### .planning/ROADMAP.md
-Phase-by-phase roadmap with status markers. Extract from the proposal.
+#### .planning/ROADMAP.md  
+Phase-by-phase roadmap with the new team agents assigned to each phase.
 
 #### .planning/STATE.md
-Current position set to Phase 1, with decisions log from research.
+Current position set to Phase 1.
+
+#### AGENTS.md
+Add project context at top. Update agent list to include new team agents.
 
 #### DESIGN.md
-If the user provided brand preferences, update the design system. Otherwise, keep defaults but add industry-appropriate suggestions from research.
+If UI project: update with domain-appropriate design tokens.
 
 #### wiki/index.md
-Add the project name and description to the index.
+Update with project entry.
 
 #### wiki/log.md
-Append: `## [YYYY-MM-DD] bootstrap | {Project Name} initialized`
+Append full project initialization entry.
 
-#### wiki/concepts/
-Create initial concept pages from research findings (e.g., architecture decisions, tech stack notes).
+### 4.4 Update opencode.json
 
-### 4.2 Self-Modification Rules
-- **CAN** modify: AGENTS.md, DESIGN.md, .planning/*, wiki/index.md, wiki/log.md, wiki/concepts/
-- **CANNOT** modify: schema/, .opencode/agents/, .opencode/skills/, .opencode/tools/, opencode.json (these define the system itself)
-- Keep the Self-Maintenance section of AGENTS.md intact
+- Add new primary agents (`{name}Build`, `{name}Plan`)
+- Enable recommended MCP servers
+- Update instruction paths
 
 ---
 
-## Phase 5 — Next Steps
+## Phase 5 — Launch
 
-After creating all files, present a summary:
+Present the complete setup:
 
 ```
 ╔══════════════════════════════════════════════════╗
-║          PROJECT INITIALIZED                     ║
+║          {PROJECT_NAME} — INITIALIZED            ║
 ╠══════════════════════════════════════════════════╣
-║  Files created:                                  ║
-║    • AGENTS.md — context added                   ║
-║    • .planning/PROJECT.md — vision & goals       ║
-║    • .planning/ROADMAP.md — {N} phases           ║
-║    • .planning/STATE.md — initialized            ║
-║    • DESIGN.md — configured                      ║
-║    • wiki/concepts/ — research pages             ║
-║                                                  ║
-║  Next steps:                                     ║
-║    1. /gsd-discuss-phase 1 — dive into Phase 1   ║
-║    2. (if code exists) /graphify .               ║
-║    3. Read SYSTEM-MAP.md for full tool reference ║
+║                                                   ║
+║  Primary Agents (Tab to switch):                  ║
+║    • {Name}Build — full development              ║
+║    • {Name}Plan — analysis & planning            ║
+║                                                   ║
+║  Specialized Team:                                ║
+║    • @{name}-backend    • @{name}-frontend       ║
+║    • @{name}-database   • @{name}-security       ║
+║    • @{name}-devops     • @{name}-qa             ║
+║                                                   ║
+║  Research stored in wiki/sessions/                ║
+║  Design system in DESIGN.md                       ║
+║  MCP servers configured                           ║
+║                                                   ║
+║  Next step: /gsd-discuss-phase 1                  ║
+║                                                   ║
 ╚══════════════════════════════════════════════════╝
 ```
 
-Ask: "Ready to start Phase 1? Or would you like to adjust anything?"
+---
+
+## Self-Modification Rules
+
+- **CAN modify**: opencode.json, AGENTS.md, DESIGN.md, .planning/*, .opencode/agents/* (new project agents), wiki/*
+- **CANNOT modify**: schema/*, .opencode/skills/* (system skills), .opencode/agents/researcher.md (core agents), .opencode/tools/*
+- **Keep intact**: Self-Maintenance section of AGENTS.md
+- **Original Build/Plan**: Keep as fallback primary agents
+- **Core agents**: researcher, architect, reviewer, implementer, debugger, sec-auditor, ingest-agent, lint-agent — do NOT modify (they're platform agents, not project-specific)

@@ -10,13 +10,13 @@ How every component of the Cortex multi-agent system works, when to use it, and 
 /new-project
 ```
 
-The agent will run a structured 5-phase bootstrap:
+The agent runs a 5-phase intelligent bootstrap:
 
-1. **Discover** — Asks one question at a time about identity, tech, domain, references, and goals
-2. **Research** — Spawns @researcher to investigate tech stack best practices, industry patterns, competitor landscape, and reference materials
-3. **Synthesize** — Combines research + your answers into a structured proposal with recommendations, risks, and phase plan
-4. **Generate** — Creates PROJECT.md, ROADMAP.md, STATE.md, updates AGENTS.md and DESIGN.md
-5. **Launch** — Presents summary and next steps
+1. **Pre-flight Check** — Verifies Node.js, GSD, Graphify, Planning w/ Files are functional
+2. **Discovery** — Structured interview: identity, tech stack, domain, references, team size
+3. **Deep Research** — Spawns @researcher for tech stack validation, architecture patterns, industry landscape, and reference analysis
+4. **Agent Team Architecture** — Proposes specialized team: primary agents ({Name}Build, {Name}Plan) + role-based subagents (backend, frontend, database, security, devops, qa) + MCP servers + design system
+5. **Generate** — Creates all project files, agent definitions, and project configuration
 
 **Step 1:** Clone the Cortex repo into your new project directory
 ```bash

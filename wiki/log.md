@@ -32,5 +32,5 @@ Rewrote bootstrap skill as 5-phase workflow: Discover → Research → Synthesiz
 ## [2026-05-01] ops | Install script + README clarity
 Created scripts/install-deps.sh — one-command setup for Graphify, Planning with Files global install, and tool dependencies. Updated README with clear "already in repo vs needs install" table so users know exactly what to expect after cloning.
 
-## [2026-05-01] research | Competitive Analysis + MCP Expansion
-Conducted deep research on coding agent landscape. Created docs/COMPETITIVE-ANALYSIS.md comparing Cortex vs Claude Code, GSD, ECC, Aider. Identified key gaps: MCP servers (nearly absent). Added 4 pre-configured MCP servers (context7, github, sequential-thinking, memory). Created .opencode/mcp-template.json with 9 server templates. Added MCP section to SYSTEM-MAP.md.
+## [2026-05-01] feature | Professional Agent Team + Smart Bootstrap
+Complete bootstrap rewrite: 5-phase intelligent system with pre-flight check, deep research, and agent team architecture. Created 6 role-based agent templates (backend, frontend, database, security, devops, qa). Bootstrap now creates custom primary agents ({ProjectName}Build, {ProjectName}Plan) and specialized subagent teams. Suggests MCP servers, skills, and tools based on project stack and domain.

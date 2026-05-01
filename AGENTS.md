@@ -34,11 +34,14 @@ root/
 ├── DESIGN.md                       # Design system specification
 ├── opencode.json                   # OpenCode agent/permission/MCP config
 ├── .opencode/
-│   ├── agents/                     # 8 core + 33 GSD subagent definitions
-│   ├── command/                    # 65 GSD commands (/gsd-*)
+│   ├── agents/                     # 8 core + 33 GSD + project-specific subagents
+│   ├── command/                    # 65 GSD commands (/gsd-*) + /new-project
 │   ├── skills/                     # 8 SKILL.md workflow guides
 │   ├── tools/                      # 3 custom TypeScript tools
-│   └── plugins/                    # Graphify hook plugin
+│   ├── plugins/                    # Graphify hook plugin
+│   ├── templates/
+│   │   └── agents/                 # Role templates for bootstrap (backend, frontend, etc.)
+│   └── mcp-template.json           # Recommended MCP server configs
 ├── scripts/                        # CLI setup & utility scripts
 ├── .planning/                      # Planning artifacts (shared with GSD)
 │   ├── PROJECT.md                  # Project vision & goals
@@ -146,6 +149,24 @@ Use `@agent-name` to invoke subagents:
 - `@lint-agent` — Wiki health checks
 
 Switch primary agents with Tab key: Build (full tools) / Plan (read-only).
+
+After project bootstrap via `/new-project`, custom primary agents are created:
+- `{ProjectName}Build` — Full development, project-aware, orchestrates the team
+- `{ProjectName}Plan` — Read-only analysis and planning, project-aware
+
+## Agent Team Structure
+When a project is bootstrapped, a team of specialized subagents is created:
+
+| Role | Agent | Responsibility |
+|------|-------|---------------|
+| Backend | `@{project}-backend` | API design, business logic, database access |
+| Frontend | `@{project}-frontend` | UI components, state management, responsive design |
+| Database | `@{project}-database` | Schema design, migrations, query optimization |
+| Security | `@{project}-security` | Vulnerability scanning, auth auditing, compliance |
+| DevOps | `@{project}-devops` | CI/CD, infrastructure, deployment, monitoring |
+| QA | `@{project}-qa` | Testing strategy, coverage, edge case detection |
+
+Agent templates are in `.opencode/templates/agents/`. They are filled with project context during bootstrap.
 
 ## Skill Invocation
 Skills are loaded on-demand via the skill tool. Key skills:
