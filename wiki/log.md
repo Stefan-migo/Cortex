@@ -22,3 +22,6 @@ Installed Planning with Files (context discipline skill). Adds 3-file pattern, p
 
 ## [2026-05-01] feature | Bootstrap + Template System
 Added bootstrap skill (.opencode/skills/bootstrap/SKILL.md) for self-adaptation. Added scripts/setup.sh for CLI initialization. Updated AGENTS.md with System Overview table and proactive bootstrap triggers. The template can now be cloned and adapted for any new project.
+
+## [2026-05-01] docs | README.md
+Created comprehensive README.md for the Cortex repository. Includes quick start, architecture diagram, capability matrix, component deep-dive, bootstrap workflow, daily workflow, and community documentation.
