@@ -26,16 +26,20 @@ Built on the [LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf55591489
 ## Quick Start
 
 ```bash
-# 1. Clone the template
+# Option A: Clone into a new subdirectory (clean, recommended)
 git clone https://github.com/Stefan-migo/Cortex.git my-project
-cd my-project && rm -rf .git && git init
+cd my-project
 
-# 2. Install system-level dependencies (one-time per machine)
-./scripts/install-deps.sh
+# Option B: Clone directly into the current directory (if it's empty)
+# cd /path/to/empty-folder
+# git clone https://github.com/Stefan-migo/Cortex.git .
 
-# 3. Launch OpenCode and bootstrap your project
-opencode
-# Then type:  /new-project
+# Then:
+rm -rf .git && git init           # Break from Cortex history — this is YOUR project now
+./scripts/install-deps.sh         # One-time per machine (Graphify, MCPs, tools)
+opencode                          # Launch the agent
+# Inside OpenCode, type:
+/new-project                      # Bootstrap: agent asks questions, researches, builds your team
 ```
 
 ### What's In the Repo vs What Needs Installing
