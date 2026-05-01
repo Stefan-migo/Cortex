@@ -30,36 +30,39 @@ Built on the [LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf55591489
 git clone https://github.com/Stefan-migo/Cortex.git my-project
 cd my-project && rm -rf .git && git init
 
-# 2. (Optional) Run setup script
-./scripts/setup.sh
+# 2. Install system-level dependencies (one-time per machine)
+./scripts/install-deps.sh
 
-# 3. Launch OpenCode
+# 3. Launch OpenCode and bootstrap your project
 opencode
-
-# 4. Tell the agent to adapt for your project
-# Inside OpenCode:
-#   "I just started a new project called MyApp.
-#    It's a web app built with TypeScript and React.
-#    Adapt this system for my project."
+# Then type:  /new-project
 ```
+
+### What's In the Repo vs What Needs Installing
+
+Most of Cortex is **already committed to the repo** and works immediately after clone:
+
+| Already in repo (works after clone) | Needs install on each machine |
+|------------------------------------|-------------------------------|
+| GSD commands (66 files) | Graphify Python package (`pip install graphifyy`) |
+| GSD agents (33 files) | Graphify OpenCode hooks (`graphify install --platform opencode`) |
+| GSD runtime (245 files) | Planning with Files global install (handled by install-deps.sh) |
+| 8 core agents | Custom tools npm dependencies (handled by install-deps.sh) |
+| 8 skills + Planning with Files skill | Node.js >= 18 (prerequisite) |
+| Graphify skill + plugin | Python >= 3.10 (prerequisite) |
+| 3 custom TypeScript tools | |
+| DESIGN.md, SYSTEM-MAP.md, USER-GUIDE.md | |
+| Obsidian vault config | |
+
+**Run `./scripts/install-deps.sh` after clone** to set up everything that can't live in the repo.
 
 ### Prerequisites
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| [OpenCode](https://opencode.ai) | >= 1.0 | AI coding agent runtime |
-| [Node.js](https://nodejs.org) | >= 18 | GSD commands |
-| [Python](https://python.org) | >= 3.10 | Graphify (optional) |
-
-### Optional Installations
-
-```bash
-# Graphify — knowledge graph extraction (recommended)
-pip install graphifyy && graphify install --platform opencode
-
-# GSD — planning system (installed automatically on first use)
-# Planning with Files — context discipline (installed automatically on first use)
-```
+| Tool | Version | Required by |
+|------|---------|-------------|
+| [OpenCode](https://opencode.ai) | >= 1.0 | The agent runtime itself |
+| [Node.js](https://nodejs.org) | >= 18 | GSD commands runtime |
+| [Python](https://python.org) | >= 3.10 | Graphify (optional but recommended) |
 
 ---
 
@@ -184,19 +187,22 @@ Cortex is designed to be cloned and adapted. To start any new project:
 ```bash
 git clone https://github.com/Stefan-migo/Cortex.git my-project
 cd my-project && rm -rf .git && git init
+./scripts/install-deps.sh
+opencode
 ```
 
-Then inside OpenCode:
+Then inside OpenCode, run:
 ```
-I just started a new project. It's a {type} with {stack}. Adapt this system.
+/new-project
 ```
 
-The agent will:
-1. Ask about your project name, description, stack, and design preferences
-2. Update `AGENTS.md` with your project context
-3. Configure `DESIGN.md` with your brand identity
-4. Populate `.planning/` with your project goals
-5. If there's existing code, suggest `/graphify .` for codebase understanding
+The agent runs a 5-phase bootstrap:
+
+1. **Discover** — Asks one question at a time: name, description, tech stack, domain, references, goals, scope
+2. **Research** — Spawns `@researcher` to investigate best practices, industry patterns, competitor landscape, and analyzes any reference URLs you provided
+3. **Synthesize** — Combines your answers + research into a structured proposal with stack recommendations, architecture, risks, and phase plan
+4. **Generate** — After you approve, creates PROJECT.md, ROADMAP.md, STATE.md, updates AGENTS.md and DESIGN.md
+5. **Launch** — Shows next steps: `/gsd-discuss-phase 1` to start building
 
 ---
 
@@ -250,6 +256,8 @@ root/
 │   ├── tools/                      # 3 custom TypeScript tools
 │   └── plugins/                    # Graphify hook plugin
 ├── scripts/                        # CLI setup & utility scripts
+│   ├── install-deps.sh             # One-time per machine: Graphify, Planning w/ Files, tools
+│   └── setup.sh                    # Project boilerplate (optional)
 ├── .planning/                      # Planning artifacts (shared with GSD)
 │   ├── PROJECT.md                  # Project vision & goals
 │   ├── ROADMAP.md                  # Phase roadmap with status

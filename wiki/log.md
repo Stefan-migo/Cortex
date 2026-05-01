@@ -28,3 +28,6 @@ Created comprehensive README.md for the Cortex repository. Includes quick start,
 
 ## [2026-05-01] feature | Intelligent Bootstrap
 Rewrote bootstrap skill as 5-phase workflow: Discover → Research → Synthesize → Generate → Launch. Created /new-project command. Bootstrap now asks structured questions, spawns @researcher for internet research on tech stack/industry/competitors, analyzes reference URLs, and proposes a tailored project plan before generating files.
+ 
+## [2026-05-01] ops | Install script + README clarity
+Created scripts/install-deps.sh — one-command setup for Graphify, Planning with Files global install, and tool dependencies. Updated README with clear "already in repo vs needs install" table so users know exactly what to expect after cloning.
