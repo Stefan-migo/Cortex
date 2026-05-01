@@ -163,6 +163,33 @@
       "type": "local",
       "command": ["python3", "-m", "graphify.serve", "wiki/graph/graph.json"],
       "enabled": true
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": false,
+      "_note": "Free docs search. Enable to let agents search official docs for any library."
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "enabled": false,
+      "_note": "Structured reasoning for complex problems. Enable for better architecture and debugging."
+    },
+    "github": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "enabled": false,
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_TOKEN}"
+      },
+      "_note": "GitHub PR and issue management. Set GITHUB_TOKEN env var first."
+    },
+    "memory": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
+      "enabled": false,
+      "_note": "Official MCP memory server. Uses knowledge graph for persistent memory. Redundant with wiki/ but useful as backup."
     }
   },
   "permission": {

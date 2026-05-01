@@ -31,3 +31,6 @@ Rewrote bootstrap skill as 5-phase workflow: Discover → Research → Synthesiz
  
 ## [2026-05-01] ops | Install script + README clarity
 Created scripts/install-deps.sh — one-command setup for Graphify, Planning with Files global install, and tool dependencies. Updated README with clear "already in repo vs needs install" table so users know exactly what to expect after cloning.
+
+## [2026-05-01] research | Competitive Analysis + MCP Expansion
+Conducted deep research on coding agent landscape. Created docs/COMPETITIVE-ANALYSIS.md comparing Cortex vs Claude Code, GSD, ECC, Aider. Identified key gaps: MCP servers (nearly absent). Added 4 pre-configured MCP servers (context7, github, sequential-thinking, memory). Created .opencode/mcp-template.json with 9 server templates. Added MCP section to SYSTEM-MAP.md.

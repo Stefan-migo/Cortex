@@ -337,6 +337,34 @@ Edit `.opencode/agents/researcher.md` to change research depth or output format.
 
 ---
 
+## 10. EXTERNAL TOOLS (MCP Servers)
+
+**What they are:** MCP (Model Context Protocol) servers that give the agent access to external services.
+
+**Config:** `opencode.json` under `mcp`. Template: `.opencode/mcp-template.json`.
+
+### Recommended MCP Servers
+
+| Server | What it does | How to enable |
+|--------|-------------|---------------|
+| **context7** | Search docs for 30+ libraries | Set `enabled: true` in opencode.json |
+| **github** | PR creation, issue management | Set `enabled: true` + `GITHUB_TOKEN` env var |
+| **sequential-thinking** | Structured reasoning | Set `enabled: true` in opencode.json |
+| **sentry** | Error monitoring | Set `enabled: true` + OAuth |
+| **postgres** | Database schema inspection | Set `enabled: true` + `DATABASE_URL` env var |
+| **puppeteer** | Browser automation | Set `enabled: true` in opencode.json |
+
+### How to add a new MCP server:
+
+1. Copy the config from `.opencode/mcp-template.json`
+2. Paste it into `opencode.json` under `mcp`
+3. Set `enabled: true`
+4. If it needs auth, set the env var in `environment`
+
+When to use MCP servers: Enable them per-project based on what external services you need.
+
+---
+
 ## Quick Reference Card
 
 ```
@@ -371,5 +399,8 @@ Edit `.opencode/agents/researcher.md` to change research depth or output format.
 ├────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
 │ RESEARCHER     │ @researcher          │ Before decisions     │ Edit agent .md file  │
 │                │ <question>           │                      │                      │
+├────────────────┼──────────────────────┼──────────────────────┼──────────────────────┤
+│ MCP SERVERS    │ Enable in            │ When you need        │ Update env vars      │
+│                │ opencode.json        │ external services    │ when tokens expire   │
 └────────────────┴──────────────────────┴──────────────────────┴──────────────────────┘
 ```
