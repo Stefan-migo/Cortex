@@ -75,13 +75,13 @@ This system is self-aware. You have access to specific tools and should use them
 | Tool | Type | How to invoke | Use for |
 |------|------|---------------|---------|
 | GSD planner | 65 commands | `/gsd-*` | Feature development, planning, execution |
+| Project bootstrap | Command + Skill | `/new-project` or `skill({name:"bootstrap"})` | Initialize template for a new project (asks questions, researches, proposes plan) |
 | Planning discipline | Skill + hooks | `skill({name:"planning-with-files"})` | Context discipline: re-read plan, save findings, log errors |
 | Knowledge base | wiki/ + agents | `@ingest-agent`, `@lint-agent`, `@researcher` | Ingesting, querying, maintaining wiki |
 | Code mapper | Slash command | `/graphify .` | Understanding codebase structure |
 | Design system | File + skill | `skill({name:"design-system"})` + DESIGN.md | UI generation |
 | Code quality | 3 agents | `@reviewer`, `@debugger`, `@sec-auditor` | Review, debug, security audit |
 | Memory | Files + skill | `skill({name:"session-memory"})` | Cross-session persistence |
-| Project bootstrap | Skill | `skill({name:"bootstrap"})` | Initialize template for a new project |
 | Planning knowledge | Skill | `skill({name:"planning"})` | Structured planning guidance |
 | Wiki operations | 3 skills | `skill({name:"wiki-*"})` | Ingest, query, lint procedures |
 

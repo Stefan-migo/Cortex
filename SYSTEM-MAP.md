@@ -6,6 +6,18 @@ How every component of the Cortex multi-agent system works, when to use it, and 
 
 ## How to Start a New Project from Cortex
 
+```
+/new-project
+```
+
+The agent will run a structured 5-phase bootstrap:
+
+1. **Discover** — Asks one question at a time about identity, tech, domain, references, and goals
+2. **Research** — Spawns @researcher to investigate tech stack best practices, industry patterns, competitor landscape, and reference materials
+3. **Synthesize** — Combines research + your answers into a structured proposal with recommendations, risks, and phase plan
+4. **Generate** — Creates PROJECT.md, ROADMAP.md, STATE.md, updates AGENTS.md and DESIGN.md
+5. **Launch** — Presents summary and next steps
+
 **Step 1:** Clone the Cortex repo into your new project directory
 ```bash
 git clone <cortex-repo> my-new-project

@@ -25,3 +25,6 @@ Added bootstrap skill (.opencode/skills/bootstrap/SKILL.md) for self-adaptation.
 
 ## [2026-05-01] docs | README.md
 Created comprehensive README.md for the Cortex repository. Includes quick start, architecture diagram, capability matrix, component deep-dive, bootstrap workflow, daily workflow, and community documentation.
+
+## [2026-05-01] feature | Intelligent Bootstrap
+Rewrote bootstrap skill as 5-phase workflow: Discover → Research → Synthesize → Generate → Launch. Created /new-project command. Bootstrap now asks structured questions, spawns @researcher for internet research on tech stack/industry/competitors, analyzes reference URLs, and proposes a tailored project plan before generating files.
