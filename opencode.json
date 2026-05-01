@@ -1,0 +1,173 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    "DESIGN.md",
+    "schema/wiki-schema.md",
+    "schema/agent-behavior.md",
+    "schema/editor-policy.md",
+    ".planning/STATE.md",
+    ".planning/ROADMAP.md"
+  ],
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "temperature": 0.3,
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "todowrite": "allow",
+        "skill": "allow",
+        "task": { "*": "allow" }
+      }
+    },
+    "plan": {
+      "mode": "primary",
+      "model": "anthropic/claude-haiku-4-20250514",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "ask",
+          "git status": "allow",
+          "git diff": "allow",
+          "git log*": "allow",
+          "ls *": "allow",
+          "cat *": "allow"
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "allow",
+        "skill": "allow",
+        "task": { "*": "allow" }
+      }
+    },
+    "researcher": {
+      "description": "Deep research on technical topics. Uses web search, reads docs, analyzes approaches. Cannot modify files.",
+      "mode": "subagent",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "allow",
+        "websearch": "allow"
+      }
+    },
+    "architect": {
+      "description": "System design and architecture analysis. Evaluates trade-offs, produces ADRs and design documents.",
+      "mode": "subagent",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "allow"
+      }
+    },
+    "reviewer": {
+      "description": "Code review and quality assurance. Checks for bugs, security issues, performance problems, and style violations.",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "ask",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "git status": "allow"
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    },
+    "implementer": {
+      "description": "Focused implementation from structured plans. Executes task plans with fresh context, creates atomic commits.",
+      "mode": "subagent",
+      "temperature": 0.3,
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "todowrite": "allow"
+      }
+    },
+    "debugger": {
+      "description": "Bug investigation and root cause analysis. Runs tests, inspects logs, traces execution paths.",
+      "mode": "subagent",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    },
+    "sec-auditor": {
+      "description": "Security auditing. Identifies vulnerabilities, injection risks, auth flaws, and dependency issues.",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "ask",
+          "npm audit": "allow",
+          "pip audit": "allow",
+          "cargo audit": "allow"
+        },
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    },
+    "ingest-agent": {
+      "description": "Wiki ingestion pipeline. Reads source documents, extracts key info, writes wiki pages, updates cross-references and index.",
+      "mode": "subagent",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "allow",
+        "bash": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    },
+    "lint-agent": {
+      "description": "Wiki health checks. Finds contradictions, orphan pages, missing cross-refs, stale claims, and suggests improvements.",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow"
+      }
+    }
+  },
+  "mcp": {
+    "graphify": {
+      "type": "local",
+      "command": ["python3", "-m", "graphify.serve", "wiki/graph/graph.json"],
+      "enabled": true
+    }
+  },
+  "permission": {
+    "skill": {
+      "*": "allow"
+    }
+  }
+}

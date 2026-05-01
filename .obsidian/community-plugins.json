@@ -1,0 +1,8 @@
+{
+  "pluginEnabledStatuses": {
+    "obsidian-git": true,
+    "dataview": true,
+    "obsidian-graphviz": true
+  },
+  "alwaysUpdateLinks": true
+}

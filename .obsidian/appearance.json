@@ -1,0 +1,16 @@
+{
+  "alwaysNewTabForNewPane": true,
+  "attachmentFolderPath": "raw/assets",
+  "communityPluginSortOrder": "download",
+  "communityThemeSortOrder": "download",
+  "foldIndent": true,
+  "foldHeading": true,
+  "lineWrap": true,
+  "readableLineLength": true,
+  "showFrontmatter": true,
+  "showIndentGuide": true,
+  "showLineNumber": false,
+  "smartIndentList": true,
+  "tabSize": 2,
+  "useTab": false
+}

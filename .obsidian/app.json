@@ -1,0 +1,19 @@
+{
+  "promptDelete": false,
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "current",
+  "newLinkFormat": "shortest",
+  "useMarkdownLinks": false,
+  "attachmentFolderPath": "raw/assets",
+  "showUnsupportedFiles": true,
+  "userIgnoreFilters": [
+    ".opencode/",
+    ".planning/",
+    "node_modules/"
+  ],
+  "livePreview": true,
+  "defaultViewMode": "source",
+  "showInlineTitle": false,
+  "strictLineBreaks": false,
+  "propertiesInDocument": "visible"
+}

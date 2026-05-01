@@ -1,0 +1,14 @@
+{
+  "newNodeDirection": "right",
+  "newNodeLevelDistance": 200,
+  "newNodePosition": "auto",
+  "zoomOnDoubleClick": true,
+  "collapseFilter": false,
+  "searchFilter": "",
+  "depthFilter": 0,
+  "maxDepthFilter": 0,
+  "showAttachments": true,
+  "showOrphans": true,
+  "showArrow": true,
+  "showTag": true
+}

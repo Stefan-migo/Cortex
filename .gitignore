@@ -1,0 +1,27 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+.DS_Store
+Thumbs.db
+
+# Graphify cache
+graphify-out/
+wiki/graph/cache/
+
+# OpenCode
+.opencode/tools/node_modules/
+
+# Obsidian workspace
+.obsidian/workspace.json
+.obsidian/workspace
+
+# OS
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
