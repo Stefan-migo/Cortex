@@ -17,12 +17,20 @@ wiki/graph/cache/
 # Engram local database
 .engram/
 
+# Engram wiki — ephemeral session exports
+wiki/engram/_sessions/
+wiki/engram/_topics/
+
 # Obsidian workspace
 .obsidian/workspace.json
 .obsidian/workspace
 
 # Spec-Kit integration manifests (generated, per-machine)
 .specify/integrations/
+
+# Test / sandbox artifacts
+my-full-e2e-test/
+no-git-project/
 
 # OS
 __pycache__/
