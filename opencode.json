@@ -66,11 +66,11 @@
     "github": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
-      "enabled": false,
+      "enabled": true,
       "environment": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_TOKEN}"
       },
-      "_note": "GitHub PR, issue, and code management. Set GITHUB_TOKEN env var."
+      "_note": "GitHub PR, issue, and code management. Set GITHUB_TOKEN in .env.local and source it before launching OpenCode."
     }
   },
   "permission": {
