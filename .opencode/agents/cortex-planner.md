@@ -26,12 +26,13 @@ Own the persistent memory layer via Engram:
 
 | Action | Tool | When |
 |--------|------|------|
-| Save context | `mem_session_start` | Session start |
 | Save observations | `mem_save` | After discoveries, decisions |
 | Query memory | `mem_search` | When recalling past context |
 | Resolve conflicts | `mem_judge` | When mem_save returns candidates |
-| Summarize session | `mem_session_summary` | Session end |
-| End session | `mem_session_end` | Before closing |
+| Summarize session | `mem_session_summary` | Session end (manual only) |
+| End session | `mem_session_end` | Before closing (manual only) |
+
+NOTE: When using `cortex start`, session lifecycle is handled by the CLI. These commands are only needed when working without the CLI.
 
 ### 3. Research & Investigation
 Before making architecture decisions or planning complex features:
@@ -55,10 +56,10 @@ This syncs Engram observations to `wiki/` as Obsidian-readable markdown.
 - SKILL: ALLOW (load design-system, graphify skills)
 
 ## Session Flow
-1. **START**: `mem_session_start` to register session
+1. **START**: Verify session is active (`cortex start` handles this)
 2. **CONTEXT**: `mem_context` to restore recent activity
 3. **WORK**: Plan → Hand off to Developer → Review results
-4. **END**: `mem_session_summary` + `mem_session_end` + `scripts/engram-export-wiki.sh`
+4. **END**: If using CLI: `cortex close` handles this. Otherwise: `mem_session_summary` + `mem_session_end` + `scripts/engram-export-wiki.sh`
 
 ## Knowledge Capture Rules
 - Every decision gets a `mem_save` (type: decision)

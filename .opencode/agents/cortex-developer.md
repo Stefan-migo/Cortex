@@ -49,9 +49,10 @@ Step 4: SPEC COMPLIANCE
   → After all tasks: run /speckit.analyze
   → Verify spec coverage against what was implemented
 
-Step 5: MEMORY CAPTURE
-  → Save key learnings via mem_save
-  → Type: bugfix | pattern | architecture | discovery | learning
+Step 5: SESSION FINALIZATION
+  → Save key learnings via mem_save (type: bugfix | pattern | architecture | discovery | learning)
+  → bash("cortex close --message "<brief summary of what was accomplished>"")
+  → This finalizes the session in Engram and exports to wiki
 ```
 
 ### 4. Code Sandbox
@@ -81,4 +82,4 @@ For multi-step logic validation, use the `execute_script` tool:
 2. Run parietal check (graphify)
 3. Execute tasks per the 5-step gate
 4. Report results back to Planner
-5. Save observations to Engram: `mem_save`
+5. Finalize: `mem_save` + `cortex close --message "<summary>"`

@@ -61,16 +61,15 @@ Switch with Tab: Planner (read-only) / Developer (full tools).
 
 ## Session Flow
 
-### Start
-1. `@Cortex-Planner` runs `mem_session_start`
-2. `@Cortex-Planner` runs `mem_context` to restore recent activity
-3. Load relevant skill: `skill({name:"graphify"})` if code work needed
+### Start (CLI handles this)
+1. `cortex start` → creates session, pre-loads context from Engram + Graphify, launches OpenCode
+2. Agent detects `.cortex/prelude.md` and uses it as working context
 
 ### Work
 1. Planner discusses with user, drafts spec via `/speckit.specify`
 2. Planner hands spec to Developer via `@Cortex-Developer`
 3. Developer runs graphify check before editing code
-4. Developer executes 5-Step Gate per task
+4. Developer executes modified 5-Step Gate per task
 
 ### 5-Step Execution Gate (MANDATORY)
 ```
@@ -78,14 +77,13 @@ Step 1: GRAPH CHECK — query_graph before editing
 Step 2: ATOMIC COMMIT — one concern per commit, ≤5 files
 Step 3: VERIFY — lint + typecheck + tests (block on failure)
 Step 4: SPEC CHECK — /speckit.analyze after completion
-Step 5: MEMORY — mem_save key learnings
+Step 5: FINALIZE — mem_save + cortex close --message "<summary>"
 ```
 
-### End
-1. `@Cortex-Developer` saves observations via `mem_save`
-2. `@Cortex-Planner` runs `mem_session_summary`
-3. `@Cortex-Planner` runs `mem_session_end`
-4. Run `scripts/engram-export-wiki.sh` to sync to Obsidian vault
+### End (Agent handles finalization)
+1. `@Cortex-Developer` calls mem_save for all discoveries
+2. `@Cortex-Developer` runs: bash("cortex close --message "<summary>"")
+   → This calls mem_session_summary + wiki export + cleanup
 
 ## Active MCP Servers
 | Server | Purpose | Status |
