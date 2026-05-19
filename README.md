@@ -25,10 +25,43 @@ Built on [github/spec-kit](https://github.com/github/spec-kit) (93k★), [Gentle
 ```bash
 git clone https://github.com/Stefan-migo/Cortex.git
 cd Cortex
-./scripts/setup.sh                  # Install deps: Engram + Spec-Kit + Graphify
-opencode                            # Launch agent
+./scripts/install-deps.sh             # Install Engram + Spec-Kit + Graphify
+# ⚠ Post-clone: review "First-Time Setup" below
+opencode                              # Launch agent
 # Switch between @Cortex-Planner (Tab) and @Cortex-Developer (Tab)
 ```
+
+### First-Time Setup (Post-Clone)
+
+After cloning, you must fix 3 things before Cortex works correctly:
+
+#### 1. Merge OpenCode config (⚠ Required)
+The config is split between two files. OpenCode prioritizes `.opencode/opencode.json`,
+but the canonical config lives in root `opencode.json`. After cloning:
+```bash
+# Copy the full config into the correct location
+cp opencode.json .opencode/opencode.json
+# Then reduce root to a delegator (see .opencode/opencode.json for actual config)
+```
+This merges agents, MCP servers, and permissions into the file OpenCode actually reads.
+
+#### 2. Install Spec-Kit (`speckit`)
+The Spec-Kit commands (`/speckit.specify`, `/speckit.plan`, etc.) require the `speckit`
+GitHub CLI extension. If `install-deps.sh` didn't do it:
+```bash
+gh extension install github/spec-kit
+```
+Verify: `speckit --version`
+
+#### 3. Add `mode: primary` to agent files
+The agent markdown files in `.opencode/agents/` need `mode: primary` in their frontmatter
+to be recognized as Tab-switchable primary agents. If `install-deps.sh` didn't do it:
+```bash
+# Add to each agent .md file after the description line:
+#   description: "..."
+#   mode: primary
+```
+Without this, agents may not appear in the Tab cycle.
 
 ### What's In the Repo vs What Needs Installing
 
@@ -41,6 +74,9 @@ opencode                            # Launch agent
 | 8 skills + Planning with Files skill | Node.js >= 18 (prerequisite) |
 | Graphify skill + plugin | Python >= 3.10 (prerequisite) |
 | 3 custom TypeScript tools | |
+| | Spec-Kit (`gh extension install github/spec-kit`) |
+| | Post-clone config merge (see First-Time Setup) |
+| | Agent frontmatter fix (see First-Time Setup) |
 | DESIGN.md, SYSTEM-MAP.md, USER-GUIDE.md | |
 | Obsidian vault config | |
 

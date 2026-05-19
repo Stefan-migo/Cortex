@@ -44,3 +44,6 @@ Session memory synced at 2026-05-08 01:38:11
 
 ## [2026-05-08] export | Engram snapshot exported to wiki/engram/
 Session memory synced at 2026-05-08 15:01:59
+
+## [2026-05-18] cleanup | Wiki isolated to CortexPlugin only
+Archived all non-CortexPlugin project data from wiki/engram/ (mariachiunion, p2p, p2p-cortex, test-cortex, verify2, unknown — 59 files total). Kept only cortexplugin/ and cortex-plugin/ (name variant, same project). Remaining: 28 observation files + 4 session hubs. Archived data available at wiki/engram-archive/.

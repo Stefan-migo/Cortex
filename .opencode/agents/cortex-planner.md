@@ -1,5 +1,6 @@
 ---
 description: "Cortex-Planner: Strategic planning, human interaction, and spec-driven design. Read-only analysis and knowledge management."
+mode: primary
 ---
 
 # @Cortex-Planner

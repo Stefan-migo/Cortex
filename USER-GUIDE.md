@@ -8,15 +8,20 @@ Your guide to using the Cortex 2.5 tool-driven executive reasoning system with O
 
 ```bash
 cd CortexPlugin
-opencode
+./scripts/install-deps.sh             # First time after clone
+opencode                              # Launch agents
 ```
 
-The system loads automatically. Two agents are available, switch with Tab:
+Two agents are available, switch with Tab:
 
 | Agent | Tab | Use for |
 |-------|-----|---------|
 | `@Cortex-Planner` | Planner | Planning, research, specs, memory |
 | `@Cortex-Developer` | Developer | Building, coding, testing, quality |
+
+> ⚠ **First time after clone?** Run `./scripts/install-deps.sh` first,
+> then manually merge configs (`cp opencode.json .opencode/opencode.json`)
+> and verify agents have `mode: primary` in their `.md` frontmatter.
 
 ---
 
@@ -119,7 +124,9 @@ The `wiki/` directory is an Obsidian vault. At session end, `scripts/engram-expo
 | Problem | Fix |
 |---------|-----|
 | Agent doesn't load context | Run `mem_context` manually |
-| Spec-Kit command not found | Run `specify check` |
+| `/speckit.*` commands not found | Install Spec-Kit: `gh extension install github/spec-kit` |
+| Agents not showing in Tab cycle | Add `mode: primary` to `.opencode/agents/*.md` frontmatter |
 | Engram MCP not connecting | Run `engram mcp --tools=all` to test |
+| Config not loading correctly | Merge root `opencode.json` into `.opencode/opencode.json` |
 | Graphify graph is stale | Run `/graphify . --update` |
 | Pre-commit hook too strict | Edit threshold in `.git/hooks/pre-commit` |

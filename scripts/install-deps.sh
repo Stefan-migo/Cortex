@@ -94,6 +94,40 @@ if [ -d .opencode/tools ]; then
   fi
 fi
 
+# ── 5. Spec-Kit (GitHub CLI extension) ─────────────────────────
+echo ""
+echo "--- Spec-Kit ---"
+if command -v speckit &>/dev/null; then
+  echo "  ✓ speckit already installed ($(speckit --version 2>&1 || echo 'OK'))"
+else
+  if command -v gh &>/dev/null; then
+    echo "  Installing speckit (gh extension)..."
+    gh extension install github/spec-kit 2>&1 | tail -1
+    if command -v speckit &>/dev/null; then
+      echo "  ✓ speckit installed"
+    else
+      echo "  ⚠ Could not install speckit. Try manually: gh extension install github/spec-kit"
+    fi
+  else
+    echo "  ⚠ GitHub CLI (gh) not found. Spec-Kit needs gh >= 2.0."
+    echo "    Install: https://cli.github.com"
+    echo "    Then: gh extension install github/spec-kit"
+  fi
+fi
+
+# ── 6. Agent frontmatter — ensure mode: primary ────────────────
+echo ""
+echo "--- Agent Frontmatter ---"
+for f in .opencode/agents/*.md; do
+  basename=$(basename "$f")
+  if grep -q "^mode:" "$f" 2>/dev/null; then
+    echo "  ✓ $basename — mode already set"
+  else
+    sed -i '/^description:/a mode: primary' "$f"
+    echo "  + $basename — added mode: primary"
+  fi
+done
+
 # ── Summary ──────────────────────────────────────────────────────
 echo ""
 echo "╔══════════════════════════════════════════════════════════╗"
@@ -111,6 +145,12 @@ echo "║  Installed now:                                          ║"
 if [ -f ~/.gsd/defaults.json ]; then echo "║    • GSD global config"; fi
 if python3 -c "import graphify" 2>/dev/null; then echo "║    • Graphify Python package"; fi
 if [ -f ~/.agents/skills/planning-with-files/SKILL.md ]; then echo "║    • Planning with Files (global)"; fi
+echo "║                                                          ║"
+if command -v speckit &>/dev/null; then echo "║    • Spec-Kit (speckit)"; fi
+echo "║                                                          ║"
+echo "║  Post-clone manual steps:                                ║"
+echo "║    1. ./scripts/install-deps.sh (done)                   ║"
+echo "║    2. Merge configs: see README.md section               ║"
 echo "║                                                          ║"
 echo "║  Next step: opencode                                    ║"
 echo "║  Then: /new-project                                    ║"

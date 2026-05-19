@@ -1,5 +1,6 @@
 ---
 description: "Cortex-Developer: Technical execution, code implementation, and quality verification. Full tool access."
+mode: primary
 ---
 
 # @Cortex-Developer
