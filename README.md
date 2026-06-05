@@ -235,6 +235,30 @@ root/
 
 ---
 
+## Dual Runtime
+
+cortex funciona con dos runtimes de agente:
+
+### OpenCode (default)
+Runtime principal para desarrollo diario. Usa la configuración en `.opencode/`.
+
+### OpenHarness (alternativo)
+Runtime standalone para producción o cuando no quieres depender de OpenCode.
+```bash
+pip install openharness-ai
+oh --config openharness/config.yml
+```
+Usa la configuración en `openharness/`.
+
+Ambos runtimes comparten:
+- **Engram** — memoria persistente (MCP)
+- **Graphify** — knowledge graph (MCP)
+- **Spec-Kit** — SDD workflow (`.specify/`)
+- **Wiki** — export a Obsidian (`wiki/`)
+- **Lobe Architecture** — planner/developer split
+
+---
+
 ## License
 
 MIT License — feel free to use, modify, and distribute.
