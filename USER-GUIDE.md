@@ -7,7 +7,7 @@ Your guide to using the Cortex 2.5 tool-driven executive reasoning system with O
 ## Quick Start
 
 ```bash
-cd CortexPlugin
+cd cortex
 ./scripts/install-deps.sh             # First time after clone
 opencode                              # Launch agents
 ```

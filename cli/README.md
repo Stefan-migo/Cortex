@@ -11,8 +11,8 @@ npm install -g cortex-brain
 Or run from source:
 
 ```bash
-git clone https://github.com/Stefan-migo/CortexPlugin
-cd CortexPlugin/cli
+git clone https://github.com/Stefan-migo/Cortex
+cd cortex/cli
 npm install
 npm run build
 ```
