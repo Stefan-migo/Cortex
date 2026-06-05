@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# cortex pre-commit hook — Atomicity Gate + GGA Guardian
+set -euo pipefail
+
+# === Step 1: Atomicity Gate (≤5 files) ===
+CHANGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | wc -l)
+if [ "$CHANGED_FILES" -gt 5 ]; then
+  echo "❌ Atomicity Gate: $CHANGED_FILES files staged (max 5)"
+  echo "   Split your changes into multiple commits (one concern each)"
+  exit 1
+fi
+
+# === Step 2: File type diversity warning ===
+FILE_TYPES=$(git diff --cached --name-only --diff-filter=ACMR | awk -F. '{if(NF>1) print $NF}' | sort -u | wc -l)
+if [ "$FILE_TYPES" -gt 3 ]; then
+  echo "⚠️  Warning: $FILE_TYPES different file types in this commit"
+  echo "   Consider splitting into focused commits"
+fi
+
+# === Step 3: GGA Guardian (optional, non-blocking in normal mode) ===
+if [ -f ".git/hooks/gga-pre-commit.sh" ]; then
+  .git/hooks/gga-pre-commit.sh --normal || echo "   ⚠️  GGA found issues (non-blocking)"
+elif [ -f "$(git rev-parse --show-toplevel)/scripts/gga-pre-commit.sh" ]; then
+  "$(git rev-parse --show-toplevel)/scripts/gga-pre-commit.sh" --normal || echo "   ⚠️  GGA found issues (non-blocking)"
+fi
