@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "engram": {
+      "command": "engram",
+      "args": ["mcp"],
+      "description": "Persistent memory (SQLite + FTS5)"
+    },
+    "graphify": {
+      "command": "graphify",
+      "args": ["mcp"],
+      "description": "Codebase knowledge graph"
+    }
+  }
+}
