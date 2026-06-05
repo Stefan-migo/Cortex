@@ -67,6 +67,11 @@ How every component of the Cortex 2.5 executive system works, when to use it, an
 
 **When to use:** Every feature, every task. Always spec first, then build.
 
+| SDD Skill | `.opencode/skills/sdd/SKILL.md` | 8-phase Spec-Driven Development cycle |
+| GGA Guardian | `scripts/gga-pre-commit.sh` | Pre-commit code review hook |
+| Backup | `scripts/backup.sh` | Configuration snapshot before major changes |
+| Rollback | `scripts/rollback.sh` | Restore from backup snapshot |
+
 ---
 
 ## 2. PARIETAL LOBE — Graphify (Code Understanding)
@@ -85,6 +90,9 @@ How every component of the Cortex 2.5 executive system works, when to use it, an
 **Output:** `wiki/graph/` — graph.html, GRAPH_REPORT.md, graph.json
 
 **Mandatory use:** BEFORE every code edit session, run query_graph to understand what you're touching.
+
+- **openharness/** — OpenHarness runtime config, skills, and plugins. Alternate to OpenCode for standalone agent operation.
+- **.githooks/** — Git hooks shared via `core.hooksPath`. Includes Atomicity Gate (≤5 files) and GGA Guardian Agent.
 
 ---
 

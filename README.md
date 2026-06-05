@@ -259,6 +259,26 @@ Ambos runtimes comparten:
 
 ---
 
+### New Components (v3.0)
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| SDD Skill | `.opencode/skills/sdd/` | 8-phase Spec-Driven Development |
+| GGA Guardian | `.githooks/pre-commit` + `scripts/gga-pre-commit.sh` | Pre-commit code review |
+| Backup | `scripts/backup.sh` | Config snapshot before changes |
+| Rollback | `scripts/rollback.sh` | Restore config from snapshot |
+| OpenHarness | `openharness/` | Alternative agent runtime |
+
+### SDD Workflow
+
+The 8-phase Spec-Driven Development cycle:
+```
+Explore → Propose → Spec → Design → Tasks → Apply → Verify → Archive
+```
+Start a new feature: `./scripts/sdd-init.sh <feature-name>`
+
+---
+
 ## License
 
 MIT License — feel free to use, modify, and distribute.

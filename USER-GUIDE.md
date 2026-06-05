@@ -4,6 +4,15 @@ Your guide to using the Cortex 2.5 tool-driven executive reasoning system with O
 
 ---
 
+## New in v3.0
+
+- **Dual Runtime**: Now supports OpenCode (default) AND OpenHarness (alternative). Same lobe architecture, two runtimes.
+- **SDD Skill**: 8-phase Spec-Driven Development cycle. Load with `/skill sdd` in OpenCode.
+- **GGA Guardian**: Pre-commit code review. Auto-installed via `.githooks/`. Blocks debug statements, enforces atomic commits.
+- **Backup/Rollback**: Snapshot and restore configuration before major changes (`scripts/backup.sh` / `scripts/rollback.sh`).
+
+---
+
 ## Quick Start
 
 ```bash
