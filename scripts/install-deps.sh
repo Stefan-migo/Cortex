@@ -128,6 +128,20 @@ for f in .opencode/agents/*.md; do
   fi
 done
 
+# ── 7. OpenHarness (optional) ───────────────────────────────────
+echo ""
+echo "--- OpenHarness ---"
+if command -v oh &>/dev/null; then
+  echo "  ✓ openharness already installed"
+else
+  if command -v pip3 &>/dev/null; then
+    echo "  Installing openharness..."
+    pip3 install openharness-ai 2>/dev/null && echo "  ✓ openharness installed" || echo "  ⚠ openharness install failed (optional)"
+  else
+    echo "  ⚠ pip3 not found. Install Python 3.10+ and pip, then: pip install openharness-ai"
+  fi
+fi
+
 # ── Summary ──────────────────────────────────────────────────────
 echo ""
 echo "╔══════════════════════════════════════════════════════════╗"
