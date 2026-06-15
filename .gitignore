@@ -1,41 +1,23 @@
-node_modules/
-dist/
-build/
-.env
+# Cortex gentle-ai plugin
+
+# Old systems (not part of the plugin)
+/openharness/
+/.openharness/
+/SYSTEM-MAP.md
+/USER-GUIDE.md
+
+# Generated/transient
+/graphify-out/
+/wiki/
+/raw/
+/.specify/
+/.atl/
+
+# Secrets
 .env.local
-*.log
+
+# OS files
 .DS_Store
 Thumbs.db
-
-# Graphify cache
-graphify-out/
-wiki/graph/cache/
-
-# OpenCode
-.opencode/tools/node_modules/
-
-# Engram local database
-.engram/
-
-# Engram wiki — ephemeral session exports
-wiki/engram/_sessions/
-wiki/engram/_topics/
-
-# Obsidian workspace
-.obsidian/workspace.json
-.obsidian/workspace
-
-# Spec-Kit integration manifests (generated, per-machine)
-.specify/integrations/
-
-# Test / sandbox artifacts
-my-full-e2e-test/
-no-git-project/
-
-# OS
-__pycache__/
-*.pyc
-*.pyo
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
+*.swp
+*.swo
