@@ -2,8 +2,36 @@
 set -euo pipefail
 
 CORTEX_PACK_DIR="${CORTEX_PACK_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
-PROJECT_DIR="${1:-.}"
+
+# Parse flags
+INSTALL_GLOBAL=false
+POSITIONAL_ARGS=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --install-global)
+      INSTALL_GLOBAL=true
+      shift
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1")
+      shift
+      ;;
+  esac
+done
+
+PROJECT_DIR="${POSITIONAL_ARGS[0]:-.}"
 PROJECT_DIR="$(cd "$PROJECT_DIR" && pwd)"
+
+# ─── 0. Global install (--install-global flag) ──────────────────────────────
+if [ "$INSTALL_GLOBAL" = true ]; then
+  GLOBAL_CMD_DIR="${HOME}/.config/opencode/commands"
+  mkdir -p "$GLOBAL_CMD_DIR"
+  if [ -f "$CORTEX_PACK_DIR/commands/cortex-init.md" ]; then
+    cp "$CORTEX_PACK_DIR/commands/cortex-init.md" "$GLOBAL_CMD_DIR/cortex-init.md"
+    echo "✅ /cortex-init command instalado globalmente en $GLOBAL_CMD_DIR"
+    echo ""
+  fi
+fi
 
 echo "🧠 Inicializando Cortex en $(basename "$PROJECT_DIR")"
 echo ""
