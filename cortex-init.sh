@@ -10,15 +10,15 @@ echo ""
 
 # ─── 1. Check prerequisites ────────────────────────────────────────────────
 echo "🔍 Verificando prerequisites..."
-
+MISSING=""
 if ! command -v opencode &>/dev/null; then
-  echo "  ⚠️  opencode no encontrado. Instalálo primero."
+  echo "  ⚠️  opencode no encontrado."
+  MISSING=1
 fi
-
 if ! command -v engram &>/dev/null; then
   echo "  ⚠️  engram no encontrado. Corré: gentle-ai install --agent opencode"
+  MISSING=1
 fi
-
 echo ""
 
 # ─── 2. Link skills to project ─────────────────────────────────────────────
@@ -26,34 +26,27 @@ echo "📂 Instalando skills Cortex..."
 
 mkdir -p "$PROJECT_DIR/.opencode/skills"
 
-# Cortex persona skill
-if [ -d "$CORTEX_PACK_DIR/skills/cortex-persona" ]; then
-  TARGET="$PROJECT_DIR/.opencode/skills/cortex-persona"
-  if [ ! -L "$TARGET" ] && [ ! -d "$TARGET" ]; then
-    ln -sf "$CORTEX_PACK_DIR/skills/cortex-persona" "$TARGET"
-    echo "  ✅ cortex-persona skill instalado"
-  else
-    echo "  ✅ cortex-persona skill ya existe"
-  fi
-fi
-
-# Ponytail extra skills
-for skill in ponytail-review ponytail-audit ponytail-debt ponytail-help; do
-  TARGET="$PROJECT_DIR/.opencode/skills/$skill"
-  SRC="$CORTEX_PACK_DIR/skills/$skill"
-  if [ -d "$SRC" ]; then
-    if [ ! -L "$TARGET" ] && [ ! -d "$TARGET" ]; then
-      ln -sf "$SRC" "$TARGET"
-      echo "  ✅ $skill skill instalado"
+link_skill() {
+  local name="$1"
+  local src="$CORTEX_PACK_DIR/skills/$name"
+  local target="$PROJECT_DIR/.opencode/skills/$name"
+  if [ -d "$src" ]; then
+    if [ ! -L "$target" ] && [ ! -d "$target" ]; then
+      ln -sf "$src" "$target" && echo "  ✅ $name skill instalado"
     else
-      echo "  ✅ $skill skill ya existe"
+      echo "  ✅ $name skill ya existe"
     fi
   fi
+}
+
+link_skill "cortex-persona"
+for s in ponytail-review ponytail-audit ponytail-debt ponytail-help; do
+  link_skill "$s"
 done
 
 echo ""
 
-# ─── 3. Initialize Graphify ────────────────────────────────────────────────
+# ─── 3. Build Graphify graph ───────────────────────────────────────────────
 echo "📊 Configurando Graphify..."
 
 if command -v graphify &>/dev/null; then
@@ -61,42 +54,156 @@ if command -v graphify &>/dev/null; then
     echo "  Construyendo grafo de conocimiento inicial..."
     (cd "$PROJECT_DIR" && graphify . --quiet 2>&1 || true)
     echo "  ✅ Grafo listo en graphify-out/"
-    echo "  💡 Reconstruí con: graphify . --watch"
   else
     echo "  ✅ Grafo existente en graphify-out/"
-    echo "  💡 Actualizá con: graphify . --watch (solo AST, sin costo)"
+  fi
+  echo "  💡 Actualizá con: graphify . --watch (solo AST, sin costo)"
+else
+  echo "  ⚠️  graphify no encontrado. Instalálo: pip install graphify"
+fi
+
+echo ""
+
+# ─── 4. Add Graphify MCP to project opencode.json ──────────────────────────
+echo "🔌 Agregando Graphify MCP a la configuración de OpenCode..."
+
+mkdir -p "$PROJECT_DIR/.opencode"
+MCP_FILE="$PROJECT_DIR/.opencode/opencode.json"
+
+# Leer config existente o crear nueva
+if [ -f "$MCP_FILE" ]; then
+  EXISTING=$(cat "$MCP_FILE")
+else
+  EXISTING='{"$schema":"https://opencode.ai/config.json"}'
+fi
+
+# Merge Graphify MCP usando Python
+echo "$EXISTING" > "$PROJECT_DIR/.opencode/_cortex_mcp_tmp.json"
+python3 -c "
+import json, os
+
+src = '$PROJECT_DIR/.opencode/_cortex_mcp_tmp.json'
+with open(src) as f:
+    data = json.load(f)
+
+project_dir = '$PROJECT_DIR'
+cortex_dir = '$CORTEX_PACK_DIR'
+
+mcp = data.setdefault('mcp', {})
+if 'graphify' not in mcp:
+    mcp['graphify'] = {
+        'type': 'local',
+        'enabled': True,
+        'command': ['graphify', 'mcp', '--project-dir', project_dir],
+        '_description': 'Graphify — knowledge graph queries via MCP'
+    }
+
+plugin_path = os.path.join(cortex_dir, '.opencode/plugins/graphify.js')
+if os.path.exists(plugin_path) and 'plugin' not in data:
+    data['plugin'] = [plugin_path]
+
+with open(src, 'w') as f:
+    json.dump(data, f, indent=2)
+"
+mv "$PROJECT_DIR/.opencode/_cortex_mcp_tmp.json" "$MCP_FILE"
+echo "  ✅ Graphify MCP agregado a .opencode/opencode.json"
+
+echo ""
+
+# ─── 5. Create AGENTS.md with persona reference ────────────────────────────
+echo "📝 Creando AGENTS.md con identidad Cortex..."
+
+AGENTS_FILE="$PROJECT_DIR/AGENTS.md"
+if [ ! -f "$AGENTS_FILE" ]; then
+  cat > "$AGENTS_FILE" << 'PERSONA'
+<!--
+gentle-ai:persona
+-->
+## Rules
+
+- Never add "Co-Authored-By" or AI attribution to commits. Use conventional commits only.
+- This project uses the Cortex skill pack. The orchestrator loads cortex-persona automatically at session start.
+- For detailed persona rules, see .opencode/skills/cortex-persona/SKILL.md
+
+## Contextual Skill Loading (MANDATORY)
+
+At session start, the orchestrator checks for `.opencode/skills/cortex-persona/SKILL.md`
+and loads it automatically. That skill defines:
+- Senior architect identity (Rioplatense Spanish in chat, English in artifacts)
+- Ponytail over-engineering rules (YAGNI → stdlib → native → one line → minimum)
+- 5-Step Execution Gate (Graph Check → Atomic Commit → Verify → Spec Check → Finalize)
+- Graphify knowledge graph integration
+PERSONA
+  echo "  ✅ AGENTS.md creado con referencia a cortex-persona"
+else
+  echo "  ✅ AGENTS.md ya existe — no se sobreescribe"
+fi
+
+echo ""
+
+# ─── 6. Refresh skill registry ─────────────────────────────────────────────
+echo "🗂️  Actualizando skill registry..."
+
+# Escribir .atl/skill-registry.md directamente
+mkdir -p "$PROJECT_DIR/.atl"
+export SKILLS_BASE="$PROJECT_DIR/.opencode/skills"
+export CORTEX_SRC="$CORTEX_PACK_DIR"
+export SKILL_REGISTRY_FILE="$PROJECT_DIR/.atl/skill-registry.md"
+
+python3 << 'PYEOF'
+import os
+
+skills_base = os.environ['SKILLS_BASE']
+cortex_src = os.environ['CORTEX_SRC']
+reg_path = os.environ['SKILL_REGISTRY_FILE']
+
+registry = []
+for name in ['cortex-persona', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help']:
+    skill_file = os.path.join(skills_base, name, 'SKILL.md')
+    if os.path.exists(skill_file):
+        registry.append({
+            'name': name,
+            'path': skill_file,
+            'scope': 'project'
+        })
+
+with open(reg_path, 'w') as f:
+    f.write('# Skill Registry — cortex-init\n\n')
+    f.write(f'Source: Cortex pack at {cortex_src}\n')
+    f.write(f'Indexed: {len(registry)} skills\n\n')
+    f.write('| Name | Path | Scope |\n')
+    f.write('|------|------|-------|\n')
+    for s in registry:
+        f.write(f'| {s["name"]} | {s["path"]} | {s["scope"]} |\n')
+    f.write('\n')
+    f.write('<!-- generated by cortex-init.sh -->\n')
+
+print(f'  ✅ {len(registry)} skills indexados en .atl/skill-registry.md')
+PYEOF
+
+# También intentar con gentle-ai si está disponible
+if command -v gentle-ai &>/dev/null; then
+  gentle-ai skill-registry refresh --cwd "$PROJECT_DIR" 2>/dev/null && \
+    echo "  ✅ gentle-ai skill-registry refresheado" || true
+fi
+
+# Agregar .atl/ al .gitignore
+GITIGNORE="$PROJECT_DIR/.gitignore"
+if [ -f "$GITIGNORE" ]; then
+  if ! grep -q '\.atl/' "$GITIGNORE" 2>/dev/null; then
+    echo '' >> "$GITIGNORE"
+    echo '# SDD + Cortex generated artifacts' >> "$GITIGNORE"
+    echo '/.atl/' >> "$GITIGNORE"
+    echo '  ✅ .atl/ agregado a .gitignore'
   fi
 else
-  echo "  ⚠️  graphify no encontrado. Instalálo con:"
-  echo "     pip install graphify          # o"
-  echo "     brew install graphify         # si está en un tap"
+  echo '/.atl/' > "$GITIGNORE"
+  echo '  ✅ .gitignore creado con .atl/'
 fi
 
 echo ""
 
-# ─── 4. Check opencode.json ────────────────────────────────────────────────
-echo "⚙️  Verificando configuración de OpenCode..."
-
-OPCODE_JSON="$PROJECT_DIR/opencode.json"
-if [ -f "$OPCODE_JSON" ]; then
-  echo "  ✅ opencode.json encontrado"
-  echo "  💡 Si querés usar este projecto con cortex-planner, asegurate"
-  echo "     de que la sección agent contenga cortex-planner y cortex-developer."
-else
-  echo "  ⚠️  No hay opencode.json en el proyecto."
-  echo "     Creá uno o copiá el template desde $CORTEX_PACK_DIR/project-templates/"
-fi
-
-echo ""
-
-# ─── 5. Suggest /sdd-init ──────────────────────────────────────────────────
-echo "🎯 ¡Cortex listo en $(basename "$PROJECT_DIR")!"
-echo ""
-echo "Próximos pasos:"
-echo "  1. Abrí OpenCode en este directorio"
-echo "  2. Ejecutá /sdd-init para inicializar SDD"
-echo "  3. ¡A codificar!"
-# ─── 6. Install cortex-init command ─────────────────────────────────────────
+# ─── 7. Install /cortex-init command in project ────────────────────────────
 echo "🔗 Instalando comando /cortex-init..."
 
 mkdir -p "$PROJECT_DIR/.opencode/commands"
@@ -112,6 +219,24 @@ if [ -f "$CMD_SRC" ]; then
 fi
 
 echo ""
+
+# ─── 8. Summary and next steps ─────────────────────────────────────────────
+echo "🎯 ¡Cortex listo en $(basename "$PROJECT_DIR")!"
+echo ""
+echo "Resumen:"
+echo "  Skills:      $(ls -d "$PROJECT_DIR/.opencode/skills/"*/ 2>/dev/null | wc -l) enlazados"
+echo "  Graphify:    $(test -f "$PROJECT_DIR/graphify-out/GRAPH_REPORT.md" && echo '✅ listo' || echo '⚠️  pendiente')"
+echo "  MCP config:  $(test -f "$MCP_FILE" && echo '✅ configurado' || echo '⚠️  pendiente')"
+echo "  AGENTS.md:   $(test -f "$AGENTS_FILE" && echo '✅ creado' || echo '⚠️  pendiente')"
+echo "  Registry:    $(test -f "$SKILL_REGISTRY" && echo '✅ indexado' || echo '⚠️  pendiente')"
+echo ""
+echo "Próximos pasos:"
+echo "  1. Abrí OpenCode en este directorio"
+echo "  2. Ejecutá /sdd-init para inicializar SDD"
+echo "  3. ¡A codificar!"
+echo ""
 echo "Comandos rápidos:"
 echo "  graphify . --watch     → mantener grafo actualizado"
 echo "  graphify query \"...\"   → consultar el grafo"
+echo "  /ponytail-review       → revisar sobreingeniería"
+echo "  /ponytail-audit        → auditar bloat del repo"
