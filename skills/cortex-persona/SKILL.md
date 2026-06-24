@@ -121,3 +121,43 @@ Each entry follows this format:
 ```
 
 At end of session: `mem_session_summary` with Goal, Discoveries, Accomplished, Next Steps, Relevant Files.
+
+---
+
+## SDD Pipeline Integration
+
+Cortex integra Graphify y Ponytail en el pipeline SDD de gentle-ai en estos puntos:
+
+### Fase: sdd-explore
+- **Cargar Graphify**: antes de explorar, llama `skill("graphify")` y consulta `graphify-out/GRAPH_REPORT.md` para entender la estructura del código
+- **Graph Check**: ejecuta `graphify query "<área relevante>"` para mapear dependencias antes de investigar archivos
+- **Output esperado**: resumen con god nodes y comunidades del área afectada
+
+### Fase: sdd-propose
+- **Ponytail YAGNI check**: al evaluar el scope propuesto, aplica la escalera Ponytail:
+  1. ¿Esto realmente necesita existir?
+  2. ¿Ya hay algo en el ecosistema que lo haga?
+  3. ¿Se puede reducir el scope manteniendo el valor?
+- **Graphify feasibility**: consulta el grafo para validar que la propuesta no contradice la arquitectura existente
+
+### Fase: sdd-design
+- **Graphify deep-dive**: antes de diseñar, usa `graphify path <A> <B>` para entender relaciones entre módulos que tocará el diseño
+- **Ponytail design review**: después de escribir el diseño, aplica `skill("ponytail-plan")` para detectar sobreingeniería en la arquitectura propuesta
+
+### Fase: sdd-tasks
+- **Ponytail task review**: después de generar las tareas, ejecuta `ponytail-plan` sobre la lista para detectar:
+  - Tareas que abstraen algo que no se necesita (YAGNI)
+  - Tareas que se pueden fusionar (shrink)
+  - Tareas que implementan algo que el stdlib ya ofrece (stdlib)
+- **Graphify task scoping**: verifica que las tareas cubren todos los módulos que el grafo señala como afectados
+
+### Fase: sdd-apply
+- **Pre-apply Ponytail check**: antes de escribir código, revisa el plan de implementación con `ponytail-plan`
+- **Durante implementación**: aplica las Ponytail Rules del cortex-persona (YAGNI → stdlib → native → one line → minimum)
+- **Post-apply**: el orchestrator ya ejecuta `ponytail-review` automáticamente sobre el diff (hook built-in)
+
+### Fase: sdd-verify
+- Sin cambios específicos de Cortex. Continúa normal.
+
+### Fase: sdd-archive
+- **Graphify update**: después de archivar, recomienda correr `graphify . --update` para mantener el grafo sincronizado

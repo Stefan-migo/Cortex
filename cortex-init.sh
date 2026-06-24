@@ -68,6 +68,7 @@ link_skill() {
 }
 
 link_skill "cortex-persona"
+link_skill "ponytail-plan"
 for s in ponytail-review ponytail-audit ponytail-debt ponytail-help; do
   link_skill "$s"
 done
@@ -161,6 +162,8 @@ and loads it automatically. That skill defines:
 - Ponytail over-engineering rules (YAGNI → stdlib → native → one line → minimum)
 - 5-Step Execution Gate (Graph Check → Atomic Commit → Verify → Spec Check → Finalize)
 - Graphify knowledge graph integration
+- SDD pipeline hooks: Graphify in explore/design, Ponytail in propose/design/tasks/pre-apply
+- See cortex-persona/SKILL.md → "SDD Pipeline Integration" section
 PERSONA
   echo "  ✅ AGENTS.md creado con referencia a cortex-persona"
 else
@@ -186,7 +189,7 @@ cortex_src = os.environ['CORTEX_SRC']
 reg_path = os.environ['SKILL_REGISTRY_FILE']
 
 registry = []
-for name in ['cortex-persona', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help']:
+for name in ['cortex-persona', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help', 'ponytail-plan']:
     skill_file = os.path.join(skills_base, name, 'SKILL.md')
     if os.path.exists(skill_file):
         registry.append({
@@ -256,7 +259,7 @@ echo "  Skills:      $(ls -d "$PROJECT_DIR/.opencode/skills/"*/ 2>/dev/null | wc
 echo "  Graphify:    $(test -f "$PROJECT_DIR/graphify-out/GRAPH_REPORT.md" && echo '✅ listo' || echo '⚠️  pendiente')"
 echo "  MCP config:  $(test -f "$MCP_FILE" && echo '✅ configurado' || echo '⚠️  pendiente')"
 echo "  AGENTS.md:   $(test -f "$AGENTS_FILE" && echo '✅ creado' || echo '⚠️  pendiente')"
-echo "  Registry:    $(test -f "$SKILL_REGISTRY" && echo '✅ indexado' || echo '⚠️  pendiente')"
+echo "  Registry:    $(test -f "$SKILL_REGISTRY_FILE" && echo '✅ indexado' || echo '⚠️  pendiente')"
 echo ""
 echo "Próximos pasos:"
 echo "  1. Abrí OpenCode en este directorio"
@@ -266,5 +269,6 @@ echo ""
 echo "Comandos rápidos:"
 echo "  graphify . --watch     → mantener grafo actualizado"
 echo "  graphify query \"...\"   → consultar el grafo"
+echo "  /ponytail-plan         → revisar sobreingeniería en planes/diseños/tareas"
 echo "  /ponytail-review       → revisar sobreingeniería"
 echo "  /ponytail-audit        → auditar bloat del repo"
