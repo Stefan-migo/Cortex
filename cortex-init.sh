@@ -58,11 +58,11 @@ link_skill() {
   local name="$1"
   local src="$CORTEX_PACK_DIR/skills/$name"
   local target="$PROJECT_DIR/.opencode/skills/$name"
-  if [ -d "$src" ]; then
-    if [ ! -L "$target" ] && [ ! -d "$target" ]; then
-      ln -sf "$src" "$target" && echo "  ✅ $name skill instalado"
+  if [ -f "$src/SKILL.md" ]; then
+    if [ -d "$target" ] && [ ! -L "$target" ]; then
+      echo "  ⚠️  $name existe como directorio local — no se sobreescribe"
     else
-      echo "  ✅ $name skill ya existe"
+      ln -sf "$src" "$target" && echo "  ✅ $name skill instalado"
     fi
   fi
 }
@@ -72,6 +72,7 @@ link_skill "ponytail-plan"
 for s in ponytail-review ponytail-audit ponytail-debt ponytail-help; do
   link_skill "$s"
 done
+link_skill "cortex-session"
 
 echo ""
 
@@ -164,6 +165,17 @@ and loads it automatically. That skill defines:
 - Graphify knowledge graph integration
 - SDD pipeline hooks: Graphify in explore/design, Ponytail in propose/design/tasks/pre-apply
 - See cortex-persona/SKILL.md → "SDD Pipeline Integration" section
+
+## Skills
+
+| Command | What it does |
+|---------|-------------|
+| `/cortex-session` | Planning sessions with automatic decision capture to Engram |
+| `/ponytail-plan` | Review plans/designs/tasks for over-engineering |
+| `/ponytail-review` | Review code diff for over-engineering |
+| `/ponytail-audit` | Audit full repo for bloat |
+| `/ponytail-debt` | Harvest `ponytail:` shortcuts into a debt ledger |
+| `/ponytail-help` | Quick-reference card for all ponytail commands |
 PERSONA
   echo "  ✅ AGENTS.md creado con referencia a cortex-persona"
 else
@@ -189,7 +201,7 @@ cortex_src = os.environ['CORTEX_SRC']
 reg_path = os.environ['SKILL_REGISTRY_FILE']
 
 registry = []
-for name in ['cortex-persona', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help', 'ponytail-plan']:
+for name in ['cortex-persona', 'cortex-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help', 'ponytail-plan']:
     skill_file = os.path.join(skills_base, name, 'SKILL.md')
     if os.path.exists(skill_file):
         registry.append({
@@ -218,19 +230,22 @@ if command -v gentle-ai &>/dev/null; then
     echo "  ✅ gentle-ai skill-registry refresheado" || true
 fi
 
-# Agregar .atl/ al .gitignore
+# Agregar .atl/ y .cortex-sessions/ al .gitignore
 GITIGNORE="$PROJECT_DIR/.gitignore"
-if [ -f "$GITIGNORE" ]; then
-  if ! grep -q '\.atl/' "$GITIGNORE" 2>/dev/null; then
-    echo '' >> "$GITIGNORE"
-    echo '# SDD + Cortex generated artifacts' >> "$GITIGNORE"
-    echo '/.atl/' >> "$GITIGNORE"
-    echo '  ✅ .atl/ agregado a .gitignore'
+ensure_gitignore() {
+  local pattern="$1"
+  if [ -f "$GITIGNORE" ]; then
+    if ! grep -qF "$pattern" "$GITIGNORE" 2>/dev/null; then
+      echo "$pattern" >> "$GITIGNORE"
+      echo "  ✅ $pattern agregado a .gitignore"
+    fi
+  else
+    echo "$pattern" > "$GITIGNORE"
+    echo "  ✅ .gitignore creado con $pattern"
   fi
-else
-  echo '/.atl/' > "$GITIGNORE"
-  echo '  ✅ .gitignore creado con .atl/'
-fi
+}
+ensure_gitignore '/.atl/'
+ensure_gitignore '/.cortex-sessions/'
 
 echo ""
 
@@ -269,6 +284,7 @@ echo ""
 echo "Comandos rápidos:"
 echo "  graphify . --watch     → mantener grafo actualizado"
 echo "  graphify query \"...\"   → consultar el grafo"
+echo "  /cortex-session        → sesión de planeamiento con captura automática"
 echo "  /ponytail-plan         → revisar sobreingeniería en planes/diseños/tareas"
 echo "  /ponytail-review       → revisar sobreingeniería"
 echo "  /ponytail-audit        → auditar bloat del repo"
