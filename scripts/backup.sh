@@ -17,8 +17,6 @@ FILES_TO_BACKUP=(
   "opencode.json"
   "AGENTS.md"
   "DESIGN.md"
-  "SYSTEM-MAP.md"
-  "USER-GUIDE.md"
   ".opencode/opencode.json"
 )
 
@@ -31,11 +29,6 @@ for file in "${FILES_TO_BACKUP[@]}"; do
     echo "   - $file (not found, skipped)"
   fi
 done
-
-# Also backup the openharness config if it exists
-if [ -d "openharness" ]; then
-  cp -r openharness "$BACKUP_DIR/openharness" 2>/dev/null && echo "   ✓ openharness/"
-fi
 
 # Save current git HEAD
 git rev-parse HEAD > "$BACKUP_DIR/HEAD" 2>/dev/null || true
