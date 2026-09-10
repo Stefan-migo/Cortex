@@ -1,17 +1,17 @@
 # Cortex gentle-ai plugin
 
-# Old systems (not part of the plugin)
-/openharness/
-/.openharness/
-/SYSTEM-MAP.md
-/USER-GUIDE.md
-
 # Generated/transient
 /graphify-out/
 /wiki/
 /raw/
 /.specify/
 /.atl/
+
+# cortex-init.sh install artifacts (generated per project)
+/cortex-init.sh.bak-*
+/.opencode/commands/
+/.opencode/skills/cortex-*
+/.opencode/skills/ponytail-*
 
 # Secrets
 .env.local
