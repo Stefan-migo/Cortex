@@ -24,3 +24,6 @@ Thumbs.db
 # Local AI runtime state
 .atl/
 /.cortex-sessions/
+
+# Personal project list for scripts/cortex-sync.sh
+/projects.txt
