@@ -19,11 +19,10 @@ PROVIDER="opencode"
 
 # File patterns to include in review (comma-separated)
 # Default: * (all files)
-# Examples:
-#   FILE_PATTERNS="*.ts,*.tsx"
-#   FILE_PATTERNS="*.py"
-#   FILE_PATTERNS="*.go,*.mod"
-FILE_PATTERNS="*.go,*.mod,*.md,*.ts,*.tsx,*.yaml,*.json"
+# NOTE: markdown is intentionally NOT reviewed. GGA applies an open-ended
+# "skill style" contract to docs/skills that never converges, so it blocks
+# legitimate edits. Code review stays blocking.
+FILE_PATTERNS="*.go,*.mod,*.ts,*.tsx,*.yaml,*.json"
 
 # File patterns to exclude from review (comma-separated)
 # Default: none
