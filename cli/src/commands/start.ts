@@ -52,6 +52,10 @@ export async function startCommand(options: StartOptions): Promise<void> {
   if (existingSession) {
     warn(`Active session found: ${existingSession.sessionId}`);
     info('Run `cortex close` to finalize it before starting a new one.');
+    if (!process.stdin.isTTY) {
+      error('Cannot confirm starting another session without an interactive terminal.');
+      process.exit(1);
+    }
     const proceed = await new Promise<boolean>((resolve) => {
       process.stdout.write('Start a new session anyway? (y/N): ');
       process.stdin.once('data', (data) => {
