@@ -6,6 +6,12 @@
 /raw/
 /.specify/
 /.atl/
+/.cortex/
+
+# Dependencies
+node_modules/
+/.opencode/node_modules/
+/.opencode/tools/node_modules/
 
 # cortex-init.sh install artifacts (generated per project)
 /cortex-init.sh.bak-*
@@ -23,7 +29,6 @@ Thumbs.db
 *.swo
 # Local AI runtime state
 .atl/
-/.cortex-sessions/
 
 # Personal project list for scripts/cortex-sync.sh
 /projects.txt
