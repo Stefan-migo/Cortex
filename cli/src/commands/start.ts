@@ -30,6 +30,8 @@ function readProjectName(projectDir: string): string {
       const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
       return manifest.projectName || 'unknown';
     } catch {
+      warn('Unable to read project manifest; using unknown project name.');
+      return 'unknown';
     }
   }
   return 'unknown';
