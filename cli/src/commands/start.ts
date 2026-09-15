@@ -126,12 +126,13 @@ export async function startCommand(options: StartOptions): Promise<void> {
   });
 
   child.on('exit', (code: number | null) => {
-    if (code !== 0) {
+    heading('Session End');
+    if (code === 0) {
+      success('OpenCode session completed');
+    } else {
       warn(`OpenCode exited with code ${code}`);
     }
-    heading('Session End');
-    success('OpenCode session completed');
     info('Run `cortex close` to finalize the session.');
-    process.exit(code || 0);
+    process.exit(code === null ? 1 : code);
   });
 }
