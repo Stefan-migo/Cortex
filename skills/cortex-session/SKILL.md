@@ -70,7 +70,7 @@ Goal: {what we need to achieve or produce}
 - [ ] {who does what}
 ```
 
-e. **Save to Engram**: `mem_save(type: architecture, topic_key: "cortex-session/{slug}", title: "Session: {topic}", content: <structured block — see Save format>)`
+e. **Save to Engram**: `mem_save(type: architecture, topic_key: "cortex-session/{slug}/init", title: "Session: {topic}", content: <structured block — see Save format>)`
 
 ### 2. Active Discussion (`discuss`)
 
@@ -78,9 +78,9 @@ Proactively capture these moments WITHOUT asking permission:
 
 | Signal | What to capture | Save to |
 |--------|----------------|---------|
-| "hacemos X", "mejor Y", "decidido", "let's go with" | Decision with rationale | session.md + `mem_save(type: decision, topic_key: "cortex-session/{slug}", content: <structured block>)` |
+| "hacemos X", "mejor Y", "decidido", "let's go with" | Decision with rationale | session.md + `mem_save(type: decision, topic_key: "cortex-session/{slug}/decision/{topic-slug}", content: <structured block>)` |
 | Comparing options, weighing pros/cons | Tradeoff table entry | session.md |
-| "esto podría ser un problema", "riesgo de" | Risk with mitigation | session.md + `mem_save(type: discovery, topic_key: "cortex-session/{slug}", content: <structured block>)` |
+| "esto podría ser un problema", "riesgo de" | Risk with mitigation | session.md + `mem_save(type: discovery, topic_key: "cortex-session/{slug}/risk/{topic-slug}", content: <structured block>)` |
 | "costaría X", "toma Y tiempo" | Estimate or number | session.md |
 | "no sabemos aún", "habría que investigar" | Open question | session.md |
 
@@ -98,6 +98,20 @@ For a decision, prepend `## Decision: {title}` and list the rejected option unde
 **Decision hygiene (MANDATORY)**: when a decision is reversed, do NOT leave the old row as if it were still current. Rewrite the row so the current choice is the Decision, the rejected option moves to Alternatives, and the reversal is noted. A stale decision left in the ledger makes the record lie about the state.
 
 **Frequency**: save to Engram IMMEDIATELY after each significant capture — a decision, a risk, a discovery, a convention, a preference. Do NOT wait and do NOT batch; a deferred save is a lost save. Update session.md at the same time, and read it back after writing to confirm the content landed as intended.
+
+**Topic key discipline (MANDATORY)**: Engram upserts by `topic_key`. Writing twice with the same key **replaces** the earlier content, and only the last write stays reachable through `mem_search` — earlier revisions are not retrievable by any tool. A single shared key across several decisions therefore destroys the session record: a session with four decisions keeps only the fourth.
+
+One key per captured item:
+
+| Capture | Topic key |
+|---|---|
+| session init | `cortex-session/{slug}/init` |
+| each decision | `cortex-session/{slug}/decision/{topic-slug}` |
+| each risk | `cortex-session/{slug}/risk/{topic-slug}` |
+| free-form context | `cortex-session/{slug}/context` |
+| session close report | `cortex-session/{slug}` — written once, at close |
+
+`{topic-slug}` is a short stable slug identifying that specific item (`build-order`, `package-manager`). Never reuse a slug for a different decision: a reversal gets a new slug and the old key is superseded, never overwritten.
 
 ### 3. Close (`session-close`)
 
