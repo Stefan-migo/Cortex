@@ -109,10 +109,11 @@ Save to Engram immediately when you encounter:
 - **learning**: Lessons learned during development
 
 ## Coding Standards
-- Run lint + typecheck before considering work complete
+- Run `npm run typecheck` (from `cli/`) before considering work complete. This repository has **no lint script**.
 - Follow existing project conventions
 - Atomic commits: one concern per commit, descriptive messages
-- Write tests alongside implementation
+- This repository has **no test harness**. `vitest` is configured in `cli/`, but there are zero test files, so `npm test` exits 1 with "No test files found". Do not claim test coverage that does not exist, and do not require tests for a change until a harness is deliberately introduced.
+- Verify code changes with `npm run typecheck`, `npm run build`, and concrete manual shell scenarios. Report the exact commands and their real output — never infer a pass from intent.
 - NEVER commit secrets or credentials
 
 ## graphify
