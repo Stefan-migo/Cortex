@@ -58,7 +58,7 @@ export function assertNotMainWorktree(root: string): void {
 function worktreePath(slug: string, root: string): string {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) throw new Error('Slug must contain lowercase letters, numbers, and hyphens.');
   const main = repositoryRoot(root);
-  return join(dirname(main), `${basename(main)}-sdd-${slug}`);
+  return join(dirname(main), `${basename(main)}-odd-${slug}`);
 }
 
 function sameContent(left: string, right: string): boolean {
@@ -110,7 +110,8 @@ function protectedUntrackedPaths(target: string, main: string, candidates: strin
     const normalized = path.replace(/\\/g, '/');
     const isOpenSpec = normalized === 'openspec' || normalized.startsWith('openspec/');
     const isSessionState = normalized === '.cortex-sessions' || normalized.startsWith('.cortex-sessions/');
-    if (!isOpenSpec && !isSessionState) continue;
+    const isOdd = normalized === 'odd' || normalized.startsWith('odd/');
+    if (!isOpenSpec && !isSessionState && !isOdd) continue;
     if (candidateRoots.some((candidate) => absolute === candidate || absolute.startsWith(`${candidate}${sep}`))) continue;
     const mainCopy = resolve(main, path);
     if (existsSync(mainCopy) && sameContent(absolute, mainCopy)) continue;
@@ -149,8 +150,8 @@ export async function createWorktree(slug: string, root: string): Promise<string
   if (existsSync(target)) throw new Error(`Worktree path already exists: ${target}`);
 
   git(main, ['fetch', 'origin', 'main']);
-  git(main, ['worktree', 'add', '-b', `sdd/${slug}`, target, 'origin/main']);
-  const branch = `branch.sdd/${slug}`;
+  git(main, ['worktree', 'add', '-b', `odd/${slug}`, target, 'origin/main']);
+  const branch = `branch.odd/${slug}`;
   for (const key of ['merge', 'remote', 'mergeOptions', 'pushRemote']) {
     try { git(main, ['config', '--unset', `${branch}.${key}`]); } catch { /* absent config is expected */ }
   }
@@ -246,12 +247,12 @@ export function cleanupWorktree(slug: string, root: string, remote: boolean): Cl
   if (lossPaths.length > 0) throw new CleanupRefusalError('Refusing cleanup because untracked artifacts would be lost', lossPaths, preservedPaths);
   if (candidates.length === 1) archiveHandoff(candidates[0], main);
   git(main, ['worktree', 'remove', '--force', target]);
-  git(main, ['branch', '-D', `sdd/${slug}`]);
-  if (remote) git(main, ['push', 'origin', '--delete', `sdd/${slug}`]);
+  git(main, ['branch', '-D', `odd/${slug}`]);
+  if (remote) git(main, ['push', 'origin', '--delete', `odd/${slug}`]);
   return { preservedPaths };
 }
 
-/** Refresh the authoritative graph only after delivery recorded and verified a merged SDD PR. */
+/** Refresh the authoritative graph only after delivery recorded and verified a merged ODD work PR. */
 export function refreshMainAfterMerge(slug: string, root: string, markerPath: string): void {
   const main = repositoryRoot(root);
   if (!isMainWorktree(main)) throw new Error('Graph refresh requires the main worktree.');
@@ -261,8 +262,8 @@ export function refreshMainAfterMerge(slug: string, root: string, markerPath: st
     throw new Error('Merge marker must be inside the main repository.');
   }
   const marker = JSON.parse(readFileSync(markerFile, 'utf-8')) as MergeMarker;
-  if (marker.branch !== `sdd/${slug}` || !/^[0-9a-f]{40,64}$/.test(marker.mergeSha)) {
-    throw new Error('Merge marker does not identify the requested SDD branch and SHA.');
+  if (marker.branch !== `odd/${slug}` || !/^[0-9a-f]{40,64}$/.test(marker.mergeSha)) {
+    throw new Error('Merge marker does not identify the requested branch and SHA.');
   }
   try {
     git(main, ['merge-base', '--is-ancestor', marker.mergeSha, 'HEAD']);
