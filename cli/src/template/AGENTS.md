@@ -115,5 +115,9 @@ Save to Engram immediately when you encounter:
 - Write tests alongside implementation
 - NEVER commit secrets or credentials
 
+## ODD Worktrees
+
+During ODD's `Classify` step, substantial work means two or more meaningful implementation steps or progress worth recovering. Code work is born in a sibling worktree (`../<Project>-odd-<slug>`, where `<Project>` is the main worktree's directory name) on branch `odd/<slug>`, not in main. Human consent is explicit and per-feature before invoking `cortex worktree create`; `--yes` is only the consequence of that approval, never a shortcut around it. The ODD task doc `odd/tasks/<feature>.md` is committed on the branch and reaches main through the PR, so it must never live inside a `gentle-ai` managed block.
+
 ## Project
 This is the **{PROJECT_NAME}** project, created on {DATE}.
