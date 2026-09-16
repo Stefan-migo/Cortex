@@ -10,6 +10,18 @@ if [ "$CHANGED_FILES" -gt 5 ]; then
   exit 1
 fi
 
+# === Step 1b: Main worktree code guard ===
+GIT_DIR=$(git rev-parse --git-dir)
+COMMON_DIR=$(git rev-parse --git-common-dir)
+if [ "$GIT_DIR" = "$COMMON_DIR" ] && ! git diff --cached --quiet; then
+  while IFS= read -r path; do
+    case "$path" in
+      .cortex-sessions/*) ;;
+      *) echo "Main worktree guard: direct code commits are only allowed for .cortex-sessions/**"; exit 1 ;;
+    esac
+  done < <(git diff --cached --name-only --diff-filter=ACMR)
+fi
+
 # === Step 2: File type diversity warning ===
 FILE_TYPES=$(git diff --cached --name-only --diff-filter=ACMR | awk -F. '{if(NF>1) print $NF}' | sort -u | wc -l)
 if [ "$FILE_TYPES" -gt 3 ]; then
