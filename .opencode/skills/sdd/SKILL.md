@@ -52,6 +52,9 @@ Use this skill when starting a new feature, refactoring, or any task that requir
 - `mem_save` with type: pattern, discovery, or decision
 - Update wiki if applicable
 - Close feature branch
+- Archive does not refresh Graphify. Graphify refresh is owned by delivery/cleanup
+  after GitHub confirms a merged `sdd/<slug>` pull request and its merge SHA is
+  verified on main.
 
 ## Rules
 - NEVER skip phases 1-5 (planning) — the agent must plan before coding
