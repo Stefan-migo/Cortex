@@ -95,6 +95,9 @@ fi
 echo ""
 
 # ─── 4. Add Graphify MCP to project opencode.json ──────────────────────────
+if [ "${CORTEX_WORKTREE_PROVISION:-false}" = true ]; then
+  echo "  ⏭️  Skipping legacy tracked-config mutation for worktree provisioning"
+else
 echo "🔌 Agregando Graphify MCP a la configuración de OpenCode..."
 
 mkdir -p "$PROJECT_DIR/.opencode"
@@ -137,6 +140,7 @@ with open(src, 'w') as f:
 "
 mv "$PROJECT_DIR/.opencode/_cortex_mcp_tmp.json" "$MCP_FILE"
 echo "  ✅ Graphify MCP agregado a .opencode/opencode.json"
+fi
 
 echo ""
 
