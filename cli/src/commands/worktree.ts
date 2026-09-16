@@ -12,7 +12,11 @@ async function create(slug: string, options: CreateOptions): Promise<void> {
     process.stdout.write(`Create and provision worktree sdd/${slug}? (y/N): `);
     const accepted = await new Promise<boolean>((resolve) => {
       process.stdin.once('data', (data) => {
-        resolve(['y', 'yes'].includes(data.toString().trim().toLowerCase()));
+        const answer = data.toString().trim().toLowerCase();
+        // A paused TTYWrap still keeps the event loop alive, so the process would
+        // never exit after a decline. Destroying the handle releases it.
+        process.stdin.destroy();
+        resolve(['y', 'yes'].includes(answer));
       });
     });
     if (!accepted) { output({ accepted: false, created: false }); return; }
