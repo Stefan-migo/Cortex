@@ -9,7 +9,7 @@ function output(value: unknown): void { console.log(JSON.stringify(value)); }
 async function create(slug: string, options: CreateOptions): Promise<void> {
   if (!options.yes) {
     if (!process.stdin.isTTY) throw new Error('Consent is required; refusing non-interactive worktree creation.');
-    process.stdout.write(`Create and provision worktree sdd/${slug}? (y/N): `);
+    process.stdout.write(`Create and provision worktree odd/${slug}? (y/N): `);
     const accepted = await new Promise<boolean>((resolve) => {
       process.stdin.once('data', (data) => {
         const answer = data.toString().trim().toLowerCase();
@@ -33,11 +33,11 @@ async function create(slug: string, options: CreateOptions): Promise<void> {
     }
     throw error;
   }
-  output({ accepted: true, created: true, path, branch: `sdd/${slug}` });
+  output({ accepted: true, created: true, path, branch: `odd/${slug}` });
 }
 
 export function worktreeCommand(): Command {
-  const command = new Command('worktree').description('Create and manage isolated SDD worktrees');
+  const command = new Command('worktree').description('Create and manage isolated ODD worktrees');
   command.command('create').argument('<slug>').option('--yes', 'confirm creation without prompting').option('--root <path>', 'main repository root').action(create);
   command.command('provision').argument('<path>').option('--root <path>', 'main repository root').action((path, options: { root?: string }) => {
     provisionWorktree(path, rootOf(options.root)); output({ provisioned: true, path });

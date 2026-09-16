@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Post-merge deliberately does not refresh Graphify. Delivery owns refresh after
-# GitHub confirms a merged sdd/<slug> PR and verifies its merge SHA on main.
+# GitHub confirms a merged odd/<slug> PR and verifies its merge SHA on main.
 set -euo pipefail
 
 if [ "$(git rev-parse --is-inside-work-tree 2>/dev/null || true)" = true ]; then
-  echo "Cortex: merge recorded; delivery must verify the merged SDD PR before refreshing Graphify." >&2
+  echo "Cortex: merge recorded; delivery must verify the merged ODD work PR before refreshing Graphify." >&2
 fi

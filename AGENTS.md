@@ -116,6 +116,10 @@ Save to Engram immediately when you encounter:
 - Verify code changes with `npm run typecheck`, `npm run build`, and concrete manual shell scenarios. Report the exact commands and their real output — never infer a pass from intent.
 - NEVER commit secrets or credentials
 
+## ODD Worktrees
+
+During ODD's `Classify` step, substantial work means two or more meaningful implementation steps or progress worth recovering. Code work is born in a sibling worktree (`../Cortex-odd-<slug>`) on branch `odd/<slug>`, not in main. Human consent is explicit and per-feature before invoking `cortex worktree create`; `--yes` is only the consequence of that approval, never a shortcut around it. The ODD task doc `odd/tasks/<feature>.md` is committed on the branch and reaches main through the PR, so it must never live inside a `gentle-ai` managed block. After the merge, rebuild `cli/dist/` in main before dogfooding the CLI because `cli/dist/` is gitignored and the merge does not update it.
+
 ## graphify
 
 This project has a graphify knowledge graph at graphify-out/.
