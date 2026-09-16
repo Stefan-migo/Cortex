@@ -206,6 +206,7 @@ export function provisionWorktree(worktree: string, mainRoot: string): void {
   copyIfPresent(join(main, '.opencode', 'tools', 'package-lock.json'), join(target, '.opencode', 'tools', 'package-lock.json'));
   installDependencies(join(target, '.opencode'));
   installDependencies(join(target, '.opencode', 'tools'));
+  installDependencies(join(target, 'cli'));
 
   const skillsDir = join(target, '.opencode', 'skills');
   mkdirSync(skillsDir, { recursive: true });
