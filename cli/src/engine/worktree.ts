@@ -1,4 +1,4 @@
-import { cpSync, existsSync, lstatSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'fs';
 import { execFileSync } from 'child_process';
 import { basename, dirname, join, relative, resolve } from 'path';
 
@@ -7,6 +7,8 @@ export interface WorktreeRecord {
   head: string;
   branch?: string;
 }
+
+interface MergeMarker { branch: string; mergeSha: string }
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', ['-C', root, ...args], { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -139,8 +141,49 @@ export function listWorktrees(root: string): WorktreeRecord[] {
 
 export function cleanupWorktree(slug: string, root: string, remote: boolean): void {
   const main = repositoryRoot(root);
+  if (!isMainWorktree(main)) throw new Error('Cleanup must start from the main worktree.');
   const target = worktreePath(slug, main);
-  git(main, ['worktree', 'remove', target]);
-  git(main, ['branch', '-d', `sdd/${slug}`]);
+  const sessionRoot = join(main, '.cortex-sessions');
+  const targetSessionRoot = join(target, '.cortex-sessions');
+  const handoff = join(targetSessionRoot, 'ready-for-sdd', slug);
+  const mainHandoff = join(sessionRoot, 'ready-for-sdd', slug);
+  const archived = join(sessionRoot, 'archived', slug);
+  if (existsSync(handoff)) {
+    const temporaryArchive = `${archived}.tmp-${process.pid}`;
+    mkdirSync(dirname(archived), { recursive: true });
+    rmSync(temporaryArchive, { recursive: true, force: true });
+    cpSync(handoff, temporaryArchive, { recursive: true });
+    rmSync(archived, { recursive: true, force: true });
+    renameSync(temporaryArchive, archived);
+  } else if (existsSync(mainHandoff)) {
+    mkdirSync(dirname(archived), { recursive: true });
+    rmSync(archived, { recursive: true, force: true });
+    cpSync(mainHandoff, archived, { recursive: true });
+    rmSync(mainHandoff, { recursive: true, force: true });
+  }
+  git(main, ['worktree', 'remove', '--force', target]);
+  git(main, ['branch', '-D', `sdd/${slug}`]);
   if (remote) git(main, ['push', 'origin', '--delete', `sdd/${slug}`]);
+}
+
+/** Refresh the authoritative graph only after delivery recorded and verified a merged SDD PR. */
+export function refreshMainAfterMerge(slug: string, root: string, markerPath: string): void {
+  const main = repositoryRoot(root);
+  if (!isMainWorktree(main)) throw new Error('Graph refresh requires the main worktree.');
+  const markerFile = resolve(markerPath);
+  const markerRelative = relative(main, markerFile);
+  if (markerRelative.startsWith('..') || markerRelative === '') {
+    throw new Error('Merge marker must be inside the main repository.');
+  }
+  const marker = JSON.parse(readFileSync(markerFile, 'utf-8')) as MergeMarker;
+  if (marker.branch !== `sdd/${slug}` || !/^[0-9a-f]{40,64}$/.test(marker.mergeSha)) {
+    throw new Error('Merge marker does not identify the requested SDD branch and SHA.');
+  }
+  try {
+    git(main, ['merge-base', '--is-ancestor', marker.mergeSha, 'HEAD']);
+  } catch {
+    throw new Error('Expected merged SHA is not present on main.');
+  }
+  execFileSync('graphify', ['.', '--update'], { cwd: main, stdio: 'inherit' });
+  rmSync(markerFile, { force: true });
 }

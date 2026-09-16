@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { cleanupWorktree, createWorktree, listWorktrees, provisionWorktree } from '../engine/worktree';
+import { cleanupWorktree, createWorktree, listWorktrees, provisionWorktree, refreshMainAfterMerge } from '../engine/worktree';
 
 interface CreateOptions { yes?: boolean; root?: string }
 
@@ -22,7 +22,11 @@ async function create(slug: string, options: CreateOptions): Promise<void> {
   try {
     provisionWorktree(path, root);
   } catch (error) {
-    try { cleanupWorktree(slug, root, false); } catch { /* preserve the provisioning failure */ }
+    try {
+      cleanupWorktree(slug, root, false);
+    } catch (cleanupError) {
+      throw new Error(`${error instanceof Error ? error.message : String(error)}; cleanup failed: ${cleanupError instanceof Error ? cleanupError.message : String(cleanupError)}`);
+    }
     throw error;
   }
   output({ accepted: true, created: true, path, branch: `sdd/${slug}` });
@@ -37,6 +41,9 @@ export function worktreeCommand(): Command {
   command.command('list').option('--root <path>', 'repository root').action((options: { root?: string }) => output(listWorktrees(rootOf(options.root))));
   command.command('cleanup').argument('<slug>').option('--remote', 'delete the remote branch').option('--root <path>', 'main repository root').action((slug, options: { remote?: boolean; root?: string }) => {
     cleanupWorktree(slug, rootOf(options.root), options.remote === true); output({ cleaned: true, slug });
+  });
+  command.command('refresh').argument('<slug>').requiredOption('--marker <path>', 'delivery merge marker JSON').option('--root <path>', 'main repository root').action((slug, options: { marker: string; root?: string }) => {
+    refreshMainAfterMerge(slug, rootOf(options.root), options.marker); output({ refreshed: true, slug });
   });
   return command;
 }
