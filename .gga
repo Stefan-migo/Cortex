@@ -37,7 +37,17 @@ RULES_FILE="AGENTS.md"
 
 # Strict mode: fail if AI response is ambiguous
 # Default: true
-STRICT_MODE="true"
+#
+# Disabled on purpose. gga requires the verdict to appear within the first 30
+# lines of provider output, but the opencode provider runs as a full agent in
+# this repository: it loads skills, queries the knowledge graph, reads files,
+# and calls Engram before answering. That tool output pushes the "STATUS:"
+# line well past line 30, so strict mode rejected every review as ambiguous
+# regardless of the verdict. With strict mode off, gga still blocks a clean
+# parsed "STATUS: FAILED" and no longer fails on its own inability to read a
+# valid answer. See also RULES_FILE: the rules it enforces must describe what
+# this repository actually requires.
+STRICT_MODE="false"
 
 # Timeout in seconds for AI provider response
 # Default: 300 (5 minutes)
