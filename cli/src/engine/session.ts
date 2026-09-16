@@ -180,9 +180,9 @@ export function generateRetrospective(
     gaps.push('Graphify report not found at session start');
     suggestions.push('Run `graphify . --update` to enable code structure awareness');
   }
-  if (warnText.includes('speckit') || !existsSync(join(projectDir, '.specify'))) {
-    gaps.push('Spec-Kit tasks or plans not found');
-    suggestions.push('Use `/speckit.specify` before starting complex features');
+  if (warnText.includes('sdd')) {
+    gaps.push('SDD change artifacts not found');
+    suggestions.push('Use `/sdd-new` before starting complex features');
   }
   if (warnText.includes('engram')) {
     gaps.push('Engram MCP unavailable during session');
