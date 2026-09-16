@@ -27,16 +27,17 @@ The system loads automatically. Two agents are available, switch with Tab:
 2. Agent auto-runs `mem_session_start` and `mem_context` to restore context
 3. Discuss your goal with the agent
 
-### Build a Feature (Spec-Driven)
+### Build a Feature (SDD)
 ```
-1. /speckit.specify         → Write feature spec (Planner)
-2. /speckit.clarify         → Resolve ambiguities (Planner, optional)
-3. /speckit.plan            → Create tech plan (Planner)
-4. /speckit.tasks           → Break into tasks (Planner)
+1. Use the `cortex-session` skill to discuss and structure the goal (Planner)
+2. /sdd-new                  → Start a structured change (Planner)
+3. /sdd-ff                   → Produce spec, design, and tasks artifacts (Planner)
+4. /sdd-status               → Check change state (Planner)
    Then Tab to @Cortex-Developer
 5. Developer executes via 5-Step Gate:
    ← Graph check → Atomic commit → Verify → Spec check → Memory save
-6. /speckit.checklist       → Quality validation (Developer)
+6. /sdd-verify               → Verify the implementation and artifacts (Developer)
+7. /sdd-archive              → Close and preserve the completed change (Developer)
 ```
 
 ### End a Session
@@ -58,17 +59,15 @@ The system loads automatically. Two agents are available, switch with Tab:
 | `mem_session_end` | Session end |
 | `mem_session_summary` | Before closing |
 
-### Spec-Kit (Planning — Frontal Lobe)
+### Gentle AI SDD (Planning — Frontal Lobe)
 | Command | What it does |
 |---------|-------------|
-| `/speckit.constitution` | Define project principles |
-| `/speckit.specify` | Write feature spec (WHAT) |
-| `/speckit.clarify` | Resolve ambiguities |
-| `/speckit.plan` | Write tech plan (HOW) |
-| `/speckit.tasks` | Break into tasks |
-| `/speckit.implement` | Execute all tasks |
-| `/speckit.analyze` | Consistency check |
-| `/speckit.checklist` | Quality validation |
+| `/sdd-new` | Start a structured change and its proposal |
+| `/sdd-ff` | Produce spec, design, and tasks artifacts |
+| `/sdd-status` | Check change state and available next steps |
+| `/sdd-apply` | Execute the change tasks |
+| `/sdd-verify` | Verify the implementation and artifacts |
+| `/sdd-archive` | Close and preserve a completed change |
 
 ### Graphify (Code Understanding — Parietal Lobe)
 | Command | When |
@@ -88,7 +87,7 @@ Built into `@Cortex-Developer` — fires automatically on every task:
 1. **GRAPH CHECK** — query the knowledge graph before editing
 2. **ATOMIC COMMIT** — one concern per commit (≤5 files)
 3. **VERIFY** — lint + typecheck + tests (block on failure)
-4. **SPEC CHECK** — /speckit.analyze after completion
+4. **SPEC CHECK** — /sdd-verify after completion
 5. **MEMORY** — mem_save key learnings
 
 Plus a pre-commit hook enforces the ≤5-file atomicity gate mechanically.
@@ -98,7 +97,7 @@ Plus a pre-commit hook enforces the ≤5-file atomicity gate mechanically.
 ## Architecture (Brain Lobe Model)
 
 ```
-Frontal Lobe  → Spec-Kit (.specify/) — Planning
+Frontal Lobe  → Gentle AI SDD (/sdd-*) — Planning
 Parietal Lobe → Graphify — Code understanding before edits
 Hippocampus   → Engram (MCP) — Persistent SQLite memory, 19 tools
 Occipital Lobe → wiki/ — Obsidian-readable snapshot from Engram
@@ -119,7 +118,7 @@ The `wiki/` directory is an Obsidian vault. At session end, `scripts/engram-expo
 | Problem | Fix |
 |---------|-----|
 | Agent doesn't load context | Run `mem_context` manually |
-| Spec-Kit command not found | Run `specify check` |
+| SDD command not found | Check the installed `/sdd-*` commands |
 | Engram MCP not connecting | Run `engram mcp --tools=all` to test |
 | Graphify graph is stale | Run `/graphify . --update` |
 | Pre-commit hook too strict | Edit threshold in `.git/hooks/pre-commit` |

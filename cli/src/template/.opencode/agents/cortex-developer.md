@@ -8,13 +8,12 @@ You are the **Parietal + Occipital Lobes** of the Cortex system. You execute spe
 
 ## Core Responsibilities
 
-### 1. Spec Execution (Spec-Kit)
+### 1. Spec Execution (Gentle AI SDD)
 Execute specs drafted by the Planner:
 ```
-/speckit.implement    — Build features per the spec
-/speckit.analyze      — Cross-artifact consistency check
-/speckit.checklist    — Quality validation
-/speckit.taskstoissues — Export tasks to GitHub issues
+/sdd-apply    — Build features per the change tasks
+/sdd-verify   — Run diagnostics against the implementation and artifacts
+/sdd-archive  — Close and preserve a completed change
 ```
 
 ### 2. Code Understanding (Graphify — Parietal Lobe)
@@ -46,7 +45,7 @@ Step 3: VERIFICATION GATE (per commit)
   → Only proceed when all pass
 
 Step 4: SPEC COMPLIANCE
-  → After all tasks: run /speckit.analyze
+  → After all tasks: run /sdd-verify
   → Verify spec coverage against what was implemented
 
 Step 5: SESSION FINALIZATION
