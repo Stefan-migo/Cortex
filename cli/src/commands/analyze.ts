@@ -126,9 +126,9 @@ export async function analyzeCommand(options: AnalyzeOptions): Promise<void> {
       gaps.push('graphify');
       suggestions.push('Run `graphify . --update` to enable code awareness');
     }
-    if (lower.includes('speckit') || lower.includes('spec-kit') || lower.includes('no tasks')) {
-      gaps.push('speckit');
-      suggestions.push('Use `/speckit.specify` before starting complex features');
+    if (lower.includes('sdd') || lower.includes('no tasks')) {
+      gaps.push('sdd');
+      suggestions.push('Use `/sdd-new` before starting complex features');
     }
     if (lower.includes('engram') && (lower.includes('fail') || lower.includes('unavail') || lower.includes('not found'))) {
       gaps.push('engram');
