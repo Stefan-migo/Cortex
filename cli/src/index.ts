@@ -7,6 +7,7 @@ import { closeCommand } from './commands/close';
 import { statusCommand } from './commands/status';
 import { updateCommand } from './commands/update';
 import { analyzeCommand } from './commands/analyze';
+import { worktreeCommand } from './commands/worktree';
 
 const program = new Command();
 
@@ -83,4 +84,9 @@ program
     await analyzeCommand(options);
   });
 
-program.parse(process.argv);
+program.addCommand(worktreeCommand());
+
+program.parseAsync(process.argv).catch((err: unknown) => {
+  console.error(err instanceof Error ? err.message : String(err));
+  process.exitCode = 1;
+});
