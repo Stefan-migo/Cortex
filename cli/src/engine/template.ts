@@ -82,6 +82,17 @@ export function hashFile(filePath: string): string {
   return createHash('sha256').update(content).digest('hex');
 }
 
+/**
+ * Hash a template file the way it will exist in the project: text files are hashed after
+ * variable substitution, binary files byte-for-byte. A manifest records the hash of the
+ * project file, so comparing it against the raw template hash would report every file that
+ * carries a placeholder as modified forever. Mirrors copyTemplate's text/binary rule.
+ */
+export function hashTemplateFile(filePath: string, options: TemplateOptions): string {
+  if (!isTextFile(filePath)) return hashFile(filePath);
+  return createHash('sha256').update(substituteVariables(readFileSync(filePath, 'utf-8'), options)).digest('hex');
+}
+
 export function hashDirectory(dir: string): string[] {
   const allFiles: string[] = [];
   const entries = readdirSync(dir, { withFileTypes: true });
