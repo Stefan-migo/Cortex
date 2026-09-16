@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # === Step 1: Atomicity Gate (≤5 files) ===
-CHANGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | wc -l)
+CHANGED_FILES=$(git diff --cached --name-only --diff-filter=ACDMR | wc -l)
 if [ "$CHANGED_FILES" -gt 5 ]; then
   echo "❌ Atomicity Gate: $CHANGED_FILES files staged (max 5)"
   echo "   Split your changes into multiple commits (one concern each)"
@@ -11,6 +11,9 @@ if [ "$CHANGED_FILES" -gt 5 ]; then
 fi
 
 # === Step 1b: Main worktree code guard ===
+# ACDMR, not ACMR: a staged DELETION of tracked code must be rejected too.
+# With ACMR a deletion lists no paths, the loop below never iterates, and the
+# commit passes — the guard silently allowed removing code from main.
 GIT_DIR=$(git rev-parse --git-dir)
 COMMON_DIR=$(git rev-parse --git-common-dir)
 if [ "$GIT_DIR" = "$COMMON_DIR" ] && ! git diff --cached --quiet; then
@@ -19,11 +22,11 @@ if [ "$GIT_DIR" = "$COMMON_DIR" ] && ! git diff --cached --quiet; then
       .cortex-sessions/*) ;;
       *) echo "Main worktree guard: direct code commits are only allowed for .cortex-sessions/**"; exit 1 ;;
     esac
-  done < <(git diff --cached --name-only --diff-filter=ACMR)
+  done < <(git diff --cached --name-only --diff-filter=ACDMR)
 fi
 
 # === Step 2: File type diversity warning ===
-FILE_TYPES=$(git diff --cached --name-only --diff-filter=ACMR | awk -F. '{if(NF>1) print $NF}' | sort -u | wc -l)
+FILE_TYPES=$(git diff --cached --name-only --diff-filter=ACDMR | awk -F. '{if(NF>1) print $NF}' | sort -u | wc -l)
 if [ "$FILE_TYPES" -gt 3 ]; then
   echo "⚠️  Warning: $FILE_TYPES different file types in this commit"
   echo "   Consider splitting into focused commits"
