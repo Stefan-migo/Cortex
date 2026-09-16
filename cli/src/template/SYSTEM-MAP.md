@@ -9,11 +9,11 @@ How every component of the Cortex 2.5 executive system works, when to use it, an
 ```
                          ┌──────────────────────────┐
                          │  FRONTAL LOBE (Planning)  │
-                         │     Spec-Kit /speckit.*   │
-                         │     .specify/ artifacts   │
+                         │     Gentle AI SDD (/sdd-*)│
+                         │     SDD change artifacts  │
                          │     @Cortex-Planner       │
                          └──────────┬───────────────┘
-                                    │ hands off spec
+                                    │ hands off change
           ┌─────────────────────────┼──────────────────────────┐
           │                         │                          │
    ┌──────▼──────────┐    ┌───────▼──────────┐    ┌─────────▼─────────┐
@@ -38,7 +38,7 @@ How every component of the Cortex 2.5 executive system works, when to use it, an
 ├──────────────────┼──────────────────────┼────────────────────┤
 │   Permissions    │  Read-only + research│ Full (edit, bash)  │
 │   Model          │  Claude Sonnet 4     │ Claude Sonnet 4    │
-│   Primary tool   │  /speckit.specify    │ /speckit.implement │
+│   Primary tool   │ cortex-session       │ /sdd-apply         │
 │   Memory         │  mem_session_start   │ mem_save results   │
 │   Code access    │  Read only           │ Edit + write       │
 │   When to use    │  Planning, research  │ Building, testing  │
@@ -47,7 +47,7 @@ How every component of the Cortex 2.5 executive system works, when to use it, an
 
 ---
 
-## 1. FRONTAL LOBE — Spec-Kit (Planning)
+## 1. FRONTAL LOBE — Gentle AI SDD (Planning)
 
 **What it is:** A structured spec-driven development workflow. Specs define WHAT before HOW.
 
@@ -55,15 +55,13 @@ How every component of the Cortex 2.5 executive system works, when to use it, an
 
 | Command | Purpose | Output |
 |---------|---------|--------|
-| `/speckit.constitution` | Define project principles | `.specify/memory/constitution.md` |
-| `/speckit.specify` | Write feature spec | `.specify/specs/<n>-<name>.md` |
-| `/speckit.clarify` | Resolve ambiguities | Clarifications section added |
-| `/speckit.plan` | Create tech plan | `.specify/plans/<n>-<name>.md` |
-| `/speckit.tasks` | Break into tasks | `.specify/tasks/<n>-<name>.md` |
-| `/speckit.implement` | Execute all tasks | Built code |
-| `/speckit.analyze` | Consistency check | Analysis report |
-| `/speckit.checklist` | Quality validation | Checklist |
-| `/speckit.taskstoissues` | Export as GitHub issues | Issues |
+| `cortex-session` skill | Structure planning discussions | Session context |
+| `/sdd-new` | Start a structured change | Change proposal |
+| `/sdd-ff` | Fast-forward planning | Spec, design, and tasks artifacts |
+| `/sdd-status` | Check change state | Current change status |
+| `/sdd-apply` | Execute the change tasks | Code and apply progress |
+| `/sdd-verify` | Verify the implementation and artifacts | Verify report |
+| `/sdd-archive` | Close and preserve a completed change | Archive report |
 
 **When to use:** Every feature, every task. Always spec first, then build.
 
@@ -135,7 +133,7 @@ wiki/
 Step 1: GRAPH CHECK — query_graph before any edit
 Step 2: ATOMIC COMMIT — one concern per commit, ≤5 files
 Step 3: VERIFY — lint + typecheck + tests (block on failure)
-Step 4: SPEC CHECK — /speckit.analyze after completion
+Step 4: SPEC CHECK — /sdd-verify after completion
 Step 5: MEMORY — mem_save key learnings
 ```
 
@@ -170,7 +168,7 @@ Step 5: MEMORY — mem_save key learnings
 │ CORTEX-DEVELOPER │ Switch to Tab        │ Building, testing,   │
 │                  │                      │ implementing specs   │
 ├──────────────────┼──────────────────────┼──────────────────────┤
-│ SPEC-KIT         │ /speckit.*           │ Every feature task   │
+│ GENTLE AI SDD    │ /sdd-new + /sdd-ff   │ Every feature task   │
 │ Frontal Lobe     │                      │                      │
 ├──────────────────┼──────────────────────┼──────────────────────┤
 │ GRAPHFY          │ query_graph before   │ Before editing,      │
@@ -202,6 +200,6 @@ Step 5: MEMORY — mem_save key learnings
 |-----------|-------------|
 | Engram | Data is persistent. Run `engram export` for backups. |
 | Graphify | Re-run after major refactors: `/graphify . --update` |
-| Spec-Kit | Templates are in `.specify/`. Update as project evolves. |
+| Gentle AI SDD | The dispatcher manages change artifacts. Update the SDD workflow as it evolves. |
 | Wiki | Auto-generated. Only maintain export script. |
 | Git hooks | `.git/hooks/pre-commit` — edit threshold as needed. |
