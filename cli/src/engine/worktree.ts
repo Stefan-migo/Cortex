@@ -1,11 +1,21 @@
-import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'fs';
 import { execFileSync } from 'child_process';
-import { basename, dirname, join, relative, resolve } from 'path';
+import { basename, dirname, join, relative, resolve, sep } from 'path';
 
 export interface WorktreeRecord {
   path: string;
   head: string;
   branch?: string;
+}
+
+export class CleanupRefusalError extends Error {
+  readonly paths: string[];
+
+  constructor(message: string, paths: string[]) {
+    super(`${message}: ${paths.join(', ')}`);
+    this.name = 'CleanupRefusalError';
+    this.paths = paths;
+  }
 }
 
 interface MergeMarker { branch: string; mergeSha: string }
@@ -43,6 +53,72 @@ function worktreePath(slug: string, root: string): string {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) throw new Error('Slug must contain lowercase letters, numbers, and hyphens.');
   const main = repositoryRoot(root);
   return join(dirname(main), `${basename(main)}-sdd-${slug}`);
+}
+
+function sameContent(left: string, right: string): boolean {
+  const leftStat = lstatSync(left);
+  const rightStat = lstatSync(right);
+  if (leftStat.isDirectory() !== rightStat.isDirectory() || leftStat.isFile() !== rightStat.isFile()) return false;
+  if (leftStat.isFile()) return readFileSync(left).equals(readFileSync(right));
+  if (!leftStat.isDirectory()) return false;
+  const leftEntries = readdirSync(left).sort();
+  const rightEntries = readdirSync(right).sort();
+  if (leftEntries.join('\0') !== rightEntries.join('\0')) return false;
+  return leftEntries.every((entry) => sameContent(join(left, entry), join(right, entry)));
+}
+
+function handoffCandidates(main: string, target: string, slug: string): string[] {
+  const candidates: string[] = [];
+  for (const readyRoot of [join(target, '.cortex-sessions', 'ready-for-sdd'), join(main, '.cortex-sessions', 'ready-for-sdd')]) {
+    if (!existsSync(readyRoot) || !lstatSync(readyRoot).isDirectory()) continue;
+    for (const entry of readdirSync(readyRoot)) {
+      if (new RegExp(`^\\d{4}-\\d{2}-\\d{2}-${slug}$`).test(entry)) {
+        const candidate = join(readyRoot, entry);
+        if (lstatSync(candidate).isDirectory()) candidates.push(candidate);
+      }
+    }
+  }
+  return candidates;
+}
+
+function protectedUntrackedPaths(target: string, main: string, candidates: string[]): string[] {
+  const candidateRoots = candidates.map((candidate) => resolve(candidate));
+  const output = git(target, ['ls-files', '--others', '--exclude-standard', '-z']);
+  const protectedPaths: string[] = [];
+  for (const path of output.split('\0').filter(Boolean)) {
+    const absolute = resolve(target, path);
+    const normalized = path.replace(/\\/g, '/');
+    const isOpenSpec = normalized === 'openspec' || normalized.startsWith('openspec/');
+    const isSessionState = normalized === '.cortex-sessions' || normalized.startsWith('.cortex-sessions/');
+    if (!isOpenSpec && !isSessionState) continue;
+    if (candidateRoots.some((candidate) => absolute === candidate || absolute.startsWith(`${candidate}${sep}`))) continue;
+    const mainCopy = resolve(main, path);
+    if (existsSync(mainCopy) && sameContent(absolute, mainCopy)) continue;
+    protectedPaths.push(path);
+  }
+  return protectedPaths;
+}
+
+function archiveHandoff(source: string, main: string): void {
+  const name = basename(source);
+  const archived = join(main, '.cortex-sessions', 'archived', name);
+  if (existsSync(archived)) {
+    if (!sameContent(source, archived)) throw new CleanupRefusalError('Refusing to reconcile differing archived handoff content', [relative(main, source), relative(main, archived)]);
+    rmSync(source, { recursive: true, force: true });
+    return;
+  }
+  const temporaryArchive = `${archived}.tmp-${process.pid}`;
+  mkdirSync(dirname(archived), { recursive: true });
+  rmSync(temporaryArchive, { recursive: true, force: true });
+  cpSync(source, temporaryArchive, { recursive: true });
+  try {
+    renameSync(temporaryArchive, archived);
+  } catch (error) {
+    if (!existsSync(archived)) throw error;
+    rmSync(temporaryArchive, { recursive: true, force: true });
+    if (!sameContent(source, archived)) throw new CleanupRefusalError('Refusing to reconcile differing archived handoff content', [relative(main, source), relative(main, archived)]);
+  }
+  rmSync(source, { recursive: true, force: true });
 }
 
 export async function createWorktree(slug: string, root: string): Promise<string> {
@@ -143,24 +219,11 @@ export function cleanupWorktree(slug: string, root: string, remote: boolean): vo
   const main = repositoryRoot(root);
   if (!isMainWorktree(main)) throw new Error('Cleanup must start from the main worktree.');
   const target = worktreePath(slug, main);
-  const sessionRoot = join(main, '.cortex-sessions');
-  const targetSessionRoot = join(target, '.cortex-sessions');
-  const handoff = join(targetSessionRoot, 'ready-for-sdd', slug);
-  const mainHandoff = join(sessionRoot, 'ready-for-sdd', slug);
-  const archived = join(sessionRoot, 'archived', slug);
-  if (existsSync(handoff)) {
-    const temporaryArchive = `${archived}.tmp-${process.pid}`;
-    mkdirSync(dirname(archived), { recursive: true });
-    rmSync(temporaryArchive, { recursive: true, force: true });
-    cpSync(handoff, temporaryArchive, { recursive: true });
-    rmSync(archived, { recursive: true, force: true });
-    renameSync(temporaryArchive, archived);
-  } else if (existsSync(mainHandoff)) {
-    mkdirSync(dirname(archived), { recursive: true });
-    rmSync(archived, { recursive: true, force: true });
-    cpSync(mainHandoff, archived, { recursive: true });
-    rmSync(mainHandoff, { recursive: true, force: true });
-  }
+  const candidates = handoffCandidates(main, target, slug);
+  if (candidates.length > 1) throw new CleanupRefusalError('Ambiguous session handoff; refusing cleanup', candidates.map((candidate) => relative(main, candidate)));
+  const protectedPaths = protectedUntrackedPaths(target, main, candidates);
+  if (protectedPaths.length > 0) throw new CleanupRefusalError('Refusing cleanup because untracked artifacts would be lost', protectedPaths);
+  if (candidates.length === 1) archiveHandoff(candidates[0], main);
   git(main, ['worktree', 'remove', '--force', target]);
   git(main, ['branch', '-D', `sdd/${slug}`]);
   if (remote) git(main, ['push', 'origin', '--delete', `sdd/${slug}`]);
