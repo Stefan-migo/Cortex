@@ -1,7 +1,7 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { spawn } from 'child_process';
-import { step, info, success, warn, error, heading } from '../utils/logger';
+import { info, success, warn, error, heading } from '../utils/logger';
 import { generateSessionId, openSession, getSessionInfo } from '../engine/session';
 import { buildPrelude } from '../engine/context';
 
@@ -23,26 +23,6 @@ function findProjectRoot(dir: string): string | null {
   return findProjectRoot(parent);
 }
 
-interface OpenCodeConfig {
-  instructions?: string[];
-  [key: string]: any;
-}
-
-function readOpenCodeConfig(projectDir: string): OpenCodeConfig | null {
-  const configPath = join(projectDir, 'opencode.json');
-  if (!existsSync(configPath)) return null;
-  try {
-    return JSON.parse(readFileSync(configPath, 'utf-8'));
-  } catch {
-    return null;
-  }
-}
-
-function writeOpenCodeConfig(projectDir: string, config: OpenCodeConfig): void {
-  const configPath = join(projectDir, 'opencode.json');
-  writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf-8');
-}
-
 function readProjectName(projectDir: string): string {
   const manifestPath = join(projectDir, '.cortex', 'manifest.json');
   if (existsSync(manifestPath)) {
@@ -50,6 +30,8 @@ function readProjectName(projectDir: string): string {
       const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
       return manifest.projectName || 'unknown';
     } catch {
+      warn('Unable to read project manifest; using unknown project name.');
+      return 'unknown';
     }
   }
   return 'unknown';
@@ -72,6 +54,10 @@ export async function startCommand(options: StartOptions): Promise<void> {
   if (existingSession) {
     warn(`Active session found: ${existingSession.sessionId}`);
     info('Run `cortex close` to finalize it before starting a new one.');
+    if (!process.stdin.isTTY) {
+      error('Cannot confirm starting another session without an interactive terminal.');
+      process.exit(1);
+    }
     const proceed = await new Promise<boolean>((resolve) => {
       process.stdout.write('Start a new session anyway? (y/N): ');
       process.stdin.once('data', (data) => {
@@ -100,11 +86,11 @@ export async function startCommand(options: StartOptions): Promise<void> {
       info('     - Graphify codebase report');
       info('     - Spec-Kit current tasks/plans');
       info('     - Project manifest info');
-      info('  5. Update opencode.json instructions with .cortex/prelude.md');
+      info('  5. Keep the prelude in ignored .cortex/ local state');
     } else {
       info('  4. Skip context prelude (--no-prelude)');
     }
-    info('  6. Launch opencode in project directory');
+    info(`  ${options.prelude !== false ? 6 : 5}. Launch opencode in project directory`);
     info('  7. After opencode exits, print finalization instructions');
     return;
   }
@@ -113,22 +99,6 @@ export async function startCommand(options: StartOptions): Promise<void> {
 
   if (options.prelude !== false) {
     await buildPrelude(projectDir, projectName);
-
-    step('Updating opencode.json');
-    const config = readOpenCodeConfig(projectDir);
-    if (config) {
-      if (!config.instructions) {
-        config.instructions = [];
-      }
-      const preludePath = '.cortex/prelude.md';
-      if (!config.instructions.includes(preludePath)) {
-        config.instructions.push(preludePath);
-      }
-      writeOpenCodeConfig(projectDir, config);
-      success('opencode.json updated with prelude reference');
-    } else {
-      warn('opencode.json not found — skipping instruction update');
-    }
   }
 
   if (options.open === false) {
@@ -162,12 +132,13 @@ export async function startCommand(options: StartOptions): Promise<void> {
   });
 
   child.on('exit', (code: number | null) => {
-    if (code !== 0) {
+    heading('Session End');
+    if (code === 0) {
+      success('OpenCode session completed');
+    } else {
       warn(`OpenCode exited with code ${code}`);
     }
-    heading('Session End');
-    success('OpenCode session completed');
     info('Run `cortex close` to finalize the session.');
-    process.exit(code || 0);
+    process.exit(code === null ? 1 : code);
   });
 }
