@@ -197,4 +197,4 @@ A missing graph is BUILT before continuing (`/graphify` or
 - No Cortex-specific changes. Continue normally.
 
 ### Phase: sdd-archive
-- **MANDATORY — Graphify update**: after archiving, run `graphify . --update` to keep the graph in sync. Archiving a change without updating the graph is considered incomplete
+- Archive does not refresh Graphify. Graphify refresh is owned by delivery/cleanup after GitHub confirms a merged `sdd/<slug>` pull request and its merge SHA is verified on main.
