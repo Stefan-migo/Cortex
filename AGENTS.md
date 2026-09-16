@@ -3,7 +3,7 @@
 ## Brain Lobe Architecture
 
 ```
-Frontal Lobe (Planning)     → Spec-Kit (.specify/) — /speckit.{constitution,specify,plan,tasks,implement}
+Frontal Lobe (Planning)     → cortex-session + Gentle AI SDD — /sdd-*
 Parietal Lobe (Spatial)     → Graphify — codebase graph before editing
 Hippocampus (Memory)        → Engram — persistent SQLite memory via MCP
 Occipital Lobe (Archive)    → wiki/ — Obsidian-readable snapshot exported from Engram
@@ -41,18 +41,18 @@ Switch with Tab: Planner (read-only) / Developer (full tools).
 | `python3 -m graphify.serve <graph>` | MCP server for graph queries |
 | `/graphify . --update` | Rebuild graph after code changes |
 
-### Spec-Kit (Frontal Lobe — Planning)
+### Gentle AI SDD (Frontal Lobe — Planning)
 | Command | Purpose |
 |---------|---------|
-| `/speckit.constitution` | Define project principles |
-| `/speckit.specify` | Write feature spec (WHAT to build) |
-| `/speckit.clarify` | Resolve ambiguities |
-| `/speckit.plan` | Write tech plan (HOW to build) |
-| `/speckit.tasks` | Break into executable tasks |
-| `/speckit.implement` | Execute all tasks |
-| `/speckit.analyze` | Cross-artifact consistency check |
-| `/speckit.checklist` | Quality validation checklist |
-| `/speckit.taskstoissues` | Convert tasks to GitHub issues |
+| `cortex-session` skill | Discuss and structure planning work with the user |
+| `/sdd-new` | Start a new structured change |
+| `/sdd-ff` | Fast-forward a change through its planning phases |
+| `/sdd-status` | Check change state and available next steps |
+| `/sdd-apply` | Implement the change tasks |
+| `/sdd-verify` | Run diagnostics against the implementation and artifacts |
+| `/sdd-archive` | Close and preserve a completed change |
+| `/sdd-init` | Initialize SDD context for a project |
+| `/sdd-onboard` | Walk through the SDD workflow on an existing project |
 
 ### Code-Sandbox (Execution)
 | Tool | Purpose |
@@ -66,7 +66,7 @@ Switch with Tab: Planner (read-only) / Developer (full tools).
 2. Agent detects `.cortex/prelude.md` and uses it as working context
 
 ### Work
-1. Planner discusses with user, drafts spec via `/speckit.specify`
+1. Planner discusses with user through the `cortex-session` skill, then drafts the change with `/sdd-new`
 2. Planner hands spec to Developer via `@Cortex-Developer`
 3. Developer runs graphify check before editing code
 4. Developer executes modified 5-Step Gate per task
@@ -76,7 +76,7 @@ Switch with Tab: Planner (read-only) / Developer (full tools).
 Step 1: GRAPH CHECK — query_graph before editing
 Step 2: ATOMIC COMMIT — one concern per commit, ≤5 files
 Step 3: VERIFY — lint + typecheck + tests (block on failure)
-Step 4: SPEC CHECK — /speckit.analyze after completion
+Step 4: SPEC CHECK — /sdd-verify after completion
 Step 5: FINALIZE — mem_save + cortex close --message "<summary>"
 ```
 
