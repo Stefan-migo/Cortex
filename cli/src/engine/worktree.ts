@@ -10,15 +10,21 @@ export interface WorktreeRecord {
 
 export class CleanupRefusalError extends Error {
   readonly paths: string[];
+  readonly preservedPaths: string[];
 
-  constructor(message: string, paths: string[]) {
+  constructor(message: string, paths: string[], preservedPaths: string[] = []) {
     super(`${message}: ${paths.join(', ')}`);
     this.name = 'CleanupRefusalError';
     this.paths = paths;
+    this.preservedPaths = preservedPaths;
   }
 }
 
 interface MergeMarker { branch: string; mergeSha: string }
+
+export interface CleanupReport { preservedPaths: string[] }
+
+interface ProtectedUntrackedPaths { preservedPaths: string[]; lossPaths: string[] }
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', ['-C', root, ...args], { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -67,6 +73,19 @@ function sameContent(left: string, right: string): boolean {
   return leftEntries.every((entry) => sameContent(join(left, entry), join(right, entry)));
 }
 
+function hasArchivedTwin(protectedPath: string, main: string): boolean {
+  try {
+    const archiveRoot = join(main, 'openspec', 'changes', 'archive');
+    if (!existsSync(archiveRoot) || !lstatSync(archiveRoot).isDirectory()) return false;
+    const entries = readdirSync(archiveRoot, { recursive: true }) as string[];
+    return entries.some((entry) => {
+      try { return sameContent(protectedPath, join(archiveRoot, entry)); } catch { return false; }
+    });
+  } catch {
+    return false;
+  }
+}
+
 function handoffCandidates(main: string, target: string, slug: string): string[] {
   const candidates: string[] = [];
   for (const readyRoot of [join(target, '.cortex-sessions', 'ready-for-sdd'), join(main, '.cortex-sessions', 'ready-for-sdd')]) {
@@ -81,10 +100,11 @@ function handoffCandidates(main: string, target: string, slug: string): string[]
   return candidates;
 }
 
-function protectedUntrackedPaths(target: string, main: string, candidates: string[]): string[] {
+function protectedUntrackedPaths(target: string, main: string, candidates: string[]): ProtectedUntrackedPaths {
   const candidateRoots = candidates.map((candidate) => resolve(candidate));
   const output = git(target, ['ls-files', '--others', '--exclude-standard', '-z']);
-  const protectedPaths: string[] = [];
+  const preservedPaths: string[] = [];
+  const lossPaths: string[] = [];
   for (const path of output.split('\0').filter(Boolean)) {
     const absolute = resolve(target, path);
     const normalized = path.replace(/\\/g, '/');
@@ -94,9 +114,10 @@ function protectedUntrackedPaths(target: string, main: string, candidates: strin
     if (candidateRoots.some((candidate) => absolute === candidate || absolute.startsWith(`${candidate}${sep}`))) continue;
     const mainCopy = resolve(main, path);
     if (existsSync(mainCopy) && sameContent(absolute, mainCopy)) continue;
-    protectedPaths.push(path);
+    if (isOpenSpec && hasArchivedTwin(absolute, main)) preservedPaths.push(path);
+    else lossPaths.push(path);
   }
-  return protectedPaths;
+  return { preservedPaths, lossPaths };
 }
 
 function archiveHandoff(source: string, main: string): void {
@@ -215,18 +236,19 @@ export function listWorktrees(root: string): WorktreeRecord[] {
   });
 }
 
-export function cleanupWorktree(slug: string, root: string, remote: boolean): void {
+export function cleanupWorktree(slug: string, root: string, remote: boolean): CleanupReport {
   const main = repositoryRoot(root);
   if (!isMainWorktree(main)) throw new Error('Cleanup must start from the main worktree.');
   const target = worktreePath(slug, main);
   const candidates = handoffCandidates(main, target, slug);
   if (candidates.length > 1) throw new CleanupRefusalError('Ambiguous session handoff; refusing cleanup', candidates.map((candidate) => relative(main, candidate)));
-  const protectedPaths = protectedUntrackedPaths(target, main, candidates);
-  if (protectedPaths.length > 0) throw new CleanupRefusalError('Refusing cleanup because untracked artifacts would be lost', protectedPaths);
+  const { preservedPaths, lossPaths } = protectedUntrackedPaths(target, main, candidates);
+  if (lossPaths.length > 0) throw new CleanupRefusalError('Refusing cleanup because untracked artifacts would be lost', lossPaths, preservedPaths);
   if (candidates.length === 1) archiveHandoff(candidates[0], main);
   git(main, ['worktree', 'remove', '--force', target]);
   git(main, ['branch', '-D', `sdd/${slug}`]);
   if (remote) git(main, ['push', 'origin', '--delete', `sdd/${slug}`]);
+  return { preservedPaths };
 }
 
 /** Refresh the authoritative graph only after delivery recorded and verified a merged SDD PR. */

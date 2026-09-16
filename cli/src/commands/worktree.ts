@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { cleanupWorktree, createWorktree, listWorktrees, provisionWorktree, refreshMainAfterMerge } from '../engine/worktree';
+import { CleanupRefusalError, cleanupWorktree, createWorktree, listWorktrees, provisionWorktree, refreshMainAfterMerge } from '../engine/worktree';
 
 interface CreateOptions { yes?: boolean; root?: string }
 
@@ -44,7 +44,17 @@ export function worktreeCommand(): Command {
   });
   command.command('list').option('--root <path>', 'repository root').action((options: { root?: string }) => output(listWorktrees(rootOf(options.root))));
   command.command('cleanup').argument('<slug>').option('--remote', 'delete the remote branch').option('--root <path>', 'main repository root').action((slug, options: { remote?: boolean; root?: string }) => {
-    cleanupWorktree(slug, rootOf(options.root), options.remote === true); output({ cleaned: true, slug });
+    try {
+      const report = cleanupWorktree(slug, rootOf(options.root), options.remote === true);
+      for (const path of [...report.preservedPaths].sort()) console.log(`superseded/preserved: ${path}`);
+      output({ cleaned: true, slug });
+    } catch (error) {
+      if (error instanceof CleanupRefusalError) {
+        for (const path of [...error.preservedPaths].sort()) console.error(`superseded/preserved: ${path}`);
+        for (const path of [...error.paths].sort()) console.error(`loss: ${path}`);
+      }
+      throw error;
+    }
   });
   command.command('refresh').argument('<slug>').requiredOption('--marker <path>', 'delivery merge marker JSON').option('--root <path>', 'main repository root').action((slug, options: { marker: string; root?: string }) => {
     refreshMainAfterMerge(slug, rootOf(options.root), options.marker); output({ refreshed: true, slug });
