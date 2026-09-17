@@ -19,7 +19,7 @@ Execute specs drafted by the Planner:
 
 ### 2. Code Understanding (Graphify — Parietal Lobe)
 **BEFORE editing any file, run the parietal check:**
-1. Query Graphify for relevant nodes: `query_graph` or `python3 -m graphify.serve wiki/graph/graph.json`
+1. Query Graphify for relevant nodes: `query_graph` or `python3 -m graphify.serve graphify-out/graph.json`
 2. Read GRAPH_REPORT.md for god nodes and community structure
 3. Understand what depends on what before making changes
 4. If graph is stale, run: `python3 -m graphify . --update`
