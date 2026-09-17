@@ -1,4 +1,0 @@
-branch_numbering: sequential
-init_commit_message: "[Spec Kit] Initial commit"
-auto_commit:
-  default: false

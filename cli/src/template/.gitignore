@@ -20,9 +20,6 @@ graphify-out/
 .obsidian/workspace.json
 .obsidian/workspace
 
-# Spec-Kit integration manifests (generated, per-machine)
-.specify/integrations/
-
 # OS
 __pycache__/
 *.pyc
