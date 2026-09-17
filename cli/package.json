@@ -2,7 +2,28 @@
   "name": "rapsodia-code",
   "version": "1.0.0",
   "description": "Scaffold, manage, analyze, and update project development workflows",
-  "preferGlobal": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Stefan-migo/Cortex.git",
+    "directory": "cli"
+  },
+  "homepage": "https://github.com/Stefan-migo/Cortex#readme",
+  "bugs": {
+    "url": "https://github.com/Stefan-migo/Cortex/issues"
+  },
+  "keywords": [
+    "rapsodia",
+    "rapso",
+    "cli",
+    "project-workflow",
+    "odd",
+    "engram",
+    "graphify"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "bin": {
     "rapso": "dist/index.js"
   },
@@ -16,15 +37,13 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "dependencies": {
-    "commander": "^12.0.0",
-    "chalk": "^5.3.0",
-    "ora": "^8.0.0"
-  },
   "devDependencies": {
     "typescript": "^5.4.0",
     "esbuild": "^0.20.0",
     "@types/node": "^20.0.0",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.0",
+    "commander": "^12.0.0",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.0"
   }
 }

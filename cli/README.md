@@ -1,48 +1,42 @@
-# cortex-brain
+# rapsodia-code
 
-Cortex brain manager CLI — scaffold and manage Cortex projects.
+`rapso` is the command-line interface for scaffolding and managing Rapsodia project workflows. It also manages sessions, project adoption, analysis, and isolated ODD worktrees.
 
-## Installation
+## Install
 
 ```bash
-npm install -g cortex-brain
+npm install -g rapsodia-code
 ```
 
-Or run from source:
+Node.js 18 or newer is required.
+
+## Quick start
 
 ```bash
-git clone https://github.com/Stefan-migo/Cortex
-cd cortex/cli
-npm install
-npm run build
-```
-
-## Usage
-
-```bash
-cortex init my-project
-cortex init my-project --no-git
-cortex init my-project --force
-cortex install
-cortex install --check
+rapso init demo --no-git --yes
+rapso status
 ```
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `cortex init <name>` | Scaffold new Cortex project |
-| `cortex install` | Check and install dependencies |
-| `cortex start` | Load context and launch (Phase 2) |
-| `cortex close` | Summarize and export (Phase 2) |
-| `cortex update` | Evolve brain template (Phase 4) |
-| `cortex analyze` | Session intelligence (Phase 4) |
-| `cortex status` | Brain health (Phase 3) |
+| `rapso init [options] <name>` | Scaffold a new Rapsodia project |
+| `rapso install [options]` | Check and install dependencies |
+| `rapso start [options]` | Start a session: load context and launch opencode |
+| `rapso close [options]` | Close a session: summarize, export, cleanup |
+| `rapso status [options]` | Show brain health overview |
+| `rapso update [options]` | Update brain template from latest version |
+| `rapso adopt [options] [path]` | Install Rapsodia into an existing project |
+| `rapso analyze [options]` | Analyze session patterns and suggest improvements |
+| `rapso worktree` | Create and manage isolated ODD worktrees |
 
-## Build
+Run `rapso <command> --help` for command-specific options. Run `rapso worktree --help` for its worktree operations.
 
-```bash
-npm run build    # esbuild bundle
-npm run typecheck  # tsc --noEmit
-npm test         # vitest
-```
+## Repository
+
+Source code and issue tracking: [github.com/Stefan-migo/Cortex](https://github.com/Stefan-migo/Cortex)
+
+## License
+
+MIT. See [LICENSE](LICENSE).
