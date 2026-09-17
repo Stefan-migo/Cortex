@@ -57,7 +57,6 @@ export async function startCommand(options: StartOptions): Promise<void> {
       info('  4. Build context prelude (.cortex/prelude.md):');
       info('     - Engram recent context');
       info('     - Graphify codebase report');
-      info('     - Spec-Kit current tasks/plans');
       info('     - Project manifest info');
       info('  5. Keep the prelude in ignored .cortex/ local state');
     } else {

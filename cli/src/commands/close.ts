@@ -120,9 +120,6 @@ export async function closeCommand(options: CloseOptions): Promise<void> {
     if (!existsSync(resolveGraphifyPaths(projectDir).graphJson)) {
       warnings.push('Graphify report not found at session start');
     }
-    if (!existsSync(join(projectDir, '.specify'))) {
-      warnings.push('Spec-Kit tasks or plans not found');
-    }
     const retroContent = generateRetrospective(projectDir, sessionInfo, summary || '', warnings);
     const retroPath = saveRetrospective(projectDir, retroContent);
     success(`Retrospective saved: ${retroPath}`);

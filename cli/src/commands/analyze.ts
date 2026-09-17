@@ -68,7 +68,7 @@ export async function analyzeCommand(options: AnalyzeOptions): Promise<void> {
     info('  1. Run `engram context` to fetch session data');
     info('  2. Extract session frequency patterns');
     info('  3. Compute word frequency from session summaries');
-    info('  4. Detect missing tool gaps (Graphify, Spec-Kit, Engram)');
+    info('  4. Detect missing tool gaps (Graphify, Engram)');
     info('  5. Generate suggestions report');
     return;
   }
