@@ -164,7 +164,7 @@ that D01 lacks in any ordinary invocation. Ponytail: prefer the smaller change.
       assertion).
 - [x] **T04** — Regression: the Atomicity Gate still blocks a 6-file commit.
 - [x] **T05** — Regression: a failing review still aborts the commit (`|| exit 1` intact).
-- [ ] **T06** — Dogfooding: commit this fix in the worktree while three untracked `.opencode/` files
+- [x] **T06** — Dogfooding: commit this fix in the worktree while three untracked `.opencode/` files
       are present; the commit must contain exactly the two authorized files.
 - [x] **T07** — Record the observed evidence and the acceptance table here.
 
@@ -270,6 +270,36 @@ commit_exit=1
 HEAD unchanged → no commit created
 ```
 
+**T06 — the fix's own commit, in a real linked worktree, with three untracked files present**
+
+```
+$ git status --short -uall          # before staging
+ M .githooks/pre-commit
+?? .opencode/package-lock.json
+?? .opencode/package.json
+?? .opencode/tools/package-lock.json
+?? odd/tasks/gga-index-fix.md
+
+$ git add .githooks/pre-commit odd/tasks/gga-index-fix.md
+$ git commit -m "fix(hooks): keep the review session from staging the working tree"
+commit_exit=0
+
+$ git show --name-only --format= HEAD
+.githooks/pre-commit
+odd/tasks/gga-index-fix.md
+
+$ git status --short -uall
+?? .opencode/package-lock.json
+?? .opencode/package.json
+?? .opencode/tools/package-lock.json
+```
+
+Two files committed, three untracked files left alone, zero `.opencode/` paths in the commit.
+
+This is the end-to-end proof, and it is stronger than the assertion that was planned: the previous
+change on this repository had to copy `.opencode/.gitignore` into its worktree to keep those same
+three files out of its commit. Here no workaround was needed at all.
+
 ## Acceptance status
 
 | # | Criterion | Status |
@@ -277,14 +307,14 @@ HEAD unchanged → no commit created
 | 1 | A dirty tree commits exactly the staged files | Met — T02 (1 of 1) and T03 (4 of 4) |
 | 2 | The Atomicity Gate still rejects over-limit commits | Met — T04, exit 1, no commit created |
 | 3 | A failing review still aborts the commit | Met — T05, exit 1, no commit created |
-| 4 | The review still runs and reports its verdict | Met — T02 and T03 both ran the review before the commit |
-| 5 | Dogfooding: the fix's own commit, made while three untracked `.opencode/` files are present, contains exactly the two authorized files | Pending — recorded in the follow-up documentation commit |
+| 4 | The review still runs and reports its verdict | Met — the review ran before every commit in T02, T03 and T06 |
+| 5 | Dogfooding: the fix's own commit contains exactly the two authorized files while three untracked `.opencode/` files are present | Met — T06 |
 
 ## Progress
 
-Doc written before the first source write. D01 implemented and verified with T02–T05. T06 (the
-worktree dogfooding commit) is recorded in the documentation commit that follows it.
+Doc written before the first source write. D01 implemented; T01–T06 verified with the literal output
+recorded above. Pending: the native review and the PR.
 
 ## Next step
 
-Commit `.githooks/pre-commit` and this document, then record the dogfooding result.
+Record this result in a documentation commit, then run the native review for the candidate.
