@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # rollback.sh — Restore cortex configuration from backup
 # Usage: ./scripts/rollback.sh <name>
-#   Restores files from .cortex/backups/<name>/
+#   Restores files from .rapsodia-code/backups/<name>/
 
 set -euo pipefail
 
 BACKUP_NAME="${1:?Usage: rollback.sh <backup-name>}"
-BACKUP_DIR=".cortex/backups/$BACKUP_NAME"
+BACKUP_DIR=".rapsodia-code/backups/$BACKUP_NAME"
 
 if [ ! -d "$BACKUP_DIR" ]; then
   echo "❌ Error: Backup not found: $BACKUP_DIR"
   echo "   Available backups:"
-  ls -1 ".cortex/backups/" 2>/dev/null || echo "   (no backups found)"
+  ls -1 ".rapsodia-code/backups/" 2>/dev/null || echo "   (no backups found)"
   exit 1
 fi
 

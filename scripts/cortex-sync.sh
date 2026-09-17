@@ -3,7 +3,7 @@
 #
 # For each project it:
 #   1. Copies the pack's skills into <project>/.opencode/skills/ (overwrite).
-#   2. Migrates legacy flat .cortex-sessions/ into open|ready-for-odd|archived.
+#   2. Migrates legacy flat .rapsodia-code/sessions/ into open|ready-for-odd|archived.
 #
 # Idempotent. Git is your backup: review `git diff` before committing.
 #
@@ -52,8 +52,8 @@ sync_skills() {
 
 # Legacy flat sessions -> open|ready-for-odd|archived. Idempotent.
 migrate_sessions() {
-  local root="$1/.cortex-sessions"
-  [[ -d "$root" ]] || { echo "  - no .cortex-sessions, skipped"; return 0; }
+  local root="$1/.rapsodia-code/sessions"
+  [[ -d "$root" ]] || { echo "  - no .rapsodia-code/sessions, skipped"; return 0; }
   run mkdir -p "$root/open" "$root/ready-for-odd" "$root/archived"
   local d name dest moved=0
   local legacy="$root/ready-for-sdd" target="$root/ready-for-odd"
