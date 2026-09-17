@@ -200,4 +200,4 @@ writing memory into wrong namespaces. Reconciling the naming model is a separate
 
 ## Next Step
 
-Commit on `odd/worktree-session-manifest`, then open the PR for review.
+Delivered on `odd/worktree-session-manifest` and opened as PR #21 for review.
