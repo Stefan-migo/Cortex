@@ -47,11 +47,11 @@ Mode: **off** (resolved from project configuration `AGENTS.md`: this repository 
 - [x] **T03** — Migrate `status.ts`: delete its private `findProjectRoot`, use `resolveProjectManifest` so name, template version, and tracked-file count resolve through the worktree's source.
 - [x] **T04** — Migrate `analyze.ts`: delete its private `findProjectRoot` and `readProjectName`, import both from the new module.
 - [x] **T05** — Verify with `npm run typecheck`, `npm run build`, and a real scenario inside the worktree: `cortex start --dry-run` from a provisioned worktree must succeed, and the pre-change bundle must still refuse in the same directory (differential control).
-- [ ] **T06** — Commit as reviewable work units on this branch. The PR is opened separately by the parent.
+- [x] **T06** — Commit as reviewable work units on this branch. The PR is opened separately by the parent.
 
 ## Acceptance criteria
 
-- `cortex start --dry-run` succeeds from inside a provisioned worktree and reports the project resolved through `worktree.json`.
+- `cortex start --dry-run` succeeds from inside a provisioned worktree — proved in Scenario A, on the real worktree. The project resolving **through `worktree.json`** is proved in Scenario B's isolated fixture, not in this repository: here the name stays `unknown` because main itself has no `.cortex/manifest.json`. That is pre-existing and unchanged by this work; it is not claimed as a new success.
 - The same command with the pre-change bundle still refuses in the same directory — proving the change causes the difference, not the directory.
 - `cortex start` in a plain directory with no Cortex state still refuses (no false positive from the widened predicate).
 - `readProjectName` returns `unknown` instead of throwing when the manifest is absent or corrupt.
@@ -142,11 +142,13 @@ No real session was opened in a worktree: `cortex start` without `--dry-run` lau
 
 ## Progress
 
-T01–T05 complete and evidenced above. `git diff --stat` against main: 3 files changed, 8 insertions, 68 deletions in the three commands, plus the new `engine/project.ts`. Changes are uncommitted in the worktree.
+T01–T06 complete. Committed as two work units on this branch: `dd47dbe` (code, 4 files, +71/−68) and `086219d` (this record, 157 lines). Main is untouched at `545fe58`.
+
+A third commit corrects this record after the fact: the first version of it still said the changes were uncommitted, which stopped being true the moment `dd47dbe` landed, and its first acceptance criterion claimed the real worktree resolves its project name through the marker when only the isolated fixture proves that.
 
 ## Next step
 
-Commit the two work units (code, then this record), then open the PR. Not verified here: a real non-dry-run session inside a worktree, which is the user's next action.
+Open the PR from `odd/worktree-session-root` into main (a delivery decision, not made here). After the merge: `npm ci && npm run build` in main's `cli/`, because `cli/dist/` is gitignored and the merge does not update it — `cortex start` inside a worktree only works from a rebuilt bundle. Still unverified by design: a real non-dry-run session inside a worktree, which is the user's next action.
 
 ## Rationale log
 
