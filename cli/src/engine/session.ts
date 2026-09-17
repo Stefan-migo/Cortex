@@ -3,9 +3,9 @@ import { join } from 'path';
 import { randomBytes } from 'crypto';
 import { execFileSync } from 'child_process';
 import { MCPClient } from '../utils/mcp';
-import { info, success, warn, error, step } from '../utils/logger';
+import { info, success, warn, step } from '../utils/logger';
 import { readProjectName, resolveGraphifyPaths } from './project';
-import { stateDir, statePath, PROJECT_STATE_DIR_NAME } from '../utils/state';
+import { stateDir, statePath, resolveStatePath, PROJECT_STATE_DIR_NAME } from '../utils/state';
 
 export interface SessionInfo {
   sessionId: string;
@@ -127,9 +127,9 @@ export async function closeSession(
   }
 
   step('Cleaning up session files');
-  const sessionPath = statePath(projectDir, 'session.json');
+  const sessionPath = resolveStatePath(projectDir, 'session.json');
   try {
-    if (existsSync(sessionPath)) {
+    if (sessionPath && existsSync(sessionPath)) {
       unlinkSync(sessionPath);
       success('Session file cleaned up');
     }
@@ -141,8 +141,8 @@ export async function closeSession(
 }
 
 export function getSessionInfo(projectDir: string): SessionInfo | null {
-  const sessionPath = statePath(projectDir, 'session.json');
-  if (!existsSync(sessionPath)) {
+  const sessionPath = resolveStatePath(projectDir, 'session.json');
+  if (!sessionPath || !existsSync(sessionPath)) {
     return null;
   }
 

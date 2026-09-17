@@ -6,7 +6,7 @@
 set -euo pipefail
 
 BACKUP_NAME="${1:-auto-$(date +%Y%m%d-%H%M%S)}"
-BACKUP_DIR=".cortex/backups/$BACKUP_NAME"
+BACKUP_DIR=".rapsodia-code/backups/$BACKUP_NAME"
 
 echo "💾 Backup: Saving configuration snapshot to $BACKUP_DIR"
 

@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { basename, dirname, join, relative, resolve } from 'path';
 import { collectFiles, hashFile, hashTemplateFile, substituteVariables, TemplateOptions } from './template';
 import { Manifest, ManifestFile } from './manifest';
-import { sessionsDir, statePath, PROJECT_STATE_DIR_NAME, SESSIONS_DIR_NAME } from '../utils/state';
+import { migrateLegacyState, sessionsDir, statePath, PROJECT_STATE_DIR_NAME } from '../utils/state';
 
 export const OWNED_PATHS = [
   '.opencode/agents/**', '.opencode/tools/**',
@@ -14,7 +14,8 @@ export const OWNED_PATHS = [
 export const NEVER_PATHS = ['DESIGN.md', 'SYSTEM-MAP.md', 'USER-GUIDE.md', 'wiki/**', 'scripts/**'];
 
 const RAPSO_IGNORE_ENTRIES = [
-  `${PROJECT_STATE_DIR_NAME}/`, `${SESSIONS_DIR_NAME}/`, 'graphify-out/',
+  // The nested sessions store is already covered by the state directory contents rule.
+  `${PROJECT_STATE_DIR_NAME}/`, 'graphify-out/',
   '.opencode/tools/node_modules/', '.engram/', '.obsidian/workspace.json',
   '.obsidian/workspace', '__pycache__/', '*.pyc',
   '*.pyo', '.pytest_cache/', '.ruff_cache/', '.mypy_cache/',
@@ -106,6 +107,9 @@ function writeFile(path: string, content: string): void {
 }
 
 export function adoptProject(targetDir: string, options: AdoptOptions, templateDir: string): AdoptPlan {
+  if (!options.dryRun) {
+    for (const move of migrateLegacyState(targetDir)) console.log(`State migration: ${move}`);
+  }
   const projectName = basename(targetDir) || 'project';
   const templateOptions: TemplateOptions = { projectName, projectType: 'default', date: getDate(), year: new Date().getFullYear().toString() };
   const plan: AdoptPlan = { created: [], refreshed: [], conflicting: [], injected: [], seeded: [], skipped: [] };

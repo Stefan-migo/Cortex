@@ -3,7 +3,7 @@ import { info, success, warn, error, heading } from '../utils/logger';
 import { generateSessionId, openSession, getSessionInfo } from '../engine/session';
 import { buildPrelude } from '../engine/context';
 import { findProjectRoot, readProjectName } from '../engine/project';
-import { PROJECT_STATE_DIR_NAME } from '../utils/state';
+import { migrateLegacyState, PROJECT_STATE_DIR_NAME } from '../utils/state';
 
 interface StartOptions {
   prelude?: boolean;
@@ -19,6 +19,8 @@ export async function startCommand(options: StartOptions): Promise<void> {
     error('Not inside a Rapsodia project. Run `rapso init <name>` first.');
     process.exit(1);
   }
+
+  for (const move of migrateLegacyState(projectDir)) info(`State migration: ${move}`);
 
   const projectName = readProjectName(projectDir);
   info(`Project: ${projectName}`);

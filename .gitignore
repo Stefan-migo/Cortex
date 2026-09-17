@@ -5,7 +5,8 @@
 /wiki/
 /raw/
 /.atl/
-/.cortex/
+/.rapsodia-code/*
+!/.rapsodia-code/sessions/
 
 # Dependencies
 node_modules/

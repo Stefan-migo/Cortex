@@ -236,7 +236,7 @@ if command -v gentle-ai &>/dev/null; then
     echo "  ✅ gentle-ai skill-registry refresheado" || true
 fi
 
-# Agregar .atl/ y .cortex-sessions/ al .gitignore
+# Agregar .atl/ y .rapsodia-code/sessions/ al .gitignore
 GITIGNORE="$PROJECT_DIR/.gitignore"
 ensure_gitignore() {
   local pattern="$1"
@@ -251,7 +251,7 @@ ensure_gitignore() {
   fi
 }
 ensure_gitignore '/.atl/'
-ensure_gitignore '/.cortex-sessions/'
+ensure_gitignore '/.rapsodia-code/sessions/'
 
 echo ""
 

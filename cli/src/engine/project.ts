@@ -1,7 +1,7 @@
-import { existsSync, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { basename, join } from 'path';
 import type { Manifest } from './manifest';
-import { stateDir, statePath } from '../utils/state';
+import { resolveStatePath } from '../utils/state';
 
 interface WorktreeMarker {
   source?: string;
@@ -12,8 +12,8 @@ interface WorktreeMarker {
  * `provisionWorktree` records it there so a worktree never needs its own manifest.
  */
 function worktreeSource(root: string): string | null {
-  const markerPath = statePath(root, 'worktree.json');
-  if (!existsSync(markerPath)) return null;
+  const markerPath = resolveStatePath(root, 'worktree.json');
+  if (!markerPath) return null;
   try {
     const marker = JSON.parse(readFileSync(markerPath, 'utf-8')) as WorktreeMarker;
     return typeof marker.source === 'string' ? marker.source : null;
@@ -27,12 +27,7 @@ function worktreeSource(root: string): string | null {
  * it has no manifest of its own, but it is where the session has to run.
  */
 export function findProjectRoot(dir: string): string | null {
-  const rapsodiaDir = stateDir(dir);
-  if (
-    existsSync(join(rapsodiaDir, 'manifest.json')) ||
-    existsSync(join(rapsodiaDir, 'session.json')) ||
-    existsSync(join(rapsodiaDir, 'worktree.json'))
-  ) {
+  if (['manifest.json', 'session.json', 'worktree.json'].some((name) => resolveStatePath(dir, name))) {
     return dir;
   }
 
@@ -74,8 +69,8 @@ export function resolveGraphifyPaths(root: string): { graphJson: string; graphRe
 export function resolveProjectManifestPath(root: string): string | null {
   for (const candidate of [root, worktreeSource(root)]) {
     if (!candidate) continue;
-    const manifestPath = statePath(candidate, 'manifest.json');
-    if (!existsSync(manifestPath)) continue;
+    const manifestPath = resolveStatePath(candidate, 'manifest.json');
+    if (!manifestPath) continue;
     try {
       JSON.parse(readFileSync(manifestPath, 'utf-8'));
       return manifestPath;
