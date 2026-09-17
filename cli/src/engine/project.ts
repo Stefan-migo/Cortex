@@ -1,7 +1,7 @@
-import { existsSync, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { basename, join } from 'path';
 import type { Manifest } from './manifest';
-import { resolveStateDir, resolveStatePath } from '../utils/state';
+import { resolveStatePath } from '../utils/state';
 
 interface WorktreeMarker {
   source?: string;
@@ -27,12 +27,7 @@ function worktreeSource(root: string): string | null {
  * it has no manifest of its own, but it is where the session has to run.
  */
 export function findProjectRoot(dir: string): string | null {
-  const rapsodiaDir = resolveStateDir(dir);
-  if (
-    existsSync(join(rapsodiaDir, 'manifest.json')) ||
-    existsSync(join(rapsodiaDir, 'session.json')) ||
-    existsSync(join(rapsodiaDir, 'worktree.json'))
-  ) {
+  if (['manifest.json', 'session.json', 'worktree.json'].some((name) => resolveStatePath(dir, name))) {
     return dir;
   }
 

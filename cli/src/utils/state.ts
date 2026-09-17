@@ -20,22 +20,12 @@ export function sessionsDir(root: string): string {
   return join(root, SESSIONS_DIR_NAME);
 }
 
-export function resolveStateDir(root: string): string {
-  const current = stateDir(root);
-  return existsSync(current) ? current : join(root, LEGACY_PROJECT_STATE_DIR_NAME);
-}
-
 export function resolveStatePath(root: string, ...parts: string[]): string | null {
   const current = join(stateDir(root), ...parts);
   if (existsSync(current)) return current;
   const legacy = join(root, LEGACY_PROJECT_STATE_DIR_NAME);
   const legacyPath = join(legacy, ...parts);
   return existsSync(legacyPath) ? legacyPath : null;
-}
-
-export function resolveSessionsDir(root: string): string {
-  const current = sessionsDir(root);
-  return existsSync(current) ? current : join(root, LEGACY_SESSIONS_DIR_NAME);
 }
 
 export function migrateLegacyState(root: string): string[] {
