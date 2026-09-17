@@ -107,7 +107,9 @@ function writeFile(path: string, content: string): void {
 }
 
 export function adoptProject(targetDir: string, options: AdoptOptions, templateDir: string): AdoptPlan {
-  for (const move of migrateLegacyState(targetDir)) console.log(`State migration: ${move}`);
+  if (!options.dryRun) {
+    for (const move of migrateLegacyState(targetDir)) console.log(`State migration: ${move}`);
+  }
   const projectName = basename(targetDir) || 'project';
   const templateOptions: TemplateOptions = { projectName, projectType: 'default', date: getDate(), year: new Date().getFullYear().toString() };
   const plan: AdoptPlan = { created: [], refreshed: [], conflicting: [], injected: [], seeded: [], skipped: [] };
