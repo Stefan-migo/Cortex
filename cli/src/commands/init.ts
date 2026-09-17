@@ -51,7 +51,7 @@ export async function initCommand(name: string, options: InitOptions): Promise<v
 
   const templateType = (options.template as TemplateOptions['projectType']) || 'default';
 
-  heading(`Creating new Cortex project: ${name}`);
+  heading(`Creating new Rapsodia project: ${name}`);
 
   const templateOptions: TemplateOptions = {
     projectName: name,
@@ -73,13 +73,13 @@ export async function initCommand(name: string, options: InitOptions): Promise<v
     try {
       execSync('git init', { cwd: targetDir, stdio: 'pipe' });
       try {
-        execSync('git config user.email cortex@template.local', { cwd: targetDir, stdio: 'pipe' });
-        execSync('git config user.name "Cortex Template"', { cwd: targetDir, stdio: 'pipe' });
+        execSync('git config user.email rapsodia@template.local', { cwd: targetDir, stdio: 'pipe' });
+        execSync('git config user.name "Rapsodia Template"', { cwd: targetDir, stdio: 'pipe' });
       } catch {
         // user config might already be set globally, that's fine
       }
       execSync('git add -A', { cwd: targetDir, stdio: 'pipe' });
-      execSync('git commit -m "Initial commit from Cortex template"', {
+      execSync('git commit -m "Initial commit from Rapsodia template"', {
         cwd: targetDir,
         stdio: 'pipe',
       });
@@ -104,6 +104,6 @@ export async function initCommand(name: string, options: InitOptions): Promise<v
   info('');
   info('Next steps:');
   info(`  cd ${name}`);
-  info('  cortex install    # Check and install dependencies');
+  info('  rapso install     # Check and install dependencies');
   info('  opencode          # Launch the agent');
 }

@@ -31,7 +31,7 @@ function extractThemes(text: string): Map<string, number> {
     'between', 'under', 'during', 'without', 'through', 'up', 'down',
     'out', 'off', 'above', 'below', 'just', 'also', 'very', 'too',
     'session', 'sessions', 'project', 'summary', 'start', 'end', 'close',
-    'opencode', 'cortex', 'done', 'get', 'got', 'per', 'set', 'let',
+    'opencode', 'rapso', 'done', 'get', 'got', 'per', 'set', 'let',
   ]);
 
   const words = text.toLowerCase()
@@ -48,11 +48,11 @@ function extractThemes(text: string): Map<string, number> {
 }
 
 export async function analyzeCommand(options: AnalyzeOptions): Promise<void> {
-  heading('Cortex Session Analysis');
+  heading('Rapsodia Session Analysis');
 
   const projectDir = findProjectRoot(process.cwd());
   if (!projectDir) {
-    error('Not inside a Cortex project');
+    error('Not inside a Rapsodia project');
     process.exit(1);
   }
 

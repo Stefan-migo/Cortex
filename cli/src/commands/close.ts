@@ -48,13 +48,13 @@ function promptForSummary(): Promise<string> {
 }
 
 export async function closeCommand(options: CloseOptions): Promise<void> {
-  heading('Cortex Session Close');
+  heading('Rapsodia Session Close');
 
   const projectDir = process.cwd();
 
   if (!existsSync(statePath(projectDir, 'session.json'))) {
     error('No active session found in this directory.');
-    info('Run `cortex start` to begin a session.');
+    info('Run `rapso start` to begin a session.');
     process.exit(1);
   }
 

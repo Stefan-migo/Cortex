@@ -6,7 +6,7 @@ interface InstallOptions {
 }
 
 export async function installCommand(options: InstallOptions): Promise<void> {
-  heading('Cortex Dependency Check');
+  heading('Rapsodia Dependency Check');
 
   const deps = checkDeps();
   let allOk = true;
@@ -37,7 +37,7 @@ export async function installCommand(options: InstallOptions): Promise<void> {
   }
 
   if (options.check) {
-    info('Run `cortex install` (without --check) to attempt installation.');
+    info('Run `rapso install` (without --check) to attempt installation.');
     return;
   }
 

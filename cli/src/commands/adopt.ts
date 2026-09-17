@@ -19,17 +19,17 @@ export async function adoptCommand(path: string | undefined, options: AdoptOptio
   if (dirty === true) {
     // A hard refusal here would make adopt impossible to re-run: adopt itself leaves the
     // working tree dirty, so the second run would always need --force. The structural
-    // protections cover the real risk: an owned file whose content differs from what Cortex
+    // protections cover the real risk: an owned file whose content differs from what Rapsodia
     // last recorded is never replaced unless --force is given, and the merge targets
     // (AGENTS.md, .gitignore, opencode.json) are merged in place, never reset to the template.
     // So this informs instead of blocking.
-    warn('Working tree is dirty. Cortex writes only its own files and the merge targets it merges into (AGENTS.md, .gitignore, opencode.json); uncommitted work anywhere else is left alone.');
+    warn('Working tree is dirty. Rapsodia writes only its own files and the merge targets it merges into (AGENTS.md, .gitignore, opencode.json); uncommitted work anywhere else is left alone.');
   } else if (dirty === undefined) {
-    warn('Could not determine whether the working tree is dirty. Cortex will still classify existing files before writing.');
+    warn('Could not determine whether the working tree is dirty. Rapsodia will still classify existing files before writing.');
   }
-  if (!options.yes && !options.dryRun && !(await promptYesNo(`Adopt Cortex into "${targetDir}"?`))) { info('Adoption cancelled.'); return; }
+  if (!options.yes && !options.dryRun && !(await promptYesNo(`Adopt Rapsodia into "${targetDir}"?`))) { info('Adoption cancelled.'); return; }
   const plan = adoptProject(targetDir, options, TEMPLATE_DIR);
-  heading(options.dryRun ? 'Cortex Adoption Plan (dry run)' : 'Cortex Adoption');
+  heading(options.dryRun ? 'Rapsodia Adoption Plan (dry run)' : 'Rapsodia Adoption');
   for (const [label, items] of [['Created', plan.created], ['Refreshed', plan.refreshed], ['Conflicting', plan.conflicting], ['Injected', plan.injected], ['Seeded', plan.seeded], ['Skipped', plan.skipped]] as const) {
     info(`${label} (${items.length}):`); items.forEach((item) => info(`  ${item}`));
   }
@@ -40,5 +40,5 @@ export async function adoptCommand(path: string | undefined, options: AdoptOptio
       ? `${plan.conflicting.length} conflicting file(s) overwritten because --force was given.`
       : 'Conflicting files are project-owned. Re-run with --force to overwrite them.');
   }
-  if (options.dryRun) warn('Dry run — no changes applied.'); else success('Cortex adopted successfully.');
+  if (options.dryRun) warn('Dry run — no changes applied.'); else success('Rapsodia adopted successfully.');
 }
