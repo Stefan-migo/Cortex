@@ -3,6 +3,7 @@ import { join } from 'path';
 import { execFileSync } from 'child_process';
 import { heading } from '../utils/logger';
 import { findProjectRoot, readProjectName, resolveGraphifyPaths, resolveProjectManifest } from '../engine/project';
+import { statePath } from '../utils/state';
 
 interface StatusOptions {
   json?: boolean;
@@ -97,7 +98,7 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
     }
     report.project.name = readProjectName(projectDir);
 
-    const sessionPath = join(projectDir, '.cortex', 'session.json');
+    const sessionPath = statePath(projectDir, 'session.json');
     if (existsSync(sessionPath)) {
       try {
         const session = JSON.parse(readFileSync(sessionPath, 'utf-8'));

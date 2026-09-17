@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { basename, dirname, join, relative, resolve } from 'path';
 import { collectFiles, hashFile, hashTemplateFile, substituteVariables, TemplateOptions } from './template';
 import { Manifest, ManifestFile } from './manifest';
+import { sessionsDir, statePath, PROJECT_STATE_DIR_NAME, SESSIONS_DIR_NAME } from '../utils/state';
 
 export const OWNED_PATHS = [
   '.opencode/agents/**', '.opencode/tools/**',
@@ -13,7 +14,7 @@ export const OWNED_PATHS = [
 export const NEVER_PATHS = ['DESIGN.md', 'SYSTEM-MAP.md', 'USER-GUIDE.md', 'wiki/**', 'scripts/**'];
 
 const CORTEX_IGNORE_ENTRIES = [
-  '.cortex/', '.cortex-sessions/', 'graphify-out/',
+  `${PROJECT_STATE_DIR_NAME}/`, `${SESSIONS_DIR_NAME}/`, 'graphify-out/',
   '.opencode/tools/node_modules/', '.engram/', '.obsidian/workspace.json',
   '.obsidian/workspace', '__pycache__/', '*.pyc',
   '*.pyo', '.pytest_cache/', '.ruff_cache/', '.mypy_cache/',
@@ -108,7 +109,7 @@ export function adoptProject(targetDir: string, options: AdoptOptions, templateD
   const projectName = basename(targetDir) || 'project';
   const templateOptions: TemplateOptions = { projectName, projectType: 'default', date: getDate(), year: new Date().getFullYear().toString() };
   const plan: AdoptPlan = { created: [], refreshed: [], conflicting: [], injected: [], seeded: [], skipped: [] };
-  const manifestPath = join(targetDir, '.cortex/manifest.json');
+  const manifestPath = statePath(targetDir, 'manifest.json');
   let oldManifest: Manifest | undefined;
   if (existsSync(manifestPath)) {
     try { oldManifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as Manifest; }
@@ -148,7 +149,7 @@ export function adoptProject(targetDir: string, options: AdoptOptions, templateD
     else { plan.injected.push(label); if (!options.dryRun) writeFile(path, result.content); }
   }
 
-  for (const [path, content] of [[join(targetDir, '.cortex-sessions/.gitignore'), '*\n'], [join(targetDir, 'odd/tasks/.gitkeep'), ''],] as const) {
+  for (const [path, content] of [[join(sessionsDir(targetDir), '.gitignore'), '*\n'], [join(targetDir, 'odd/tasks/.gitkeep'), ''],] as const) {
     if (existsSync(path)) plan.skipped.push(relative(targetDir, path));
     else { plan.seeded.push(relative(targetDir, path)); if (!options.dryRun) writeFile(path, content); }
   }
@@ -156,8 +157,8 @@ export function adoptProject(targetDir: string, options: AdoptOptions, templateD
     const files: ManifestFile[] = collectFiles(templateDir, templateDir).filter(isOwned).map((file) => ({ path: file, hash: hashTemplateFile(join(templateDir, file), templateOptions) }));
     writeFile(manifestPath, JSON.stringify({ templateVersion: '1.0.0', createdAt: getDate(), projectName, files, excludedPaths: NEVER_PATHS }, null, 2) + '\n');
   }
-  if (oldManifest) plan.skipped.push('.cortex/manifest.json');
-  else plan.seeded.push('.cortex/manifest.json');
+  if (oldManifest) plan.skipped.push(join(PROJECT_STATE_DIR_NAME, 'manifest.json'));
+  else plan.seeded.push(join(PROJECT_STATE_DIR_NAME, 'manifest.json'));
   return plan;
 }
 

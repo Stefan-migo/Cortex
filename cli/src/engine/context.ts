@@ -4,6 +4,7 @@ import { execFileSync } from 'child_process';
 import { info, warn, step, success } from '../utils/logger';
 import { MCPClient } from '../utils/mcp';
 import { resolveGraphifyPaths, resolveProjectManifest } from './project';
+import { stateDir, statePath } from '../utils/state';
 
 interface ContextItem {
   source: 'engram' | 'graphify' | 'manifest';
@@ -47,7 +48,7 @@ function calculateScore(date: Date, type: string, projectMatches: boolean): numb
 }
 
 function readContextBudget(projectDir: string): number {
-  const configPath = join(projectDir, '.cortex', 'config.json');
+  const configPath = statePath(projectDir, 'config.json');
   if (existsSync(configPath)) {
     try {
       const config = JSON.parse(readFileSync(configPath, 'utf-8'));
@@ -313,12 +314,12 @@ export async function buildPrelude(projectDir: string, projectName: string): Pro
     sections.push('');
   }
 
-  const cortexDir = join(projectDir, '.cortex');
+  const cortexDir = stateDir(projectDir);
   if (!existsSync(cortexDir)) {
     mkdirSync(cortexDir, { recursive: true });
   }
 
-  const preludePath = join(cortexDir, 'prelude.md');
+  const preludePath = statePath(projectDir, 'prelude.md');
   writeFileSync(preludePath, sections.join('\n'), 'utf-8');
   success(`Prelude written to ${preludePath}`);
   return preludePath;

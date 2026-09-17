@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, relative, basename, extname } from 'path';
 import { createHash } from 'crypto';
+import { PROJECT_STATE_DIR_NAME } from '../utils/state';
 
 export interface TemplateOptions {
   projectName: string;
@@ -98,7 +99,7 @@ export function hashDirectory(dir: string): string[] {
   const entries = readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
     const fullPath = join(dir, entry.name);
-    if (entry.name === '.cortex' || entry.name === '.git') continue;
+    if (entry.name === PROJECT_STATE_DIR_NAME || entry.name === '.git') continue;
     if (entry.isDirectory()) {
       allFiles.push(...hashDirectory(fullPath));
     } else {

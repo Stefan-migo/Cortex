@@ -1,6 +1,7 @@
 import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'fs';
 import { join, relative } from 'path';
 import { hashFile, hashDirectory, collectFiles, hashTemplateFile, TemplateOptions } from './template';
+import { stateDir, statePath, PROJECT_STATE_DIR_NAME } from '../utils/state';
 
 export interface ManifestFile {
   path: string;
@@ -16,7 +17,7 @@ export interface Manifest {
 }
 
 export function generateManifest(targetDir: string, options: TemplateOptions): Manifest {
-  const cortexDir = join(targetDir, '.cortex');
+  const cortexDir = stateDir(targetDir);
   if (!existsSync(cortexDir)) {
     mkdirSync(cortexDir, { recursive: true });
   }
@@ -25,7 +26,7 @@ export function generateManifest(targetDir: string, options: TemplateOptions): M
   const files: ManifestFile[] = filePaths.map((fp) => ({
     path: relative(targetDir, fp),
     hash: hashFile(fp),
-  })).filter((f) => !f.path.startsWith('.cortex/') && !f.path.startsWith('.git/'));
+  })).filter((f) => !f.path.startsWith(`${PROJECT_STATE_DIR_NAME}/`) && !f.path.startsWith('.git/'));
 
   const manifest: Manifest = {
     templateVersion: '1.0.0',
@@ -35,7 +36,7 @@ export function generateManifest(targetDir: string, options: TemplateOptions): M
   };
 
   writeFileSync(
-    join(cortexDir, 'manifest.json'),
+    statePath(targetDir, 'manifest.json'),
     JSON.stringify(manifest, null, 2),
     'utf-8',
   );
