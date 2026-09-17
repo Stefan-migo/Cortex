@@ -3,7 +3,7 @@ import { join } from 'path';
 import { homedir } from 'os';
 import { GLOBAL_STATE_DIR_NAME } from './state';
 
-interface CortexConfig {
+interface RapsodiaConfig {
   lastProject?: string;
   projects?: string[];
 }
@@ -17,17 +17,17 @@ function ensureConfigDir(): void {
   }
 }
 
-export function readConfig(): CortexConfig {
+export function readConfig(): RapsodiaConfig {
   ensureConfigDir();
   try {
     const raw = readFileSync(CONFIG_PATH, 'utf-8');
-    return JSON.parse(raw) as CortexConfig;
+    return JSON.parse(raw) as RapsodiaConfig;
   } catch {
     return {};
   }
 }
 
-export function writeConfig(config: CortexConfig): void {
+export function writeConfig(config: RapsodiaConfig): void {
   ensureConfigDir();
   writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
 }

@@ -42,10 +42,10 @@ function commandAvailable(command: string): boolean {
 
 const CANONICAL_SKILLS = ['cortex-persona', 'cortex-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help', 'ponytail-plan'];
 
-// The canonical skills live in `<repo>/skills/` only in the Cortex pack repository. An adopted
+// The canonical skills live in `<repo>/skills/` only in the Rapsodia pack repository. An adopted
 // project tracks its own copies under `.opencode/skills/` instead, and a project created by
-// `cortex init` has neither. Resolving the source against the new worktree produced links that
-// only resolved inside Cortex, after deleting whatever already occupied the destination.
+// `rapso init` has neither. Resolving the source against the new worktree produced links that
+// only resolved inside Rapsodia, after deleting whatever already occupied the destination.
 function canonicalSkillsRoot(root: string): string | null {
   const canonical = join(root, 'skills');
   return CANONICAL_SKILLS.some((name) => existsSync(join(canonical, name, 'SKILL.md'))) ? canonical : null;
@@ -235,7 +235,7 @@ export function provisionWorktree(worktree: string, mainRoot: string): void {
       if (!existsSync(join(source, 'SKILL.md'))) continue;
       const link = join(skillsDir, entry);
       const existing = (() => { try { return lstatSync(link); } catch { return undefined; } })();
-      // A real directory is the project's own tracked copy; only a link is Cortex's to replace.
+      // A real directory is the project's own tracked copy; only a link is Rapsodia's to replace.
       if (existing && !existing.isSymbolicLink()) continue;
       if (existing) rmSync(link, { force: true });
       symlinkSync(relative(skillsDir, source), link);
