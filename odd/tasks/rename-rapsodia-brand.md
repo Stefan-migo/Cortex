@@ -218,9 +218,9 @@ Run from the worktree after `npm run build`.
 ## Progress
 
 Implementation complete in the worktree. T01–T06 are checked after the implementation and
-verification outcomes below were observed. The source changes remain uncommitted because the
-repository pre-commit review rejected unrelated pre-existing findings in changed TypeScript files;
-no `--no-verify` bypass was used.
+verification outcomes below were observed. The repository pre-commit review reported unrelated
+pre-existing findings in changed TypeScript files, but the hook allowed the commits in its
+non-strict mode; no `--no-verify` bypass was used.
 
 - [x] **T01** — Renamed the two template agent files and applied the brand scheme.
 - [x] **T02** — Renamed template agent keys and the matching `adopt.ts` loop together.
@@ -333,8 +333,8 @@ Coupling proof, throwaway directory cleaned afterwards:
 
 ## Next step
 
-Resolve the pre-commit review blocker without using `--no-verify`, then commit the remaining CLI
-work in reviewable units.
+Parent should review the pre-commit review findings and the documented exclusions before opening
+the pull request.
 
 ## Rationale log
 
