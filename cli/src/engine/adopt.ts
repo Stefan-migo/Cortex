@@ -36,7 +36,8 @@ function markdownBlock(templateDir: string, options: TemplateOptions): string {
   const source = substituteVariables(readFileSync(join(templateDir, 'AGENTS.md'), 'utf-8'), options);
   const gate = source.match(/### 5-Step Execution Gate \(MANDATORY\)[\s\S]*?(?=\n### |\n## |$)/)?.[0].trim();
   const worktrees = source.match(/## ODD Worktrees[\s\S]*?(?=\n## |$)/)?.[0].trim();
-  return [worktrees, gate].filter(Boolean).join('\n\n');
+  const defects = source.match(/## Reporting Cortex Defects[\s\S]*?(?=\n## |$)/)?.[0].trim();
+  return [worktrees, defects, gate].filter(Boolean).join('\n\n');
 }
 
 function injectMarked(content: string, start: string, end: string, block: string): { content: string; changed: boolean } {

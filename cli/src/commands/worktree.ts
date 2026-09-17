@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { CleanupRefusalError, cleanupWorktree, createWorktree, listWorktrees, provisionWorktree, refreshMainAfterMerge } from '../engine/worktree';
+import { ExpectedError } from '../utils/defect';
 
 interface CreateOptions { yes?: boolean; root?: string }
 
@@ -8,7 +9,7 @@ function output(value: unknown): void { console.log(JSON.stringify(value)); }
 
 async function create(slug: string, options: CreateOptions): Promise<void> {
   if (!options.yes) {
-    if (!process.stdin.isTTY) throw new Error('Consent is required; refusing non-interactive worktree creation.');
+    if (!process.stdin.isTTY) throw new ExpectedError('Consent is required; refusing non-interactive worktree creation.');
     process.stdout.write(`Create and provision worktree odd/${slug}? (y/N): `);
     const accepted = await new Promise<boolean>((resolve) => {
       process.stdin.once('data', (data) => {

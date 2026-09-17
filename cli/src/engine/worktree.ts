@@ -1,6 +1,7 @@
 import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'fs';
 import { execFileSync } from 'child_process';
 import { basename, dirname, join, relative, resolve, sep } from 'path';
+import { ExpectedError } from '../utils/defect';
 
 export interface WorktreeRecord {
   path: string;
@@ -8,7 +9,7 @@ export interface WorktreeRecord {
   branch?: string;
 }
 
-export class CleanupRefusalError extends Error {
+export class CleanupRefusalError extends ExpectedError {
   readonly paths: string[];
   readonly preservedPaths: string[];
 
@@ -62,12 +63,12 @@ export function isMainWorktree(root: string): boolean {
 
 export function assertNotMainWorktree(root: string): void {
   if (isMainWorktree(root)) {
-    throw new Error(`Refusing to operate on the main worktree: ${resolve(root)}`);
+    throw new ExpectedError(`Refusing to operate on the main worktree: ${resolve(root)}`);
   }
 }
 
 function worktreePath(slug: string, root: string): string {
-  if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) throw new Error('Slug must contain lowercase letters, numbers, and hyphens.');
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) throw new ExpectedError('Slug must contain lowercase letters, numbers, and hyphens.');
   const main = repositoryRoot(root);
   return join(dirname(main), `${basename(main)}-odd-${slug}`);
 }
@@ -156,9 +157,9 @@ function archiveHandoff(source: string, main: string): void {
 
 export async function createWorktree(slug: string, root: string): Promise<string> {
   const main = repositoryRoot(root);
-  if (!isMainWorktree(main)) throw new Error('Worktree creation must start from the main worktree.');
+  if (!isMainWorktree(main)) throw new ExpectedError('Worktree creation must start from the main worktree.');
   const target = worktreePath(slug, main);
-  if (existsSync(target)) throw new Error(`Worktree path already exists: ${target}`);
+  if (existsSync(target)) throw new ExpectedError(`Worktree path already exists: ${target}`);
 
   git(main, ['fetch', 'origin', 'main']);
   git(main, ['worktree', 'add', '-b', `odd/${slug}`, target, 'origin/main']);
@@ -184,7 +185,7 @@ function installDependencies(directory: string): void {
   try {
     execFileSync('npm', [command], { cwd: directory, stdio: 'inherit' });
   } catch {
-    throw new Error(`Failed to install dependencies in ${directory} (npm ${command}).`);
+    throw new ExpectedError(`Failed to install dependencies in ${directory} (npm ${command}).`);
   }
 }
 
@@ -205,9 +206,9 @@ export function provisionWorktree(worktree: string, mainRoot: string): void {
   const target = repositoryRoot(worktree);
   const main = repositoryRoot(mainRoot);
   assertNotMainWorktree(target);
-  if (target === main) throw new Error('Provisioning requires a separate worktree.');
+  if (target === main) throw new ExpectedError('Provisioning requires a separate worktree.');
   if (gitPath(target, ['rev-parse', '--git-common-dir']) !== gitPath(main, ['rev-parse', '--git-common-dir'])) {
-    throw new Error('Worktree does not belong to the requested main repository.');
+    throw new ExpectedError('Worktree does not belong to the requested main repository.');
   }
 
   const graphSource = join(main, 'graphify-out');
@@ -264,7 +265,7 @@ export function listWorktrees(root: string): WorktreeRecord[] {
 
 export function cleanupWorktree(slug: string, root: string, remote: boolean): CleanupReport {
   const main = repositoryRoot(root);
-  if (!isMainWorktree(main)) throw new Error('Cleanup must start from the main worktree.');
+  if (!isMainWorktree(main)) throw new ExpectedError('Cleanup must start from the main worktree.');
   const target = worktreePath(slug, main);
   const candidates = handoffCandidates(main, target, slug);
   if (candidates.length > 1) throw new CleanupRefusalError('Ambiguous session handoff; refusing cleanup', candidates.map((candidate) => relative(main, candidate)));
@@ -280,20 +281,20 @@ export function cleanupWorktree(slug: string, root: string, remote: boolean): Cl
 /** Refresh the authoritative graph only after delivery recorded and verified a merged ODD work PR. */
 export function refreshMainAfterMerge(slug: string, root: string, markerPath: string): void {
   const main = repositoryRoot(root);
-  if (!isMainWorktree(main)) throw new Error('Graph refresh requires the main worktree.');
+  if (!isMainWorktree(main)) throw new ExpectedError('Graph refresh requires the main worktree.');
   const markerFile = resolve(markerPath);
   const markerRelative = relative(main, markerFile);
   if (markerRelative.startsWith('..') || markerRelative === '') {
-    throw new Error('Merge marker must be inside the main repository.');
+    throw new ExpectedError('Merge marker must be inside the main repository.');
   }
   const marker = JSON.parse(readFileSync(markerFile, 'utf-8')) as MergeMarker;
   if (marker.branch !== `odd/${slug}` || !/^[0-9a-f]{40,64}$/.test(marker.mergeSha)) {
-    throw new Error('Merge marker does not identify the requested branch and SHA.');
+    throw new ExpectedError('Merge marker does not identify the requested branch and SHA.');
   }
   try {
     git(main, ['merge-base', '--is-ancestor', marker.mergeSha, 'HEAD']);
   } catch {
-    throw new Error('Expected merged SHA is not present on main.');
+    throw new ExpectedError('Expected merged SHA is not present on main.');
   }
   execFileSync('graphify', ['.', '--update'], { cwd: main, stdio: 'inherit' });
   rmSync(markerFile, { force: true });

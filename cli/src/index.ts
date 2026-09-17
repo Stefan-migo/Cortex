@@ -9,6 +9,7 @@ import { updateCommand } from './commands/update';
 import { analyzeCommand } from './commands/analyze';
 import { worktreeCommand } from './commands/worktree';
 import { adoptCommand } from './commands/adopt';
+import { formatDefectReport, isExpected } from './utils/defect';
 
 const program = new Command();
 
@@ -97,5 +98,6 @@ program.addCommand(worktreeCommand());
 
 program.parseAsync(process.argv).catch((err: unknown) => {
   console.error(err instanceof Error ? err.message : String(err));
+  if (!isExpected(err)) console.error(formatDefectReport(err, { command: process.argv[2] ?? 'unknown' }));
   process.exitCode = 1;
 });

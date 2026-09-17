@@ -129,6 +129,21 @@ Ponytail governs HOW code is written. It does not decide authorization, tracking
 
 During ODD's `Classify` step, substantial work means two or more meaningful implementation steps or progress worth recovering. Code work is born in a sibling worktree (`../Cortex-odd-<slug>`) on branch `odd/<slug>`, not in main. Human consent is explicit and per-feature before invoking `cortex worktree create`; `--yes` is only the consequence of that approval, never a shortcut around it. The ODD task doc `odd/tasks/<feature>.md` is committed on the branch and reaches main through the PR, so it must never live inside a `gentle-ai` managed block. After the merge, rebuild `cli/dist/` in main before dogfooding the CLI because `cli/dist/` is gitignored and the merge does not update it.
 
+## Reporting Cortex Defects
+
+Cortex is a tool you are USING, not the project you are working on.
+
+When you identify a failure that belongs to Cortex itself — not to this project, its
+configuration, or its environment — say so, and **suggest** opening an issue at
+https://github.com/Stefan-migo/Cortex/issues with the evidence: what you ran, what happened,
+and the smallest reproduction you have.
+
+- Suggest only. Never open the issue, never run `gh`, and never write to the Cortex
+  repository from a project workflow. The human decides.
+- Only for an identified defect. Do not speculate, and do not suggest an issue for expected
+  refusals, for this project's own bugs, or for environment and dependency failures.
+- If you cannot tell whether the cause is Cortex, say that instead of filing.
+
 ## graphify
 
 This project has a graphify knowledge graph at graphify-out/.
