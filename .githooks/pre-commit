@@ -32,6 +32,16 @@ if [ "$FILE_TYPES" -gt 3 ]; then
   echo "   Consider splitting into focused commits"
 fi
 
+# The review session `gga` starts snapshots the workspace through its own git dir:
+#   git --git-dir <snapshot> --work-tree <repo> add --all --sparse ...
+# git exports GIT_INDEX_FILE to every hook it runs, so that write lands in THIS repository's
+# index and stages the whole working tree — including untracked files, and after the
+# Atomicity Gate above has already read the index it is supposed to gate. Unsetting it lets
+# the snapshot use its own index while every git call below resolves the default one, which
+# is the same index git passed in. This stays outside the managed block so `gga install`
+# cannot drop it.
+unset GIT_INDEX_FILE
+
 # ======== GGA START ========
 # Gentleman Guardian Angel - Code Review
 gga run || exit 1
