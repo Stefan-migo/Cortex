@@ -49,8 +49,15 @@ function projectHome(root: string): string {
   return worktreeSource(root) || root;
 }
 
+/**
+ * The graph artifacts of the checkout this root is, not of its source project.
+ * `provisionWorktree` copies `graphify-out/` into a worktree and `graphify update .`
+ * refreshes it there, so a worktree owns its graph. Resolving through `projectHome`
+ * would read the main project's graph and compare it against the worktree's HEAD,
+ * which can never match and would report a permanent, unrefreshable staleness.
+ */
 export function resolveGraphifyPaths(root: string): { graphJson: string; graphReport: string } {
-  const graphDir = join(projectHome(root), 'graphify-out');
+  const graphDir = join(root, 'graphify-out');
   return {
     graphJson: join(graphDir, 'graph.json'),
     graphReport: join(graphDir, 'GRAPH_REPORT.md'),
