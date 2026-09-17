@@ -1,10 +1,10 @@
 {
-  "name": "cortex-brain",
+  "name": "rapsodia-code",
   "version": "1.0.0",
-  "description": "Cortex brain manager — scaffold, manage, analyze, and evolve Cortex projects",
+  "description": "Scaffold, manage, analyze, and update project development workflows",
   "preferGlobal": true,
   "bin": {
-    "cortex": "dist/index.js"
+    "rapso": "dist/index.js"
   },
   "files": [
     "dist",

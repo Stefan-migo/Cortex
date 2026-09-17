@@ -14,8 +14,8 @@ import { formatDefectReport, isExpected } from './utils/defect';
 const program = new Command();
 
 program
-  .name('cortex')
-  .description('Cortex brain manager — scaffold and manage Cortex projects')
+  .name('rapso')
+  .description('Scaffold and manage project development workflows')
   .version('1.0.0');
 
 program
