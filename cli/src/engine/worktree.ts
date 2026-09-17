@@ -2,7 +2,7 @@ import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, re
 import { execFileSync } from 'child_process';
 import { basename, dirname, join, relative, resolve, sep } from 'path';
 import { ExpectedError } from '../utils/defect';
-import { sessionsDir, statePath, stateDir, SESSIONS_DIR_NAME } from '../utils/state';
+import { sessionsDir, statePath, stateDir, SESSIONS_DIR_NAME, LEGACY_SESSIONS_DIR_NAME } from '../utils/state';
 
 export interface WorktreeRecord {
   path: string;
@@ -101,7 +101,10 @@ function hasArchivedTwin(protectedPath: string, main: string): boolean {
 
 function handoffCandidates(main: string, target: string, slug: string): string[] {
   const candidates: string[] = [];
-  for (const readyRoot of [join(sessionsDir(target), 'ready-for-odd'), join(sessionsDir(main), 'ready-for-odd')]) {
+  for (const readyRoot of [
+    join(sessionsDir(target), 'ready-for-odd'), join(sessionsDir(main), 'ready-for-odd'),
+    join(target, LEGACY_SESSIONS_DIR_NAME, 'ready-for-odd'), join(main, LEGACY_SESSIONS_DIR_NAME, 'ready-for-odd'),
+  ]) {
     if (!existsSync(readyRoot) || !lstatSync(readyRoot).isDirectory()) continue;
     for (const entry of readdirSync(readyRoot)) {
       if (new RegExp(`^\\d{4}-\\d{2}-\\d{2}-${slug}$`).test(entry)) {
@@ -122,7 +125,8 @@ function protectedUntrackedPaths(target: string, main: string, candidates: strin
     const absolute = resolve(target, path);
     const normalized = path.replace(/\\/g, '/');
     const isOpenSpec = normalized === 'openspec' || normalized.startsWith('openspec/');
-    const isSessionState = normalized === SESSIONS_DIR_NAME || normalized.startsWith(`${SESSIONS_DIR_NAME}/`);
+    const isSessionState = [SESSIONS_DIR_NAME, LEGACY_SESSIONS_DIR_NAME]
+      .some((dir) => normalized === dir || normalized.startsWith(`${dir}/`));
     const isOdd = normalized === 'odd' || normalized.startsWith('odd/');
     if (!isOpenSpec && !isSessionState && !isOdd) continue;
     if (candidateRoots.some((candidate) => absolute === candidate || absolute.startsWith(`${candidate}${sep}`))) continue;

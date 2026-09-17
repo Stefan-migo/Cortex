@@ -4,7 +4,7 @@ import * as readline from 'readline';
 import { step, info, success, warn, error, heading } from '../utils/logger';
 import { getSessionInfo, closeSession, generateRetrospective, saveRetrospective } from '../engine/session';
 import { resolveGraphifyPaths } from '../engine/project';
-import { statePath, PROJECT_STATE_DIR_NAME } from '../utils/state';
+import { statePath, resolveStatePath, LEGACY_PROJECT_STATE_DIR_NAME, PROJECT_STATE_DIR_NAME } from '../utils/state';
 
 interface CloseOptions {
   message?: string;
@@ -52,7 +52,7 @@ export async function closeCommand(options: CloseOptions): Promise<void> {
 
   const projectDir = process.cwd();
 
-  if (!existsSync(statePath(projectDir, 'session.json'))) {
+  if (!resolveStatePath(projectDir, 'session.json')) {
     error('No active session found in this directory.');
     info('Run `rapso start` to begin a session.');
     process.exit(1);
@@ -104,9 +104,11 @@ export async function closeCommand(options: CloseOptions): Promise<void> {
 
   step('Cleaning up prelude file');
   const preludePath = statePath(projectDir, 'prelude.md');
-  if (existsSync(preludePath)) {
+  const legacyPreludePath = join(projectDir, LEGACY_PROJECT_STATE_DIR_NAME, 'prelude.md');
+  if (existsSync(preludePath) || existsSync(legacyPreludePath)) {
     try {
-      unlinkSync(preludePath);
+      if (existsSync(preludePath)) unlinkSync(preludePath);
+      if (existsSync(legacyPreludePath)) unlinkSync(legacyPreludePath);
       success('Prelude file removed');
     } catch (e: any) {
       warn(`Failed to remove prelude: ${e.message}`);

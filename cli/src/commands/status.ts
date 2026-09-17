@@ -3,7 +3,7 @@ import { join } from 'path';
 import { execFileSync } from 'child_process';
 import { heading } from '../utils/logger';
 import { findProjectRoot, readProjectName, resolveGraphifyPaths, resolveProjectManifest } from '../engine/project';
-import { statePath } from '../utils/state';
+import { resolveStatePath } from '../utils/state';
 
 interface StatusOptions {
   json?: boolean;
@@ -98,8 +98,8 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
     }
     report.project.name = readProjectName(projectDir);
 
-    const sessionPath = statePath(projectDir, 'session.json');
-    if (existsSync(sessionPath)) {
+    const sessionPath = resolveStatePath(projectDir, 'session.json');
+    if (sessionPath && existsSync(sessionPath)) {
       try {
         const session = JSON.parse(readFileSync(sessionPath, 'utf-8'));
         report.session.active = true;
