@@ -258,16 +258,6 @@ $ node <cli> worktree cleanup probe2 --root /home/stefan/Cortex
 | 4 | Template and Cortex's own `.opencode/package.json` do not pin different plugin versions | Met — the template declares `latest`; Cortex's own file is untracked local state and was not modified |
 | 5 | No fabricated integrity hash remains under `cli/src/template/` | Met — grep returns no matches |
 
-## Progress
-
-Slice A implemented, verified, and pending review + PR. Slice B not started.
-All source changes are uncommitted as of this revision of the document.
-
-## Next step
-
-Commit Slice A, run the review preflight, then open the PR. Slice B follows as a chained PR.
-
-
 ## Acceptance criteria
 
 1. `npm ci` succeeds against both template lockfiles, or a documented decision explains why a
@@ -318,10 +308,6 @@ node cli/dist/index.js worktree create probe --yes --root /tmp/opencode/cortex-s
 # observed before any fix: npm error code EINTEGRITY -> Command failed: npm ci -> exit 1
 ```
 
-## Progress
-
-No source changes yet. Diagnosis complete and verified.
-
 ## Verification evidence
 
 | Claim | Evidence |
@@ -336,6 +322,36 @@ No source changes yet. Diagnosis complete and verified.
 | B1 on a real project | `lumat-agent` kept its real 30-line plugin because adoption ran without `--yes` |
 | B3 on a real project | `opencode.json` diff showed the same file listed relatively and absolutely |
 
+## Review outcome
+
+Four-lens review (`review-a6ed1272a8c78712`) returned **approved** with zero blocking findings;
+`authority: burned` on acknowledgement. Advisory, non-blocking findings:
+
+| ID | Lens | Location | Severity |
+|---|---|---|---|
+| R2-error-context | readability | `cli/src/engine/worktree.ts:176-177` | WARNING |
+| R2-stale-task-state | readability | `odd/tasks/template-lock-integrity.md:323` | WARNING |
+| R3-latest-dependency-drift | reliability | `cli/src/template/.opencode/package.json:3` | WARNING |
+| R4-001 | resilience | `cli/src/template/.opencode/package.json:3` | WARNING |
+
+Line numbers refer to revision `b0364c6`, the acknowledged candidate.
+
+R2-error-context: the catch block replaces npm's failure without preserving its cause. The
+message still names the failing directory and command; carrying `cause` would be better and
+is tracked as follow-up rather than changed here.
+
+R2-stale-task-state: a duplicated, stale Progress block left by an edit. Fixed in the
+documentation-only commit that follows the acknowledged review.
+
+R3 and R4 are the same D01 limitation seen through two lenses: `latest` with no lockfile makes
+resolution time-dependent, so a registry outage or an incompatible future release can fail
+provisioning with no pinned fallback. Accepted in D01 with the reasoning recorded there. If it
+ever bites, the remedy is to resolve the plugin version from the installed runtime.
+
+## Progress
+
+Slice A implemented, verified, and reviewed. Slice B not started.
+
 ## Next step
 
-Approve or amend the scope, then start at T01.
+Open the Pull Request for Slice A. Slice B follows as the chained PR.
