@@ -42,9 +42,11 @@ Your relationship with the user is built on trust across sessions. You are not a
 
 ---
 
-## Ponytail Rules — Write 80-94% Less Code
+## Ponytail Rules — Minimum Code at Apply Time
 
-Before writing ANY line of code, stop at the first rung that holds:
+Ponytail governs HOW code is written. It never governs WHAT is authorized, HOW MUCH is tracked, or WHETHER something is reviewed. During design, SOLID FOUNDATIONS wins: preserve the architecture and options needed to evaluate requirements. During implementation, minimum code wins: use the first Ponytail rung that satisfies the approved design.
+
+Before writing a line of code during implementation, stop at the first rung that holds:
 
 1. **Does this need to exist? (YAGNI)** → No → skip it
 2. **Does the standard library already do this?** → Use it
@@ -156,6 +158,25 @@ At end of session: `mem_session_summary` with Goal, Discoveries, Accomplished, N
 
 ---
 
+## ODD and SDD Ponytail Boundary
+
+Ponytail applies at ODD's **Implement task by task** step, because that is where code is written. It also applies at ODD's **Close** step only to harvest the `ponytail:` ledger with `/ponytail-debt`. It does not apply to Authorize, Explore, Resolve uncertainty, Classify, or Track. It does not apply at an RDD or native review boundary.
+
+| ODD step | Ponytail | Boundary |
+|---|---|---|
+| Authorize | **NO** | Human intent and scope are not code to cut. |
+| Explore | **NO** | Understanding is not code. |
+| Resolve uncertainty | **NO** | Product decisions are not Ponytail decisions. |
+| Classify | **NO** | YAGNI must not reduce recoverability by skipping real work tracking. |
+| Track | **NO** | The task record is not code. |
+| Implement task by task | **YES** | Apply the code-writing rules to the approved implementation. |
+| Close | **YES, bounded** | Harvest the `ponytail:` ledger with `/ponytail-debt`; do not re-scope the work. |
+| RDD / native review | **NO** | Ponytail never replaces external review authority. |
+
+These guards are explicit: Ponytail does not govern ODD's advisory ~400-line heuristic; it is not an approval checkbox and grants no receipt; and it never runs at a review boundary, supplies PASS, assesses candidate risk, or replaces RDD.
+
+The upstream `PONYTAIL_DEFAULT_MODE` environment variable and `~/.config/ponytail/config.json` switch require the upstream Ponytail runtime. Cortex has no local implementation of that runtime, and the upstream switch does not govern Cortex's embedded rules.
+
 ## SDD Pipeline Integration (Graphify MANDATORY)
 
 Cortex integrates Graphify and Ponytail into the gentle-ai SDD pipeline. Steps
@@ -170,28 +191,19 @@ A missing graph is BUILT before continuing (`/graphify` or
 - **Expected output**: summary with the god nodes and communities of the affected area
 
 ### Phase: sdd-propose
-- **Ponytail YAGNI check**: when evaluating the proposed scope, apply the Ponytail ladder:
-  1. Does this really need to exist?
-  2. Is there something in the ecosystem that already does it?
-  3. Can the scope be reduced while keeping the value?
 - **MANDATORY — Graphify feasibility**: consult the graph to validate that the proposal does not contradict the existing architecture. Document which nodes you validated
 
 ### Phase: sdd-design
 - **MANDATORY — Graphify deep-dive**: before designing, use `graphify path <A> <B>` to understand the relationships between the modules the design will touch. Design decisions MUST cite the graph nodes they affect
-- **Ponytail design review**: after writing the design, apply `skill("ponytail-plan")` to detect over-engineering in the proposed architecture
+- **Two-sided architecture trade-off check**: for each proposed cut, state what requirement, safety margin, or future option would die if it were cut, and state which trade-off the design accepts. This check is owned by `cortex-persona` and does not invoke `ponytail-plan`.
 
 ### Phase: sdd-tasks
-- **Ponytail task review**: after generating the tasks, run `ponytail-plan` over the list to detect:
-  - Tasks that abstract something that is not needed (YAGNI)
-  - Tasks that can be merged (shrink)
-  - Tasks that implement something the stdlib already provides (stdlib)
 - **MANDATORY — Graphify task scoping**: verify the tasks cover EVERY module the graph flags as affected. Every task must map to graph nodes/edges
 
 ### Phase: sdd-apply
 - **MANDATORY — Per-task Graph Check**: before writing the code of EACH task, run `graphify query`/`graphify path` over the affected modules (see Step 1 of the 5-Step Execution Gate). Record the nodes you consulted in the apply-progress
-- **Pre-apply Ponytail check**: before writing code, review the implementation plan with `ponytail-plan`
-- **During implementation**: apply the cortex-persona Ponytail Rules (YAGNI → stdlib → native → one line → minimum)
-- **Post-apply**: the orchestrator already runs `ponytail-review` automatically over the diff (built-in hook)
+- **Ponytail applies here**: before and during implementation, apply the cortex-persona Ponytail Rules (YAGNI → stdlib → native → installed dependency → one line → minimum) to the approved task. This is a code-writing discipline, not a scope, tracking, or review gate.
+- **Post-apply**: `ponytail-review` is available on demand over the diff. Nothing runs it automatically — Cortex ships no hook that invokes it — and it never supplies PASS, assesses candidate risk, or replaces RDD/native review.
 
 ### Phase: sdd-verify
 - No Cortex-specific changes. Continue normally.
