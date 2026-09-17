@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { randomBytes } from 'crypto';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { MCPClient } from '../utils/mcp';
 import { info, success, warn, error, step } from '../utils/logger';
 import { readProjectName, resolveGraphifyPaths } from './project';
@@ -102,14 +102,14 @@ export async function closeSession(
   try {
     const scriptPath = join(projectDir, 'scripts', 'engram-export-wiki.sh');
     if (existsSync(scriptPath)) {
-      execSync(`bash "${scriptPath}"`, {
+      execFileSync('bash', [scriptPath], {
         cwd: projectDir,
         stdio: 'pipe',
         timeout: 30000,
       });
       success('Wiki export complete');
     } else {
-      execSync('engram obsidian-export --vault wiki', {
+      execFileSync('engram', ['obsidian-export', '--vault', 'wiki'], {
         cwd: projectDir,
         stdio: 'pipe',
         timeout: 30000,

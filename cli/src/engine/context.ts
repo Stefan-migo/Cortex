@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { info, warn, step, success } from '../utils/logger';
 import { MCPClient } from '../utils/mcp';
 import { resolveGraphifyPaths, resolveProjectManifest } from './project';
@@ -103,7 +103,7 @@ async function fetchEngramContext(projectName: string): Promise<ContextItem[]> {
   }
 
   try {
-    const result = execSync(`engram context "${projectName}"`, {
+    const result = execFileSync('engram', ['context', projectName], {
       encoding: 'utf-8',
       timeout: 5000,
       stdio: ['pipe', 'pipe', 'pipe'],
