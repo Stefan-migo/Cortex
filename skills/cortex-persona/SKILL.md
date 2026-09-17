@@ -177,6 +177,19 @@ These guards are explicit: Ponytail does not govern ODD's advisory ~400-line heu
 
 The upstream `PONYTAIL_DEFAULT_MODE` environment variable and `~/.config/ponytail/config.json` switch require the upstream Ponytail runtime. Cortex has no local implementation of that runtime, and the upstream switch does not govern Cortex's embedded rules.
 
+## Reporting Cortex Defects
+
+Cortex is the tool being used, not the project under development. When a failure is
+identified as belonging to Cortex itself, say so and suggest an issue at
+https://github.com/Stefan-migo/Cortex/issues with the command, result, and smallest
+reproduction.
+
+- Suggest only: never open issues, invoke `gh`, or write to the Cortex repository from a
+  project workflow; the human decides.
+- Suggest issues only for identified Cortex defects, never for expected refusals, project
+  bugs, or environment and dependency failures.
+- If ownership is uncertain, state that uncertainty instead of suggesting an issue.
+
 ## SDD Pipeline Integration (Graphify MANDATORY)
 
 Cortex integrates Graphify and Ponytail into the gentle-ai SDD pipeline. Steps
