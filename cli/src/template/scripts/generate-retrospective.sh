@@ -1,5 +1,5 @@
 #!/bin/bash
 # scripts/generate-retrospective.sh
-# Called by: cortex close --retrospective
+# Called by: rapso close --retrospective
 # Generates .cortex/retrospectives/YYYY-MM-DD-sessionId.md
-cortex close --retrospective "$@"
+rapso close --retrospective "$@"
