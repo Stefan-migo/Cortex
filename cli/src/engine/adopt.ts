@@ -73,7 +73,7 @@ function mergeJson(content: string, targetDir: string, templateDir: string): { c
   const template = JSON.parse(readFileSync(join(templateDir, 'opencode.json'), 'utf-8')) as Record<string, any>;
   const before = JSON.stringify(current);
   current.agent = current.agent || {};
-  for (const name of ['cortex-planner', 'cortex-developer']) {
+  for (const name of ['rapso-planner', 'rapso-developer']) {
     const existing = current.agent[name] as Record<string, any> | undefined;
     // Only claim an entry that is absent or already ours. A project agent that happens to
     // share our name is the project's, and silently replacing it would destroy configuration.
