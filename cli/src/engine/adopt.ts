@@ -13,7 +13,7 @@ export const OWNED_PATHS = [
 export const NEVER_PATHS = ['.specify/**', 'DESIGN.md', 'SYSTEM-MAP.md', 'USER-GUIDE.md', 'wiki/**', 'scripts/**'];
 
 const CORTEX_IGNORE_ENTRIES = [
-  '.cortex/', '.cortex-sessions/', 'graphify-out/', 'wiki/graph/cache/',
+  '.cortex/', '.cortex-sessions/', 'graphify-out/',
   '.opencode/tools/node_modules/', '.engram/', '.obsidian/workspace.json',
   '.obsidian/workspace', '.specify/integrations/', '__pycache__/', '*.pyc',
   '*.pyo', '.pytest_cache/', '.ruff_cache/', '.mypy_cache/',
