@@ -190,29 +190,33 @@ owned file is the hash of the content Cortex would own, namely
 `hashTemplateFile(source, templateOptions)` — the same function `detectChanges` compares
 against, so the two agree by construction. For files Cortex actually wrote, this equals the
 file's hash on disk; for conflicts it does not, which is the point: the divergence stays
-visible to both `adopt` and `update`.
+visible to both `adopt` and `update`. If the existing manifest cannot be read or parsed, adopt
+treats it as no baseline; D1 then classifies existing owned files as `conflicting` rather than
+overwriting them.
 
 **D4 — `isDirty` returns `boolean | undefined`.** `undefined` means "could not determine".
 Git's stderr is piped, never inherited, so no raw `fatal:` line reaches the user.
 
 ## Tasks
 
-- [ ] **T1** — `adoptProject` classification + gating per D1; add the `conflicting` bucket to
+- [x] **T1** — `adoptProject` classification + gating per D1; add the `conflicting` bucket to
       `AdoptPlan`; one bucket per file.
-- [ ] **T2** — AGENTS.md section-aware injection per D2; keep marker-based `injectMarked` only
+- [x] **T2** — AGENTS.md section-aware injection per D2; keep marker-based `injectMarked` only
       for the `.gitignore` merge.
-- [ ] **T3** — baseline invariant per D3 (`hashTemplateFile` for every recorded owned file).
-- [ ] **T4** — `isDirty` tri-state per D4; `commands/adopt.ts` reports "could not determine"
+- [x] **T3** — baseline invariant per D3 (`hashTemplateFile` for every recorded owned file);
+      malformed or unreadable manifests are treated as no baseline so existing owned files
+      become `conflicting` rather than being overwritten.
+- [x] **T4** — `isDirty` tri-state per D4; `commands/adopt.ts` reports "could not determine"
       instead of implying clean.
-- [ ] **T5** — CLI reporting: `Conflicting (n)` group naming the files and how to overwrite
+- [x] **T5** — CLI reporting: `Conflicting (n)` group naming the files and how to overwrite
       them (`--force`); remove the Refreshed/Skipped overlap.
-- [ ] **T6** — verify: `npm run typecheck` + `npm run build` in `cli/`, then re-run the four
+- [x] **T6** — verify: `npm run typecheck` + `npm run build` in `cli/`, then run all six
       disposable-copy scenarios (below) and record literal output.
 - [ ] **T7** — work-unit commits, then the delivery steps (review at the boundary, PR).
 
 ## Acceptance criteria
 
-1. Adopting a copy of this repository with `--yes` leaves all six divergent owned files
+1. Adopting a copy of this repository with `--yes` leaves all five divergent owned files
    **byte-identical** to their pre-adopt content (`sha256sum` comparison), and the run exits
    reporting them as `Conflicting`.
 2. Adopting with `--force` overwrites exactly those files, and only with the flag.
@@ -233,8 +237,8 @@ Base fixture: `git -C <main> archive HEAD | tar -x -C /tmp/opencode/adopt-repro/
 copy per scenario. CLI under test: `node cli/dist/index.js` from this worktree.
 
 1. `--yes` over a pristine copy → conflicts preserved (`diff -rq` shows only intended files),
-   `sha256sum` of the six divergent files unchanged.
-2. `--force` over a pristine copy → the same six files replaced.
+   `sha256sum` of the five divergent files listed in P3 unchanged.
+2. `--force` over a pristine copy → the same five files replaced.
 3. Interactive run over a pristine copy → `AGENTS.md` heading count stays 3, `diff` empty.
 4. Second run over the copy from scenario 3 → `Created 0 / Refreshed 0 / Injected 0`.
 5. `cortex update --dry-run` inside the scenario-3 copy → no `modified` entries for the
@@ -246,7 +250,7 @@ copy per scenario. CLI under test: `node cli/dist/index.js` from this worktree.
 ```
 $ node cli/dist/index.js adopt /tmp/opencode/adopt-repro/pristine --dry-run
 ℹ Created (2):  .opencode/.gitignore, .opencode/package.json
-ℹ Refreshed (10):  (the six divergent files above + tools/package.json + wiki-*.ts)
+ℹ Refreshed (10):  (the five divergent owned files + tools/package.json + wiki-*.ts)
 ℹ Injected (4):  AGENTS.md, .gitignore, opencode.json, .opencode/opencode.json
 ℹ Seeded (3):  .cortex-sessions/.gitignore, odd/tasks/.gitkeep, .cortex/manifest.json
 ℹ Skipped (0):
@@ -263,3 +267,241 @@ restores the previous behavior; no data migration, no manifest shape change.
 - Reproduction fixtures: `/tmp/opencode/adopt-repro/{pristine,yes,interactive}`.
 - Graph nodes consulted: `adoptProject`, `Manifest`, `detectChanges`, `hashTemplateFile`,
   `OWNED_PATHS` (`graphify-out/GRAPH_REPORT.md`, community *CLI Engine*).
+
+### Verification scenarios (2026-09-17)
+
+Fixtures were created with `git -C /home/stefan/Cortex-odd-adopt-self-safety archive HEAD | tar -x`
+under `/tmp/opencode/adopt-self-safety-verify/`. The CLI was
+`node cli/dist/index.js` from this worktree.
+
+#### 1. `--yes` preserves the five divergent files
+
+Before/after command output:
+
+```text
+⚠ Could not determine whether the working tree is dirty. Cortex will still classify existing files before writing.
+
+Cortex Adoption
+───────────────
+ℹ Created (2):
+ℹ   .opencode/.gitignore
+ℹ   .opencode/package.json
+ℹ Refreshed (0):
+ℹ Conflicting (5):
+ℹ   .opencode/agents/cortex-developer.md
+ℹ   .opencode/agents/cortex-planner.md
+ℹ   .opencode/mcp-template.json
+ℹ   .opencode/skills/bootstrap/SKILL.md
+ℹ   .opencode/tools/execute_script.ts
+ℹ Injected (3):
+ℹ   .gitignore
+ℹ   opencode.json
+ℹ   .opencode/opencode.json
+ℹ Seeded (3):
+ℹ   .cortex-sessions/.gitignore
+ℹ   odd/tasks/.gitkeep
+ℹ   .cortex/manifest.json
+ℹ Skipped (6):
+ℹ   .opencode/skills/design-system/SKILL.md
+ℹ   .opencode/skills/graphify/SKILL.md
+ℹ   .opencode/tools/package.json
+ℹ   .opencode/tools/wiki-link.ts
+ℹ   .opencode/tools/wiki-search.ts
+ℹ   AGENTS.md
+⚠ Conflicting files are project-owned. Re-run with --force to overwrite them.
+✔ Cortex adopted successfully.
+```
+
+```text
+.opencode/agents/cortex-developer.md before=b379403594d976c7635d0abce35f91da7d5d4e9353d7f26a79eba2465bd2ff74 after=b379403594d976c7635d0abce35f91da7d5d4e9353d7f26a79eba2465bd2ff74 unchanged=yes
+.opencode/agents/cortex-planner.md before=8c75e3a39aafde7341a4cec45ccbf9a5bc0d439253b96a820b2e21d7fbd46dbd after=8c75e3a39aafde7341a4cec45ccbf9a5bc0d439253b96a820b2e21d7fbd46dbd unchanged=yes
+.opencode/mcp-template.json before=c3cd440a81a3cf57fa04208ad34908a083cf65b0abacfda92d97fe7c83acba2c after=c3cd440a81a3cf57fa04208ad34908a083cf65b0abacfda92d97fe7c83acba2c unchanged=yes
+.opencode/skills/bootstrap/SKILL.md before=64b5c26bafc104e3431864209c813a19f35ec90e4449cfc25234b14e6820d261 after=64b5c26bafc104e3431864209c813a19f35ec90e4449cfc25234b14e6820d261 unchanged=yes
+.opencode/tools/execute_script.ts before=a22fc237a08ef72772e51565e266ed2edbbbf2594ca719ffb96017df54a1c4bc after=a22fc237a08ef72772e51565e266ed2edbbbf2594ca719ffb96017df54a1c4bc unchanged=yes
+SCENARIO 1 all five unchanged: yes
+```
+
+#### 2. `--yes --force` replaces exactly the five divergent files
+
+```text
+⚠ Could not determine whether the working tree is dirty. Cortex will still classify existing files before writing.
+
+Cortex Adoption
+───────────────
+ℹ Created (0):
+ℹ Refreshed (0):
+ℹ Conflicting (5):
+ℹ   .opencode/agents/cortex-developer.md
+ℹ   .opencode/agents/cortex-planner.md
+ℹ   .opencode/mcp-template.json
+ℹ   .opencode/skills/bootstrap/SKILL.md
+ℹ   .opencode/tools/execute_script.ts
+ℹ Injected (0):
+ℹ Seeded (0):
+ℹ Skipped (14):
+ℹ   .opencode/.gitignore
+ℹ   .opencode/package.json
+ℹ   .opencode/skills/design-system/SKILL.md
+ℹ   .opencode/skills/graphify/SKILL.md
+ℹ   .opencode/tools/package.json
+ℹ   .opencode/tools/wiki-link.ts
+ℹ   .opencode/tools/wiki-search.ts
+ℹ   AGENTS.md
+ℹ   .gitignore
+ℹ   opencode.json
+ℹ   .opencode/opencode.json
+ℹ   .cortex-sessions/.gitignore
+ℹ   odd/tasks/.gitkeep
+ℹ   .cortex/manifest.json
+⚠ Conflicting files are project-owned. Re-run with --force to overwrite them.
+✔ Cortex adopted successfully.
+```
+
+The five after-hashes equaled their template hashes and differed from their before-hashes:
+
+```text
+.opencode/agents/cortex-developer.md ... replaced=yes
+.opencode/agents/cortex-planner.md ... replaced=yes
+.opencode/mcp-template.json ... replaced=yes
+.opencode/skills/bootstrap/SKILL.md ... replaced=yes
+.opencode/tools/execute_script.ts ... replaced=yes
+```
+
+#### 3. Interactive adoption does not duplicate `AGENTS.md`
+
+```text
+⚠ Could not determine whether the working tree is dirty. Cortex will still classify existing files before writing.
+Adopt Cortex into "/tmp/opencode/adopt-self-safety-verify/s3"? (y/N):
+Cortex Adoption
+───────────────
+ℹ Created (2):
+ℹ   .opencode/.gitignore
+ℹ   .opencode/package.json
+ℹ Refreshed (0):
+ℹ Conflicting (5):
+ℹ   .opencode/agents/cortex-developer.md
+ℹ   .opencode/agents/cortex-planner.md
+ℹ   .opencode/mcp-template.json
+ℹ   .opencode/skills/bootstrap/SKILL.md
+ℹ   .opencode/tools/execute_script.ts
+ℹ Injected (3):
+ℹ   .gitignore
+ℹ   opencode.json
+ℹ   .opencode/opencode.json
+ℹ Seeded (3):
+ℹ   .cortex-sessions/.gitignore
+ℹ   odd/tasks/.gitkeep
+ℹ   .cortex/manifest.json
+ℹ Skipped (6):
+ℹ   .opencode/skills/design-system/SKILL.md
+ℹ   .opencode/skills/graphify/SKILL.md
+ℹ   .opencode/tools/package.json
+ℹ   .opencode/tools/wiki-link.ts
+ℹ   .opencode/tools/wiki-search.ts
+ℹ   AGENTS.md
+⚠ Conflicting files are project-owned. Re-run with --force to overwrite them.
+✔ Cortex adopted successfully.
+SCENARIO 3 AGENTS heading count: before=3 after=3
+SCENARIO 3 AGENTS diff: empty
+```
+
+#### 4. Second adoption is idempotent
+
+```text
+⚠ Could not determine whether the working tree is dirty. Cortex will still classify existing files before writing.
+
+Cortex Adoption
+───────────────
+ℹ Created (0):
+ℹ Refreshed (0):
+ℹ Conflicting (5):
+ℹ   .opencode/agents/cortex-developer.md
+ℹ   .opencode/agents/cortex-planner.md
+ℹ   .opencode/mcp-template.json
+ℹ   .opencode/skills/bootstrap/SKILL.md
+ℹ   .opencode/tools/execute_script.ts
+ℹ Injected (0):
+ℹ Seeded (0):
+ℹ Skipped (14):
+ℹ   .opencode/.gitignore
+ℹ   .opencode/package.json
+ℹ   .opencode/skills/design-system/SKILL.md
+ℹ   .opencode/skills/graphify/SKILL.md
+ℹ   .opencode/tools/package.json
+ℹ   .opencode/tools/wiki-link.ts
+ℹ   .opencode/tools/wiki-search.ts
+ℹ   AGENTS.md
+ℹ   .gitignore
+ℹ   opencode.json
+ℹ   .opencode/opencode.json
+ℹ   .cortex-sessions/.gitignore
+ℹ   odd/tasks/.gitkeep
+ℹ   .cortex/manifest.json
+⚠ Conflicting files are project-owned. Re-run with --force to overwrite them.
+✔ Cortex adopted successfully.
+SCENARIO 4 DIRECTORY COMPARISON
+diff -rq: empty
+```
+
+#### 5. Conflicts remain visible to `update`
+
+```text
+Cortex Brain Update
+───────────────────
+
+→ Comparing template with project
+
+Changes Detected
+────────────────
+ℹ New files (1):
+ℹ   + .opencode/plugins/graphify.js
+ℹ
+ℹ Dry run — no changes applied.
+```
+
+```text
+SCENARIO 5 HASH .opencode/agents/cortex-developer.md
+manifest=a518f4eafb1c0629aa32509981fe4b1c9e31dc78a2b949778ee17093a40edd09
+project=b379403594d976c7635d0abce35f91da7d5d4e9353d7f26a79eba2465bd2ff74
+template-derived=a518f4eafb1c0629aa32509981fe4b1c9e31dc78a2b949778ee17093a40edd09
+manifest_equals_template_derived=true
+manifest_differs_from_project=true
+```
+
+#### 6. Non-git dry run reports uncertainty without raw git failure
+
+```text
+⚠ Could not determine whether the working tree is dirty. Cortex will still classify existing files before writing.
+
+Cortex Adoption Plan (dry run)
+──────────────────────────────
+ℹ Created (2):
+ℹ   .opencode/.gitignore
+ℹ   .opencode/package.json
+ℹ Refreshed (0):
+ℹ Conflicting (5):
+ℹ   .opencode/agents/cortex-developer.md
+ℹ   .opencode/agents/cortex-planner.md
+ℹ   .opencode/mcp-template.json
+ℹ   .opencode/skills/bootstrap/SKILL.md
+ℹ   .opencode/tools/execute_script.ts
+ℹ Injected (3):
+ℹ   .gitignore
+ℹ   opencode.json
+ℹ   .opencode/opencode.json
+ℹ Seeded (3):
+ℹ   .cortex-sessions/.gitignore
+ℹ   odd/tasks/.gitkeep
+ℹ   .cortex/manifest.json
+ℹ Skipped (6):
+ℹ   .opencode/skills/design-system/SKILL.md
+ℹ   .opencode/skills/graphify/SKILL.md
+ℹ   .opencode/tools/package.json
+ℹ   .opencode/tools/wiki-link.ts
+ℹ   .opencode/tools/wiki-search.ts
+ℹ   AGENTS.md
+⚠ Conflicting files are project-owned. Re-run with --force to overwrite them.
+⚠ Dry run — no changes applied.
+SCENARIO 6 raw fatal: absent
+SCENARIO 6 dirty report: could not determine
+```
