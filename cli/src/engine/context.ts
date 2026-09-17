@@ -1,5 +1,4 @@
-import { existsSync, readFileSync, statSync, mkdirSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
 import { execFileSync } from 'child_process';
 import { info, warn, step, success } from '../utils/logger';
 import { MCPClient } from '../utils/mcp';

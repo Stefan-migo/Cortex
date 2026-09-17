@@ -26,10 +26,11 @@ export function resolveStateDir(root: string): string {
 }
 
 export function resolveStatePath(root: string, ...parts: string[]): string | null {
-  const current = stateDir(root);
-  if (existsSync(current)) return join(current, ...parts);
+  const current = join(stateDir(root), ...parts);
+  if (existsSync(current)) return current;
   const legacy = join(root, LEGACY_PROJECT_STATE_DIR_NAME);
-  return existsSync(legacy) ? join(legacy, ...parts) : null;
+  const legacyPath = join(legacy, ...parts);
+  return existsSync(legacyPath) ? legacyPath : null;
 }
 
 export function resolveSessionsDir(root: string): string {
