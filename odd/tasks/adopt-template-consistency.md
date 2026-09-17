@@ -157,14 +157,16 @@ In practice the affected set is empty: the only project ever adopted with the bu
 TDD mode: **off**. Source: `AGENTS.md` — no test harness, zero test files, `npm test` exits 1.
 
 ```bash
-cd cli && npm run typecheck && npm run build
+# Run every block from the repository root. `cd cli` is scoped in a subshell so the
+# documented sequence is not path-dependent.
+(cd cli && npm run typecheck && npm run build)
 
 # B6: a stale destination file must not survive a build.
 # NOTE: touch the MIRROR, not the source. A file present in cli/src/template is supposed to be
 # copied; the defect is a file that exists ONLY in cli/template. An earlier revision of this
 # document had the probe backwards, and the implementing agent correctly caught it.
 touch cli/template/.opencode/__zombie_probe
-cd cli && npm run build && ls template/.opencode/__zombie_probe   # must NOT exist
+(cd cli && npm run build && ls template/.opencode/__zombie_probe)   # must NOT exist
 
 # B1 + B3: adopt over a project with a real plugin and a relative entry
 node <cli> adopt --dry-run /tmp/opencode/<fixture>    # expect plugins/ absent from Refreshed
