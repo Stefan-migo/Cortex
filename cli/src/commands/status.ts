@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import { info, success, warn, error, heading } from '../utils/logger';
-import { findProjectRoot, resolveProjectManifest } from '../engine/project';
+import { findProjectRoot, readProjectName, resolveProjectManifest, resolveProjectManifestPath } from '../engine/project';
 
 interface StatusOptions {
   json?: boolean;
@@ -81,10 +81,10 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
   if (projectDir) {
     const manifest = resolveProjectManifest(projectDir);
     if (manifest) {
-      report.project.name = manifest.projectName || 'unknown';
       report.project.templateVersion = manifest.templateVersion || '—';
       report.project.fileCount = manifest.files?.length || 0;
     }
+    report.project.name = readProjectName(projectDir);
 
     const sessionPath = join(projectDir, '.cortex', 'session.json');
     if (existsSync(sessionPath)) {
@@ -114,9 +114,9 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
     if (existsSync(graphJson)) {
       report.graphify.exists = true;
       const graphMtime = statSync(graphJson).mtime;
-      const manifestPath2 = join(projectDir, '.cortex', 'manifest.json');
-      if (existsSync(manifestPath2)) {
-        const manifestMtime = statSync(manifestPath2).mtime;
+      const manifestPath = resolveProjectManifestPath(projectDir);
+      if (manifestPath) {
+        const manifestMtime = statSync(manifestPath).mtime;
         report.graphify.stale = graphMtime < manifestMtime;
       }
     }

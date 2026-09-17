@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { basename, join } from 'path';
 import type { Manifest } from './manifest';
 
 interface WorktreeMarker {
@@ -41,16 +41,28 @@ export function findProjectRoot(dir: string): string | null {
 }
 
 /**
- * Project metadata is owned by the main project and never copied into a worktree,
- * so a worktree resolves it through the `source` its provisioning recorded.
+ * The directory that owns the project metadata: the `source` a provisioned worktree
+ * recorded, or the root itself. A worktree's own directory name is the slug, never the
+ * project name, so the fallback below has to read it from here.
  */
-export function resolveProjectManifest(root: string): Manifest | null {
+function projectHome(root: string): string {
+  return worktreeSource(root) || root;
+}
+
+/**
+ * Project metadata is owned by the main project and never copied into a worktree,
+ * so a worktree resolves it through the `source` its provisioning recorded. Returns the
+ * first manifest path that both exists and parses, so a caller that needs the file agrees
+ * with a caller that needs its content.
+ */
+export function resolveProjectManifestPath(root: string): string | null {
   for (const candidate of [root, worktreeSource(root)]) {
     if (!candidate) continue;
     const manifestPath = join(candidate, '.cortex', 'manifest.json');
     if (!existsSync(manifestPath)) continue;
     try {
-      return JSON.parse(readFileSync(manifestPath, 'utf-8')) as Manifest;
+      JSON.parse(readFileSync(manifestPath, 'utf-8'));
+      return manifestPath;
     } catch {
       // A corrupt manifest must not abort the session; keep looking.
     }
@@ -58,6 +70,22 @@ export function resolveProjectManifest(root: string): Manifest | null {
   return null;
 }
 
+export function resolveProjectManifest(root: string): Manifest | null {
+  const manifestPath = resolveProjectManifestPath(root);
+  if (!manifestPath) return null;
+  try {
+    return JSON.parse(readFileSync(manifestPath, 'utf-8')) as Manifest;
+  } catch {
+    // The file could be replaced between resolution and read; a session must still start.
+    return null;
+  }
+}
+
+/**
+ * `adopt` and `init` record the project's directory name as its `projectName`, so that is
+ * the fallback when no manifest resolves. It keeps the invariant this module exists for:
+ * a worktree and its `source` always resolve to the same name.
+ */
 export function readProjectName(root: string): string {
-  return resolveProjectManifest(root)?.projectName || 'unknown';
+  return resolveProjectManifest(root)?.projectName || basename(projectHome(root));
 }
