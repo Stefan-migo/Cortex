@@ -1,7 +1,7 @@
 import { execFileSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { basename, dirname, join, relative, resolve } from 'path';
-import { collectFiles, hashFile, substituteVariables, TemplateOptions } from './template';
+import { collectFiles, hashFile, hashTemplateFile, substituteVariables, TemplateOptions } from './template';
 import { Manifest, ManifestFile } from './manifest';
 
 export const OWNED_PATHS = [
@@ -19,7 +19,7 @@ const CORTEX_IGNORE_ENTRIES = [
   '*.pyo', '.pytest_cache/', '.ruff_cache/', '.mypy_cache/',
 ];
 
-export interface AdoptPlan { created: string[]; refreshed: string[]; injected: string[]; seeded: string[]; skipped: string[]; }
+export interface AdoptPlan { created: string[]; refreshed: string[]; conflicting: string[]; injected: string[]; seeded: string[]; skipped: string[]; }
 
 interface AdoptOptions { dryRun?: boolean; yes?: boolean; force?: boolean; }
 
@@ -32,12 +32,23 @@ function isOwned(path: string): boolean { return OWNED_PATHS.some((pattern) => m
 
 function getDate(): string { return new Date().toISOString().split('T')[0]; }
 
-function markdownBlock(templateDir: string, options: TemplateOptions): string {
+function markdownSections(templateDir: string, options: TemplateOptions): Array<[string, string]> {
   const source = substituteVariables(readFileSync(join(templateDir, 'AGENTS.md'), 'utf-8'), options);
   const gate = source.match(/### 5-Step Execution Gate \(MANDATORY\)[\s\S]*?(?=\n### |\n## |$)/)?.[0].trim();
   const worktrees = source.match(/## ODD Worktrees[\s\S]*?(?=\n## |$)/)?.[0].trim();
   const defects = source.match(/## Reporting Cortex Defects[\s\S]*?(?=\n## |$)/)?.[0].trim();
-  return [worktrees, defects, gate].filter(Boolean).join('\n\n');
+  return [
+    ['## ODD Worktrees', worktrees],
+    ['## Reporting Cortex Defects', defects],
+    ['### 5-Step Execution Gate (MANDATORY)', gate],
+  ].filter((section): section is [string, string] => Boolean(section[1]));
+}
+
+function injectSections(content: string, sections: Array<[string, string]>): { content: string; changed: boolean } {
+  const missing = sections.filter(([heading]) => !content.split(/\r?\n/).some((line) => line.trim() === heading));
+  if (missing.length === 0) return { content, changed: false };
+  const suffix = missing.map(([, section]) => section).join('\n\n');
+  return { content: `${content.replace(/\s*$/, '')}\n\n${suffix}\n`, changed: true };
 }
 
 function injectMarked(content: string, start: string, end: string, block: string): { content: string; changed: boolean } {
@@ -96,10 +107,13 @@ function writeFile(path: string, content: string): void {
 export function adoptProject(targetDir: string, options: AdoptOptions, templateDir: string): AdoptPlan {
   const projectName = basename(targetDir) || 'project';
   const templateOptions: TemplateOptions = { projectName, projectType: 'default', date: getDate(), year: new Date().getFullYear().toString() };
-  const plan: AdoptPlan = { created: [], refreshed: [], injected: [], seeded: [], skipped: [] };
+  const plan: AdoptPlan = { created: [], refreshed: [], conflicting: [], injected: [], seeded: [], skipped: [] };
   const manifestPath = join(targetDir, '.cortex/manifest.json');
   let oldManifest: Manifest | undefined;
-  if (existsSync(manifestPath)) oldManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+  if (existsSync(manifestPath)) {
+    try { oldManifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as Manifest; }
+    catch { oldManifest = undefined; }
+  }
   const oldHashes = new Map((oldManifest?.files || []).map((file) => [file.path, file.hash]));
 
   for (const file of collectFiles(templateDir, templateDir).filter(isOwned)) {
@@ -109,11 +123,15 @@ export function adoptProject(targetDir: string, options: AdoptOptions, templateD
     if (!existsSync(target)) {
       plan.created.push(file);
       if (!options.dryRun) { mkdirSync(dirname(target), { recursive: true }); writeFileSync(target, content); }
-    } else if (oldHashes.get(file) !== hashFile(target)) {
+    } else if (hashTemplateFile(source, templateOptions) === hashFile(target)) {
+      plan.skipped.push(file);
+    } else if (oldHashes.get(file) === hashFile(target)) {
       plan.refreshed.push(file);
-      if (!options.dryRun && (options.force || options.yes)) writeFileSync(target, content);
-      else if (!options.dryRun) plan.skipped.push(file);
-    } else plan.skipped.push(file);
+      if (!options.dryRun) writeFileSync(target, content);
+    } else {
+      plan.conflicting.push(file);
+      if (!options.dryRun && options.force) writeFileSync(target, content);
+    }
   }
 
   const agentsPath = join(targetDir, 'AGENTS.md');
@@ -121,8 +139,7 @@ export function adoptProject(targetDir: string, options: AdoptOptions, templateD
   const configs = [join(targetDir, 'opencode.json'), join(targetDir, '.opencode/opencode.json')].filter((path) => existsSync(path));
   if (configs.length === 0) configs.push(join(targetDir, 'opencode.json'));
   const merges: Array<[string, { content: string; changed: boolean }]> = [];
-  if (existsSync(agentsPath)) merges.push([agentsPath, injectMarked(readFileSync(agentsPath, 'utf-8'), '<!-- cortex:start -->', '<!-- cortex:end -->', markdownBlock(templateDir, templateOptions))]);
-  else merges.push([agentsPath, injectMarked('', '<!-- cortex:start -->', '<!-- cortex:end -->', markdownBlock(templateDir, templateOptions))]);
+  merges.push([agentsPath, injectSections(existsSync(agentsPath) ? readFileSync(agentsPath, 'utf-8') : '', markdownSections(templateDir, templateOptions))]);
   merges.push([ignorePath, mergeGitignore(existsSync(ignorePath) ? readFileSync(ignorePath, 'utf-8') : '')]);
   for (const path of configs) merges.push([path, mergeJson(existsSync(path) ? readFileSync(path, 'utf-8') : '', targetDir, templateDir)]);
   for (const [path, result] of merges) {
@@ -136,7 +153,7 @@ export function adoptProject(targetDir: string, options: AdoptOptions, templateD
     else { plan.seeded.push(relative(targetDir, path)); if (!options.dryRun) writeFile(path, content); }
   }
   if (!options.dryRun) {
-    const files: ManifestFile[] = collectFiles(templateDir, templateDir).filter(isOwned).map((file) => ({ path: file, hash: hashFile(join(targetDir, file)) }));
+    const files: ManifestFile[] = collectFiles(templateDir, templateDir).filter(isOwned).map((file) => ({ path: file, hash: hashTemplateFile(join(templateDir, file), templateOptions) }));
     writeFile(manifestPath, JSON.stringify({ templateVersion: '1.0.0', createdAt: getDate(), projectName, files, excludedPaths: NEVER_PATHS }, null, 2) + '\n');
   }
   if (oldManifest) plan.skipped.push('.cortex/manifest.json');
@@ -144,7 +161,7 @@ export function adoptProject(targetDir: string, options: AdoptOptions, templateD
   return plan;
 }
 
-export function isDirty(targetDir: string): boolean {
-  try { return execFileSync('git', ['status', '--porcelain'], { cwd: targetDir, encoding: 'utf-8' }).trim().length > 0; }
-  catch { return false; }
+export function isDirty(targetDir: string): boolean | undefined {
+  try { return execFileSync('git', ['status', '--porcelain'], { cwd: targetDir, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] }).trim().length > 0; }
+  catch { return undefined; }
 }
