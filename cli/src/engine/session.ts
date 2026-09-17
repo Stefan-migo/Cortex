@@ -4,7 +4,7 @@ import { randomBytes } from 'crypto';
 import { execSync } from 'child_process';
 import { MCPClient } from '../utils/mcp';
 import { info, success, warn, error, step } from '../utils/logger';
-import { readProjectName } from './project';
+import { readProjectName, resolveGraphifyPaths } from './project';
 
 export interface SessionInfo {
   sessionId: string;
@@ -169,7 +169,7 @@ export function generateRetrospective(
   const suggestions: string[] = [];
 
   const warnText = warnings.join(' ').toLowerCase();
-  if (warnText.includes('graphify') || !existsSync(join(projectDir, 'wiki', 'graph', 'graph.json'))) {
+  if (warnText.includes('graphify') || !existsSync(resolveGraphifyPaths(projectDir).graphJson)) {
     gaps.push('Graphify report not found at session start');
     suggestions.push('Run `graphify . --update` to enable code structure awareness');
   }

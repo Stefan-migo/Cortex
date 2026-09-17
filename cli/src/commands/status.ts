@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
-import { info, success, warn, error, heading } from '../utils/logger';
-import { findProjectRoot, readProjectName, resolveProjectManifest, resolveProjectManifestPath } from '../engine/project';
+import { heading } from '../utils/logger';
+import { findProjectRoot, readProjectName, resolveGraphifyPaths, resolveProjectManifest } from '../engine/project';
 
 interface StatusOptions {
   json?: boolean;
@@ -110,15 +110,10 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
       } catch {}
     }
 
-    const graphJson = join(projectDir, 'wiki', 'graph', 'graph.json');
+    const { graphJson } = resolveGraphifyPaths(projectDir);
     if (existsSync(graphJson)) {
       report.graphify.exists = true;
       const graphMtime = statSync(graphJson).mtime;
-      const manifestPath = resolveProjectManifestPath(projectDir);
-      if (manifestPath) {
-        const manifestMtime = statSync(manifestPath).mtime;
-        report.graphify.stale = graphMtime < manifestMtime;
-      }
     }
 
     const wikiDir = join(projectDir, 'wiki');

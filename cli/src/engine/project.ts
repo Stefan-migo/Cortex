@@ -49,6 +49,14 @@ function projectHome(root: string): string {
   return worktreeSource(root) || root;
 }
 
+export function resolveGraphifyPaths(root: string): { graphJson: string; graphReport: string } {
+  const graphDir = join(projectHome(root), 'graphify-out');
+  return {
+    graphJson: join(graphDir, 'graph.json'),
+    graphReport: join(graphDir, 'GRAPH_REPORT.md'),
+  };
+}
+
 /**
  * Project metadata is owned by the main project and never copied into a worktree,
  * so a worktree resolves it through the `source` its provisioning recorded. Returns the

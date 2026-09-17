@@ -3,7 +3,7 @@ import { join } from 'path';
 import { execSync } from 'child_process';
 import { info, warn, step, success } from '../utils/logger';
 import { MCPClient } from '../utils/mcp';
-import { resolveProjectManifest } from './project';
+import { resolveGraphifyPaths, resolveProjectManifest } from './project';
 
 interface ContextItem {
   source: 'engram' | 'graphify' | 'speckit' | 'manifest';
@@ -127,7 +127,7 @@ async function fetchEngramContext(projectName: string): Promise<ContextItem[]> {
 }
 
 async function fetchGraphifyContext(projectDir: string, projectName: string): Promise<ContextItem[]> {
-  const graphJson = join(projectDir, 'wiki', 'graph', 'graph.json');
+  const { graphJson } = resolveGraphifyPaths(projectDir);
 
   if (!existsSync(graphJson)) {
     return fetchGraphifyContextStatic(projectDir);
@@ -187,7 +187,7 @@ async function fetchGraphifyContext(projectDir: string, projectName: string): Pr
 }
 
 function fetchGraphifyContextStatic(projectDir: string): ContextItem[] {
-  const graphReport = join(projectDir, 'wiki', 'graph', 'GRAPH_REPORT.md');
+  const { graphReport } = resolveGraphifyPaths(projectDir);
   if (!existsSync(graphReport)) {
     warn('Graphify report not found');
     return [];
