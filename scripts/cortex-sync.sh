@@ -3,7 +3,7 @@
 #
 # For each project it:
 #   1. Copies the pack's skills into <project>/.opencode/skills/ (overwrite).
-#   2. Migrates legacy flat .cortex-sessions/ into open|ready-for-sdd|archived.
+#   2. Migrates legacy flat .cortex-sessions/ into open|ready-for-odd|archived.
 #
 # Idempotent. Git is your backup: review `git diff` before committing.
 #
@@ -50,15 +50,37 @@ sync_skills() {
   done
 }
 
-# Legacy flat sessions -> open|ready-for-sdd|archived. Idempotent.
+# Legacy flat sessions -> open|ready-for-odd|archived. Idempotent.
 migrate_sessions() {
   local root="$1/.cortex-sessions"
   [[ -d "$root" ]] || { echo "  - no .cortex-sessions, skipped"; return 0; }
-  run mkdir -p "$root/open" "$root/ready-for-sdd" "$root/archived"
+  run mkdir -p "$root/open" "$root/ready-for-odd" "$root/archived"
   local d name dest moved=0
+  local legacy="$root/ready-for-sdd" target="$root/ready-for-odd"
+  if [[ -d "$legacy" ]]; then
+    local legacy_entry
+    for legacy_entry in "$legacy"/*; do
+      [[ -e "$legacy_entry" || -L "$legacy_entry" ]] || continue
+      name="$(basename "$legacy_entry")"
+      if [[ -e "$target/$name" || -L "$target/$name" ]]; then
+        echo "    legacy session collision: $name remains in ready-for-sdd/"
+      else
+        run mv "$legacy_entry" "$target/$name"
+        echo "    legacy session: $name -> ready-for-odd/"
+      fi
+    done
+    local remaining=("$legacy"/*)
+    if ((${#remaining[@]} == 0)); then
+      run rmdir "$legacy"
+    else
+      echo "    legacy directory remains with: ${remaining[*]}"
+    fi
+  fi
   for d in "$root"/*/; do
     name="$(basename "$d")"
-    case "$name" in open|ready-for-sdd|archived) continue ;; esac
+    # Legacy migration only: do not process the old state as a flat session.
+    [[ "$name" == ready-for-sdd ]] && continue
+    case "$name" in open|ready-for-odd|archived) continue ;; esac
     if [[ -f "$d/session.md" && ! -f "$d/report.md" ]]; then
       dest="$root/open/$name"
     else
