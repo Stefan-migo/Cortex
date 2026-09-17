@@ -166,8 +166,14 @@ function copyIfPresent(source: string, target: string): void {
 }
 
 function installDependencies(directory: string): void {
-  if (existsSync(join(directory, 'package.json')) && existsSync(join(directory, 'package-lock.json'))) {
-    execFileSync('npm', ['ci'], { cwd: directory, stdio: 'inherit' });
+  if (!existsSync(join(directory, 'package.json'))) return;
+  // `npm ci` is reproducible but needs a lockfile. A project that has never installed has
+  // none, so resolve fresh rather than silently installing nothing.
+  const command = existsSync(join(directory, 'package-lock.json')) ? 'ci' : 'install';
+  try {
+    execFileSync('npm', [command], { cwd: directory, stdio: 'inherit' });
+  } catch {
+    throw new Error(`Failed to install dependencies in ${directory} (npm ${command}).`);
   }
 }
 

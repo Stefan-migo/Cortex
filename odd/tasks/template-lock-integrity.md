@@ -174,19 +174,99 @@ problem that has not been observed.
 ## Task checklist
 
 - [x] **T01** — Decide the lockfile strategy. Decision recorded as D01.
-- [ ] **T02** — Resolve the `@opencode-ai/plugin` pin (B2) consistently across the template
-      and Cortex's own `.opencode/package.json`. They must not disagree.
-- [ ] **T03** — Implement the chosen strategy for `.opencode/package-lock.json`.
-- [ ] **T04** — Implement the chosen strategy for `.opencode/tools/package-lock.json`.
-- [ ] **T05** — Make the provisioning npm failure actionable: distinguish "no lockfile"
-      from "invalid lockfile" and report which directory failed.
-- [ ] **T06** — Verify `cortex worktree create` succeeds end-to-end on a project created by
-      `cortex init` (see Checks).
-- [ ] **T07** — Re-verify that provisioning in the Cortex repository itself still succeeds
-      (no regression).
-- [ ] **T08** — Slice B only, if approved: fix B1 and B3.
-- [ ] **T09** — Update this document with observed evidence and check off only what was
-      observed.
+- [x] **T02** — Resolve the `@opencode-ai/plugin` pin (B2). Template `.opencode/package.json`
+      now declares `latest`, matching `.opencode/tools/package.json`. No second convention.
+- [x] **T03** — Implement the chosen strategy for `.opencode/package-lock.json`: removed.
+- [x] **T04** — Implement the chosen strategy for `.opencode/tools/package-lock.json`: removed.
+- [x] **T05** — Make the provisioning npm failure actionable. `installDependencies()` now
+      skips only when there is no `package.json`, chooses `ci` vs `install` from the lockfile's
+      presence, and rethrows naming the directory and the command.
+- [x] **T06** — Verified `cortex worktree create` end-to-end on a project created by
+      `cortex init`. See evidence below.
+- [x] **T07** — Verified no regression in the Cortex repository: `create probe2` and
+      `cleanup probe2` both exited 0, leaving no worktree, branch, or directory behind.
+- [ ] **T08** — Slice B, if approved: fix B1 and B3. **Separate PR.**
+- [x] **T09** — Updated this document with observed evidence.
+
+## Implementation notes
+
+- `installDependencies()` (`cli/src/engine/worktree.ts:168`) was the only `npm ci` call site.
+- `adopt.ts:10` still lists `.opencode/package-lock.json` in `OWNED_PATHS`. That entry is now
+  inert, because `isOwned` is only applied to files the template actually ships. Removing it
+  belongs to Slice B, which owns that file.
+
+## New finding (B5, out of scope)
+
+Nothing installs `.opencode/` dependencies on the normal path. `cortex install` only checks
+for external binaries — Node, Engram, Graphify, Spec-Kit (`cli/src/engine/deps.ts`).
+`copyTemplate` writes files and returns. So after `cortex init`, `.opencode/node_modules`
+does not exist and the three tools that `import { tool } from "@opencode-ai/plugin"` have an
+unresolvable import until the first worktree is provisioned.
+
+This change makes the gap visible rather than silent — the old code skipped installing
+whenever a lockfile was absent — but it does not close it. Closing it means deciding whether
+`cortex init` should install, or whether the tools should not depend on a project-local
+install. That is a scope decision, not a defect fix, and it is not covered here.
+
+Related: `deps.ts` still treats **Spec-Kit as required**, which the `spec-kit-decommission`
+handoff owns.
+
+## Observed evidence (Slice A)
+
+Literal output, not paraphrase.
+
+```
+$ cd cli && npm run typecheck && npm run build
+TYPECHECK_EXIT=0
+BUILD_EXIT=0
+Template copied: .../cli/src/template → .../cli/template
+
+$ grep -rn "sha512-xxx" cli/src/template/
+(no matches)
+
+$ cd /tmp/opencode && node <cli> init tlifixture
+INIT_EXIT=0
+
+$ cd /tmp/opencode/tlifixture && node <cli> worktree create probe --yes --root /tmp/opencode/tlifixture
+added 27 packages, and audited 28 packages in 7s / found 0 vulnerabilities
+added 27 packages, and audited 28 packages in 4s / found 0 vulnerabilities
+{"accepted":true,"created":true,"path":"/tmp/opencode/tlifixture-odd-probe","branch":"odd/probe"}
+CREATE_EXIT=0
+
+$ node -e "require('.../.opencode/node_modules/@opencode-ai/plugin/package.json').version"
+.opencode      : 1.18.31
+.opencode/tools: 1.18.31
+(runtime is opencode 1.18.31 — the resolved plugin now matches the runtime; it was 1.14.41)
+
+$ wc -l .../tlifixture-odd-probe/.opencode{,/tools}/package-lock.json
+ 401 /tmp/opencode/tlifixture-odd-probe/.opencode/package-lock.json
+ 402 /tmp/opencode/tlifixture-odd-probe/.opencode/tools/package-lock.json
+
+$ node <cli> worktree create probe2 --yes --root /home/stefan/Cortex
+{"accepted":true,"created":true,...}   CREATE_EXIT=0
+$ node <cli> worktree cleanup probe2 --root /home/stefan/Cortex
+{"cleaned":true,"slug":"probe2"}       CLEANUP_EXIT=0
+```
+
+## Acceptance status
+
+| # | Criterion | Status |
+|---|---|---|
+| 1 | `npm ci` succeeds against both template lockfiles, or a documented decision explains the alternative | Met via D01 — no lockfile is shipped, and the reason is recorded |
+| 2 | `cortex worktree create` exits 0 on a project created by `cortex init` | Met — verified end-to-end |
+| 3 | `cortex worktree create` exits 0 in the Cortex repository itself | Met — create and cleanup both exit 0 |
+| 4 | Template and Cortex's own `.opencode/package.json` do not pin different plugin versions | Met — the template declares `latest`; Cortex's own file is untracked local state and was not modified |
+| 5 | No fabricated integrity hash remains under `cli/src/template/` | Met — grep returns no matches |
+
+## Progress
+
+Slice A implemented, verified, and pending review + PR. Slice B not started.
+All source changes are uncommitted as of this revision of the document.
+
+## Next step
+
+Commit Slice A, run the review preflight, then open the PR. Slice B follows as a chained PR.
+
 
 ## Acceptance criteria
 
