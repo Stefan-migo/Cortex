@@ -20,7 +20,7 @@ program
 
 program
   .command('init')
-  .description('Scaffold a new Cortex project')
+  .description('Scaffold a new Rapsodia project')
   .argument('<name>', 'project name')
   .option('--template <type>', 'project template type (default, api, web, cli, lib)', 'default')
   .option('--no-git', 'skip git init')
@@ -78,7 +78,7 @@ program
 
 program
   .command('adopt [path]')
-  .description('Install Cortex into an existing project')
+  .description('Install Rapsodia into an existing project')
   .option('--dry-run', 'show the adoption plan without applying it')
   .option('--yes', 'skip prompts and accept owned-file refreshes')
   .option('--force', 'overwrite user-modified owned files')

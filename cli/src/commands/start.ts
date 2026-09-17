@@ -12,11 +12,11 @@ interface StartOptions {
 }
 
 export async function startCommand(options: StartOptions): Promise<void> {
-  heading('Cortex Session Start');
+  heading('Rapsodia Session Start');
 
   const projectDir = findProjectRoot(process.cwd());
   if (!projectDir) {
-    error('Not inside a Cortex project. Run `cortex init <name>` first.');
+    error('Not inside a Rapsodia project. Run `rapso init <name>` first.');
     process.exit(1);
   }
 
@@ -27,7 +27,7 @@ export async function startCommand(options: StartOptions): Promise<void> {
   const existingSession = getSessionInfo(projectDir);
   if (existingSession) {
     warn(`Active session found: ${existingSession.sessionId}`);
-    info('Run `cortex close` to finalize it before starting a new one.');
+    info('Run `rapso close` to finalize it before starting a new one.');
     if (!process.stdin.isTTY) {
       error('Cannot confirm starting another session without an interactive terminal.');
       process.exit(1);
@@ -78,7 +78,7 @@ export async function startCommand(options: StartOptions): Promise<void> {
     heading('Session Prepared (--no-open)');
     success('Session started without launching OpenCode');
     info(`Session ID: ${sessionId}`);
-    info('Run `opencode` manually, then `cortex close` when done.');
+    info('Run `opencode` manually, then `rapso close` when done.');
     return;
   }
 
@@ -111,7 +111,7 @@ export async function startCommand(options: StartOptions): Promise<void> {
     } else {
       warn(`OpenCode exited with code ${code}`);
     }
-    info('Run `cortex close` to finalize the session.');
+    info('Run `rapso close` to finalize the session.');
     process.exit(code === null ? 1 : code);
   });
 }

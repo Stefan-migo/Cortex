@@ -13,7 +13,7 @@ export const OWNED_PATHS = [
 
 export const NEVER_PATHS = ['DESIGN.md', 'SYSTEM-MAP.md', 'USER-GUIDE.md', 'wiki/**', 'scripts/**'];
 
-const CORTEX_IGNORE_ENTRIES = [
+const RAPSO_IGNORE_ENTRIES = [
   `${PROJECT_STATE_DIR_NAME}/`, `${SESSIONS_DIR_NAME}/`, 'graphify-out/',
   '.opencode/tools/node_modules/', '.engram/', '.obsidian/workspace.json',
   '.obsidian/workspace', '__pycache__/', '*.pyc',
@@ -63,7 +63,7 @@ function mergeGitignore(content: string): { content: string; changed: boolean } 
   const marked = content.match(/# cortex:start[\s\S]*?# cortex:end/)?.[0] || '';
   const outside = content.replace(marked, '');
   const existingOutside = new Set(outside.split(/\r?\n/).map((line) => line.trim()));
-  const entries = CORTEX_IGNORE_ENTRIES.filter((entry) => !existingOutside.has(entry));
+  const entries = RAPSO_IGNORE_ENTRIES.filter((entry) => !existingOutside.has(entry));
   const block = ['# Cortex managed entries', ...entries].join('\n');
   return injectMarked(content, '# cortex:start', '# cortex:end', block);
 }
