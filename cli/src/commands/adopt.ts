@@ -19,9 +19,10 @@ export async function adoptCommand(path: string | undefined, options: AdoptOptio
   if (dirty === true) {
     // A hard refusal here would make adopt impossible to re-run: adopt itself leaves the
     // working tree dirty, so the second run would always need --force. The structural
-    // protections already cover the real risk — adopt writes only its own tracked files and
-    // the marked blocks inside files the project owns, and a user-modified owned file is a
-    // conflict that is prompted for. So this informs instead of blocking.
+    // protections cover the real risk — adopt writes only its own tracked files, fills gaps
+    // in files the project owns instead of replacing them, and never writes over a file
+    // whose content differs from what Cortex last recorded unless --force is given. So this
+    // informs instead of blocking.
     warn('Working tree is dirty. Cortex writes only its own tracked files and the marked blocks inside files you own, so uncommitted work elsewhere is left alone.');
   } else if (dirty === undefined) {
     warn('Could not determine whether the working tree is dirty. Cortex will still classify existing files before writing.');
