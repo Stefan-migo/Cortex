@@ -5,6 +5,7 @@ import { execFileSync } from 'child_process';
 import { MCPClient } from '../utils/mcp';
 import { info, success, warn, error, step } from '../utils/logger';
 import { readProjectName, resolveGraphifyPaths } from './project';
+import { stateDir, statePath, PROJECT_STATE_DIR_NAME } from '../utils/state';
 
 export interface SessionInfo {
   sessionId: string;
@@ -44,7 +45,7 @@ export async function openSession(projectDir: string, sessionId: string): Promis
   }
 
   step('Writing session metadata');
-  const cortexDir = join(projectDir, '.cortex');
+  const cortexDir = stateDir(projectDir);
   if (!existsSync(cortexDir)) {
     mkdirSync(cortexDir, { recursive: true });
   }
@@ -53,7 +54,7 @@ export async function openSession(projectDir: string, sessionId: string): Promis
     sessionId,
     projectName,
     startedAt: new Date().toISOString(),
-    preludeFile: '.cortex/prelude.md',
+    preludeFile: `${PROJECT_STATE_DIR_NAME}/prelude.md`,
   };
 
   writeFileSync(
@@ -126,7 +127,7 @@ export async function closeSession(
   }
 
   step('Cleaning up session files');
-  const sessionPath = join(projectDir, '.cortex', 'session.json');
+  const sessionPath = statePath(projectDir, 'session.json');
   try {
     if (existsSync(sessionPath)) {
       unlinkSync(sessionPath);
@@ -140,7 +141,7 @@ export async function closeSession(
 }
 
 export function getSessionInfo(projectDir: string): SessionInfo | null {
-  const sessionPath = join(projectDir, '.cortex', 'session.json');
+  const sessionPath = statePath(projectDir, 'session.json');
   if (!existsSync(sessionPath)) {
     return null;
   }
@@ -220,7 +221,7 @@ ${suggestions.map((s) => `- ${s}`).join('\n')}
 }
 
 export function saveRetrospective(projectDir: string, content: string): string {
-  const retroDir = join(projectDir, '.cortex', 'retrospectives');
+  const retroDir = statePath(projectDir, 'retrospectives');
   mkdirSync(retroDir, { recursive: true });
 
   const match = content.match(/\*\*Session\*\*: (.+)/);

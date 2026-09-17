@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'fs';
 import { basename, join } from 'path';
 import type { Manifest } from './manifest';
+import { stateDir, statePath } from '../utils/state';
 
 interface WorktreeMarker {
   source?: string;
@@ -11,7 +12,7 @@ interface WorktreeMarker {
  * `provisionWorktree` records it there so a worktree never needs its own manifest.
  */
 function worktreeSource(root: string): string | null {
-  const markerPath = join(root, '.cortex', 'worktree.json');
+  const markerPath = statePath(root, 'worktree.json');
   if (!existsSync(markerPath)) return null;
   try {
     const marker = JSON.parse(readFileSync(markerPath, 'utf-8')) as WorktreeMarker;
@@ -26,7 +27,7 @@ function worktreeSource(root: string): string | null {
  * it has no manifest of its own, but it is where the session has to run.
  */
 export function findProjectRoot(dir: string): string | null {
-  const cortexDir = join(dir, '.cortex');
+  const cortexDir = stateDir(dir);
   if (
     existsSync(join(cortexDir, 'manifest.json')) ||
     existsSync(join(cortexDir, 'session.json')) ||
@@ -73,7 +74,7 @@ export function resolveGraphifyPaths(root: string): { graphJson: string; graphRe
 export function resolveProjectManifestPath(root: string): string | null {
   for (const candidate of [root, worktreeSource(root)]) {
     if (!candidate) continue;
-    const manifestPath = join(candidate, '.cortex', 'manifest.json');
+    const manifestPath = statePath(candidate, 'manifest.json');
     if (!existsSync(manifestPath)) continue;
     try {
       JSON.parse(readFileSync(manifestPath, 'utf-8'));
