@@ -8,6 +8,7 @@ import { statusCommand } from './commands/status';
 import { updateCommand } from './commands/update';
 import { analyzeCommand } from './commands/analyze';
 import { worktreeCommand } from './commands/worktree';
+import { adoptCommand } from './commands/adopt';
 
 const program = new Command();
 
@@ -73,6 +74,14 @@ program
   .action(async (options) => {
     await updateCommand(options);
   });
+
+program
+  .command('adopt [path]')
+  .description('Install Cortex into an existing project')
+  .option('--dry-run', 'show the adoption plan without applying it')
+  .option('--yes', 'skip prompts and accept owned-file refreshes')
+  .option('--force', 'overwrite user-modified owned files')
+  .action(async (path, options) => { await adoptCommand(path, options); });
 
 program
   .command('analyze')

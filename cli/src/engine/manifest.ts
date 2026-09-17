@@ -1,6 +1,6 @@
 import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'fs';
-import { join } from 'path';
-import { hashFile, hashDirectory, collectFiles, TemplateOptions } from './template';
+import { join, relative } from 'path';
+import { hashFile, hashDirectory, collectFiles, hashTemplateFile, TemplateOptions } from './template';
 
 export interface ManifestFile {
   path: string;
@@ -12,6 +12,7 @@ export interface Manifest {
   createdAt: string;
   projectName: string;
   files: ManifestFile[];
+  excludedPaths?: string[];
 }
 
 export function generateManifest(targetDir: string, options: TemplateOptions): Manifest {
@@ -22,7 +23,7 @@ export function generateManifest(targetDir: string, options: TemplateOptions): M
 
   const filePaths = hashDirectory(targetDir);
   const files: ManifestFile[] = filePaths.map((fp) => ({
-    path: fp.replace(targetDir + '/', ''),
+    path: relative(targetDir, fp),
     hash: hashFile(fp),
   })).filter((f) => !f.path.startsWith('.cortex/') && !f.path.startsWith('.git/'));
 
@@ -47,7 +48,12 @@ export function detectChanges(
   templateDir: string,
   manifest: Manifest,
 ): { added: string[]; modified: string[]; userModified: string[]; deleted: string[] } {
-  const templateFiles = collectFiles(templateDir, templateDir);
+  const excludedPaths = manifest.excludedPaths || [];
+  const adoptedMergedPaths = manifest.excludedPaths && manifest.excludedPaths.length > 0
+    ? ['AGENTS.md', '.gitignore', 'opencode.json', '.opencode/opencode.json', '.opencode/templates/**']
+    : [];
+  const ignoredPaths = [...excludedPaths, ...adoptedMergedPaths];
+  const templateFiles = collectFiles(templateDir, templateDir).filter((file) => !ignoredPaths.some((pattern) => pattern.endsWith('/**') ? file.startsWith(pattern.slice(0, -2)) : file === pattern));
 
   const added: string[] = [];
   const modified: string[] = [];
@@ -61,9 +67,20 @@ export function detectChanges(
 
   const templateSet = new Set(templateFiles);
 
+  // The manifest stores the hash of the file as it exists in the project, which is the
+  // substituted form. Reconstruct the variables the project was created with so the
+  // comparison is apples to apples; otherwise every placeholder-bearing file is reported
+  // as modified on every run, and a freshly created project looks permanently stale.
+  const templateOptions: TemplateOptions = {
+    projectName: manifest.projectName,
+    projectType: 'default',
+    date: manifest.createdAt,
+    year: (manifest.createdAt || '').slice(0, 4),
+  };
+
   for (const file of templateFiles) {
     const templatePath = join(templateDir, file);
-    const templateHash = hashFile(templatePath);
+    const templateHash = hashTemplateFile(templatePath, templateOptions);
     const projectPath = join(projectDir, file);
 
     const manifestHash = manifestFileMap.get(file);
