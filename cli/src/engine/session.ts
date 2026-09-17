@@ -4,6 +4,7 @@ import { randomBytes } from 'crypto';
 import { execSync } from 'child_process';
 import { MCPClient } from '../utils/mcp';
 import { info, success, warn, error, step } from '../utils/logger';
+import { readProjectName } from './project';
 
 export interface SessionInfo {
   sessionId: string;
@@ -26,15 +27,7 @@ export function generateSessionId(): string {
 export async function openSession(projectDir: string, sessionId: string): Promise<boolean> {
   step('Opening Engram session via MCP');
 
-  let projectName = 'unknown';
-  const manifestPath = join(projectDir, '.cortex', 'manifest.json');
-  if (existsSync(manifestPath)) {
-    try {
-      const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
-      projectName = manifest.projectName || 'unknown';
-    } catch {
-    }
-  }
+  const projectName = readProjectName(projectDir);
 
   try {
     const client = new MCPClient('engram', ['mcp']);

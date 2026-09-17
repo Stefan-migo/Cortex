@@ -3,6 +3,7 @@ import { join } from 'path';
 import { execSync } from 'child_process';
 import { info, warn, step, success } from '../utils/logger';
 import { MCPClient } from '../utils/mcp';
+import { resolveProjectManifest } from './project';
 
 interface ContextItem {
   source: 'engram' | 'graphify' | 'speckit' | 'manifest';
@@ -11,12 +12,6 @@ interface ContextItem {
   score: number;
   type: string;
   date: Date;
-}
-
-interface ManifestInfo {
-  projectName: string;
-  templateVersion: string;
-  files?: Array<{ path: string; hash: string }>;
 }
 
 function estimateTokens(text: string): number {
@@ -296,30 +291,25 @@ function fetchSpeckitContext(projectDir: string): ContextItem[] {
   return items;
 }
 
-function fetchManifestContext(projectDir: string, projectName: string): ContextItem[] {
-  const manifestPath = join(projectDir, '.cortex', 'manifest.json');
-  if (!existsSync(manifestPath)) return [];
+function fetchManifestContext(projectDir: string): ContextItem[] {
+  const manifest = resolveProjectManifest(projectDir);
+  if (!manifest) return [];
 
-  try {
-    const manifest: ManifestInfo = JSON.parse(readFileSync(manifestPath, 'utf-8'));
-    const content = [
-      `- **Template Version**: ${manifest.templateVersion}`,
-      `- **Tracked Files**: ${manifest.files?.length || 0}`,
-      `- **Project Name**: ${manifest.projectName}`,
-    ].join('\n');
+  const content = [
+    `- **Template Version**: ${manifest.templateVersion}`,
+    `- **Tracked Files**: ${manifest.files?.length || 0}`,
+    `- **Project Name**: ${manifest.projectName}`,
+  ].join('\n');
 
-    info('Project manifest loaded');
-    return [{
-      source: 'manifest',
-      title: 'Project Info',
-      content,
-      score: calculateScore(new Date(), 'general', true),
-      type: 'general',
-      date: new Date(),
-    }];
-  } catch {
-    return [];
-  }
+  info('Project manifest loaded');
+  return [{
+    source: 'manifest',
+    title: 'Project Info',
+    content,
+    score: calculateScore(new Date(), 'general', true),
+    type: 'general',
+    date: new Date(),
+  }];
 }
 
 export async function buildPrelude(projectDir: string, projectName: string): Promise<string> {
@@ -338,7 +328,7 @@ export async function buildPrelude(projectDir: string, projectName: string): Pro
     fetchEngramContext(projectName),
     fetchGraphifyContext(projectDir, projectName),
     fetchSpeckitContext(projectDir),
-    fetchManifestContext(projectDir, projectName),
+    fetchManifestContext(projectDir),
   ]);
 
   const allItems = [...engramItems, ...graphifyItems, ...speckitItems, ...manifestItems];
