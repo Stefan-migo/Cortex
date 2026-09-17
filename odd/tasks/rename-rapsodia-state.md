@@ -287,7 +287,7 @@ Implementation completed on `odd/rename-rapsodia-state` with local commits:
 - `39a3d10 feat(cli): migrate and read compatible project state`
 - `55921af docs(cli): update shipped state path references`
 - `a1c26cb docs: update project state path guidance`
-- `[pending]` repository tooling path updates and this progress record
+- `aeb8c7b docs: align repository tooling with state rename`
 
 T01–T18 are implemented. T19 verification completed: typecheck and build passed; the
 legacy-only, migrated, idempotent, and both-layout-preservation scenarios passed; the
@@ -298,7 +298,8 @@ Discrepancies: `cli/src/engine/context.ts` has no prelude existence read to rout
 resolver, and `cli/src/engine/manifest.ts` has no state read path beyond its new-path write;
 the task items were satisfied by the existing code rather than by inventing dead logic.
 The requested `npm test` harness remains absent and reports `No test files found` when run by
-the repository hook. T20 is local-only per the implementation instruction; nothing was pushed.
+the repository hook. T20 is complete as five local work-unit commits; the implementation
+instruction overrides the task's original push wording, so nothing was pushed.
 
 ## Next step
 
