@@ -156,18 +156,20 @@ gentle-ai:persona
 ## Rules
 
 - Never add "Co-Authored-By" or AI attribution to commits. Use conventional commits only.
-- This project uses the Cortex skill pack. The orchestrator loads cortex-persona automatically at session start.
+- This project uses the Cortex skill pack. `cortex-persona` is linked into `.opencode/skills/`,
+  so it appears in the session's skill list and the skill-loading check below applies to it.
 - For detailed persona rules, see .opencode/skills/cortex-persona/SKILL.md
 
 ## Contextual Skill Loading (MANDATORY)
 
-At session start, the orchestrator checks for `.opencode/skills/cortex-persona/SKILL.md`
-and loads it automatically. That skill defines:
+The session's skill list is authoritative. Before responding, check whether the request matches a
+listed skill and read that skill's `SKILL.md` first; load
+`.opencode/skills/cortex-persona/SKILL.md` at the start of every session. That skill defines:
 - Senior architect identity (Rioplatense Spanish in chat, English in artifacts)
 - Ponytail over-engineering rules (YAGNI → stdlib → native → one line → minimum)
 - 5-Step Execution Gate (Graph Check → Atomic Commit → Verify → Spec Check → Finalize)
 - Graphify knowledge graph integration
-- SDD pipeline hooks: Graphify in explore/design, Ponytail in propose/design/tasks/pre-apply
+- Graphify before code work; Ponytail rules while writing code (ODD's Implement step)
 - See cortex-persona/SKILL.md → "SDD Pipeline Integration" section
 
 ## Skills
