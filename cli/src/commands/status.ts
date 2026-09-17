@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { heading } from '../utils/logger';
 import { findProjectRoot, readProjectName, resolveGraphifyPaths, resolveProjectManifest } from '../engine/project';
 
@@ -51,9 +51,25 @@ function calculateDuration(startedAt: string): string {
   return `${minutes}m`;
 }
 
+function graphStaleness(graphJson: string, projectDir: string): boolean | undefined {
+  try {
+    const graph = JSON.parse(readFileSync(graphJson, 'utf-8')) as { built_at_commit?: unknown };
+    if (typeof graph.built_at_commit !== 'string') return undefined;
+    const head = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: projectDir,
+      encoding: 'utf-8',
+      timeout: 5000,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    return graph.built_at_commit !== head;
+  } catch {
+    return undefined;
+  }
+}
+
 function runTool(name: string, args: string[], timeout = 5000): string | null {
   try {
-    return execSync(`${name} ${args.join(' ')}`, {
+    return execFileSync(name, args, {
       encoding: 'utf-8',
       timeout,
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -113,7 +129,7 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
     const { graphJson } = resolveGraphifyPaths(projectDir);
     if (existsSync(graphJson)) {
       report.graphify.exists = true;
-      const graphMtime = statSync(graphJson).mtime;
+      report.graphify.stale = graphStaleness(graphJson, projectDir);
     }
 
     const wikiDir = join(projectDir, 'wiki');
@@ -172,9 +188,13 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
     : ' (not connected)';
   console.log(`Engram:      ${engramIcon} Connected${engramExtra}`);
 
-  const graphIcon = report.graphify.exists ? (report.graphify.stale ? '⚠️' : '✅') : '⚠️';
+  const graphIcon = report.graphify.exists
+    ? (report.graphify.stale === undefined ? '⚠️' : report.graphify.stale ? '⚠️' : '✅')
+    : '⚠️';
   const graphMsg = report.graphify.exists
-    ? (report.graphify.stale ? 'Graph stale — run `graphify update`' : 'Up to date')
+    ? (report.graphify.stale === undefined
+      ? 'Freshness unknown — graph has no verifiable commit evidence'
+      : report.graphify.stale ? 'Graph stale — run `graphify update`' : 'Up to date')
     : 'No graph found — run `graphify .`';
   console.log(`Graphify:    ${graphIcon} ${graphMsg}`);
 
