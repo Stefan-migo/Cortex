@@ -38,6 +38,17 @@ function commandAvailable(command: string): boolean {
   try { execFileSync('which', [command], { stdio: 'ignore' }); return true; } catch { return false; }
 }
 
+const CANONICAL_SKILLS = ['cortex-persona', 'cortex-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help', 'ponytail-plan'];
+
+// The canonical skills live in `<repo>/skills/` only in the Cortex pack repository. An adopted
+// project tracks its own copies under `.opencode/skills/` instead, and a project created by
+// `cortex init` has neither. Resolving the source against the new worktree produced links that
+// only resolved inside Cortex, after deleting whatever already occupied the destination.
+function canonicalSkillsRoot(root: string): string | null {
+  const canonical = join(root, 'skills');
+  return CANONICAL_SKILLS.some((name) => existsSync(join(canonical, name, 'SKILL.md'))) ? canonical : null;
+}
+
 function repositoryRoot(root: string): string {
   const candidate = resolve(root);
   return resolve(git(candidate, ['rev-parse', '--show-toplevel']));
@@ -181,9 +192,8 @@ function refreshRegistry(worktree: string, mainRoot: string): void {
   if (commandAvailable('gentle-ai')) {
     execFileSync('gentle-ai', ['skill-registry', 'refresh', '--cwd', worktree], { cwd: worktree, stdio: 'ignore' });
   } else {
-    const names = ['cortex-persona', 'cortex-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help', 'ponytail-plan'];
-    const rows = names
-      .filter((name) => existsSync(join(worktree, 'skills', name, 'SKILL.md')))
+    const rows = CANONICAL_SKILLS
+      .filter((name) => existsSync(join(worktree, '.opencode', 'skills', name, 'SKILL.md')))
       .map((name) => `| ${name} | ${join(worktree, '.opencode', 'skills', name, 'SKILL.md')} | project |`)
       .join('\n');
     mkdirSync(join(worktree, '.atl'), { recursive: true });
@@ -214,12 +224,20 @@ export function provisionWorktree(worktree: string, mainRoot: string): void {
   installDependencies(join(target, '.opencode', 'tools'));
   installDependencies(join(target, 'cli'));
 
-  const skillsDir = join(target, '.opencode', 'skills');
-  mkdirSync(skillsDir, { recursive: true });
-  for (const entry of ['cortex-persona', 'cortex-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help', 'ponytail-plan']) {
-    const link = join(skillsDir, entry);
-    if (existsSync(link) || (() => { try { lstatSync(link); return true; } catch { return false; } })()) rmSync(link, { recursive: true, force: true });
-    symlinkSync(join('..', '..', 'skills', entry), link);
+  const skillsSource = canonicalSkillsRoot(target) ?? canonicalSkillsRoot(main);
+  if (skillsSource) {
+    const skillsDir = join(target, '.opencode', 'skills');
+    mkdirSync(skillsDir, { recursive: true });
+    for (const entry of CANONICAL_SKILLS) {
+      const source = join(skillsSource, entry);
+      if (!existsSync(join(source, 'SKILL.md'))) continue;
+      const link = join(skillsDir, entry);
+      const existing = (() => { try { return lstatSync(link); } catch { return undefined; } })();
+      // A real directory is the project's own tracked copy; only a link is Cortex's to replace.
+      if (existing && !existing.isSymbolicLink()) continue;
+      if (existing) rmSync(link, { force: true });
+      symlinkSync(relative(skillsDir, source), link);
+    }
   }
 
   copyIfPresent(join(main, 'commands'), join(target, '.opencode', 'commands'));
