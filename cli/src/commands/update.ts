@@ -4,7 +4,7 @@ import { step, info, success, warn, error, heading } from '../utils/logger';
 import { hashFile, collectFiles } from '../engine/template';
 import { detectChanges, Manifest } from '../engine/manifest';
 import * as readline from 'readline';
-import { stateDir, statePath } from '../utils/state';
+import { resolveStatePath } from '../utils/state';
 
 interface UpdateOptions {
   dryRun?: boolean;
@@ -67,10 +67,9 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
   heading('Rapsodia Update');
 
   const projectDir = process.cwd();
-  const rapsodiaDir = stateDir(projectDir);
-  const manifestPath = statePath(projectDir, 'manifest.json');
+  const manifestPath = resolveStatePath(projectDir, 'manifest.json');
 
-  if (!existsSync(manifestPath)) {
+  if (!manifestPath || !existsSync(manifestPath)) {
     error('No Rapsodia manifest found. Are you in a Rapsodia project directory?');
     process.exit(1);
   }
