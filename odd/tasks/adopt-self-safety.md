@@ -212,7 +212,7 @@ Git's stderr is piped, never inherited, so no raw `fatal:` line reaches the user
       them (`--force`); remove the Refreshed/Skipped overlap.
 - [x] **T6** — verify: `npm run typecheck` + `npm run build` in `cli/`, then run all six
       disposable-copy scenarios (below) and record literal output.
-- [ ] **T7** — work-unit commits, then the delivery steps (review at the boundary, PR).
+- [x] **T7** — work-unit commits, then the delivery steps (review at the boundary, PR).
 
 ## Acceptance criteria
 
@@ -505,3 +505,22 @@ Cortex Adoption Plan (dry run)
 SCENARIO 6 raw fatal: absent
 SCENARIO 6 dirty report: could not determine
 ```
+
+## Review
+
+Native 4-lens review over the frozen candidate (risk, resilience, readability, reliability),
+tier high, lineage `review-d4588f3be4ed0ab2`: **approved**, authority burned
+(`review-acknowledged/v1`, consumed revision
+`sha256:6d20dcdc3869d3de048ac21bd34490f8096560fc72195e050c75bc8cd59bff69`).
+
+One non-blocking advisory finding. It was disclosed in PR #22 rather than fixed there on
+purpose: the reviewed bytes are the delivered bytes, and the closure states that a
+non-blocking finding belongs to later work instead of reopening this candidate.
+
+- **`R3-force-warning`** (`cli/src/commands/adopt.ts:35` as reported) — the conflict notice also
+  told the user to re-run with `--force` when `--force` had just overwritten the files. Resolved
+  by the follow-up change **`adopt-force-notice`** (`odd/tasks/adopt-force-notice.md`).
+
+Delivery: PR #22, squash-merged as `fbbfade5d05d1e930f5ca7385a1ac96dfa68d0aa`; `cli/dist`
+rebuilt on main; the worktree was refreshed with the merge marker and cleaned up (local and
+remote branch deleted).

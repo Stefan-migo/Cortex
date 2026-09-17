@@ -19,11 +19,11 @@ export async function adoptCommand(path: string | undefined, options: AdoptOptio
   if (dirty === true) {
     // A hard refusal here would make adopt impossible to re-run: adopt itself leaves the
     // working tree dirty, so the second run would always need --force. The structural
-    // protections cover the real risk — adopt writes only its own tracked files, fills gaps
-    // in files the project owns instead of replacing them, and never writes over a file
-    // whose content differs from what Cortex last recorded unless --force is given. So this
-    // informs instead of blocking.
-    warn('Working tree is dirty. Cortex writes only its own tracked files and the marked blocks inside files you own, so uncommitted work elsewhere is left alone.');
+    // protections cover the real risk: an owned file whose content differs from what Cortex
+    // last recorded is never replaced unless --force is given, and the merge targets
+    // (AGENTS.md, .gitignore, opencode.json) are merged in place, never reset to the template.
+    // So this informs instead of blocking.
+    warn('Working tree is dirty. Cortex writes only its own files and the merge targets it merges into (AGENTS.md, .gitignore, opencode.json); uncommitted work anywhere else is left alone.');
   } else if (dirty === undefined) {
     warn('Could not determine whether the working tree is dirty. Cortex will still classify existing files before writing.');
   }
@@ -33,6 +33,12 @@ export async function adoptCommand(path: string | undefined, options: AdoptOptio
   for (const [label, items] of [['Created', plan.created], ['Refreshed', plan.refreshed], ['Conflicting', plan.conflicting], ['Injected', plan.injected], ['Seeded', plan.seeded], ['Skipped', plan.skipped]] as const) {
     info(`${label} (${items.length}):`); items.forEach((item) => info(`  ${item}`));
   }
-  if (plan.conflicting.length > 0) warn('Conflicting files are project-owned. Re-run with --force to overwrite them.');
+  if (plan.conflicting.length > 0) {
+    // Report the outcome, never prescribe it: after a forced overwrite the conflicts are gone, so
+    // telling the user to re-run with --force would replace the only signal that it just happened.
+    warn(options.force && !options.dryRun
+      ? `${plan.conflicting.length} conflicting file(s) overwritten because --force was given.`
+      : 'Conflicting files are project-owned. Re-run with --force to overwrite them.');
+  }
   if (options.dryRun) warn('Dry run — no changes applied.'); else success('Cortex adopted successfully.');
 }
