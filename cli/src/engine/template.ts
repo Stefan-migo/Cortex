@@ -9,7 +9,7 @@ export interface TemplateOptions {
   year: string;
 }
 
-const TEMPLATE_DIR = join(__dirname, '..', 'template');
+const TEMPLATE_DIR = join(__dirname, '..', 'src', 'template');
 
 const BINARY_EXTENSIONS = new Set([
   '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg',
