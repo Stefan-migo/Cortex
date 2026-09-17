@@ -23,15 +23,15 @@ function worktreeSource(root: string): string | null {
 }
 
 /**
- * Walk up until a directory owns local Cortex state. A provisioned ODD worktree counts:
+ * Walk up until a directory owns local Rapsodia state. A provisioned ODD worktree counts:
  * it has no manifest of its own, but it is where the session has to run.
  */
 export function findProjectRoot(dir: string): string | null {
-  const cortexDir = stateDir(dir);
+  const rapsodiaDir = stateDir(dir);
   if (
-    existsSync(join(cortexDir, 'manifest.json')) ||
-    existsSync(join(cortexDir, 'session.json')) ||
-    existsSync(join(cortexDir, 'worktree.json'))
+    existsSync(join(rapsodiaDir, 'manifest.json')) ||
+    existsSync(join(rapsodiaDir, 'session.json')) ||
+    existsSync(join(rapsodiaDir, 'worktree.json'))
   ) {
     return dir;
   }

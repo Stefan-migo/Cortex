@@ -92,22 +92,12 @@ the same name constant; do not merge it into the project helper.
       program description, so `--help` matches the binary that ships.
 - [x] **T05** — Verify with real output (see below), commit as reviewable work units, and report.
 
-## Tasks — Slice 2 (later PR)
+## Re-sequencing
 
-- [ ] **T06** — `cli/src/template/**`: the two `AGENTS.md`, `SYSTEM-MAP.md`, `USER-GUIDE.md`,
-      `opencode.json`, `scripts/generate-retrospective.sh`, and the two
-      `template/.opencode/agents/cortex-*.md`.
-
-## Tasks — Slice 3 (later PR)
-
-- [ ] **T07** — Flip `STATE_DIR_NAME` and `SESSIONS_DIR_NAME` to the rapsodia values with
-      read-compat for the old paths. Nesting a tracked store inside an ignored dir changes git's
-      behaviour: the ignore rule must be `.rapsodia-code/*` **plus** `!.rapsodia-code/sessions/`
-      (git does not descend into an excluded directory), and `.githooks/pre-commit`'s carve-out
-      path must follow the rename.
-- [ ] **T08** — Migrate consumers in this order: `lumat-agent` → re-link the 10 Gen-1 symlink
-      projects → self last. Consider extending `adopt` (~100 lines) instead of writing a new
-      `migrate` command (~250).
+The original folder-based Slice 2/Slice 3 layout is superseded. The visible-brand work is tracked
+in [`rename-rapsodia-brand.md`](rename-rapsodia-brand.md). The remaining work follows the
+three-PR blast-radius plan in that document: (1) visible brand and template coupling, (2) on-disk
+state with read-compat, and (3) skill symlink migration.
 
 ## Acceptance criteria (slice 1)
 

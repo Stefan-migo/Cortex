@@ -269,7 +269,7 @@ export async function buildPrelude(projectDir: string, projectName: string): Pro
 
   const sections: string[] = [];
 
-  sections.push('# Cortex Session Prelude');
+  sections.push('# Rapsodia Session Prelude');
   sections.push('');
   sections.push(`**Project**: ${projectName}`);
   sections.push(`**Date**: ${new Date().toISOString().split('T')[0]}`);
@@ -314,9 +314,9 @@ export async function buildPrelude(projectDir: string, projectName: string): Pro
     sections.push('');
   }
 
-  const cortexDir = stateDir(projectDir);
-  if (!existsSync(cortexDir)) {
-    mkdirSync(cortexDir, { recursive: true });
+  const rapsodiaDir = stateDir(projectDir);
+  if (!existsSync(rapsodiaDir)) {
+    mkdirSync(rapsodiaDir, { recursive: true });
   }
 
   const preludePath = statePath(projectDir, 'prelude.md');

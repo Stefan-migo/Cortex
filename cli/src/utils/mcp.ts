@@ -82,7 +82,7 @@ export class MCPClient {
           params: {
             protocolVersion: '2024-11-05',
             capabilities: {},
-            clientInfo: { name: 'cortex-cli', version: '1.0.0' },
+            clientInfo: { name: 'rapso-cli', version: '1.0.0' },
           },
         }) + '\n');
       } catch (err) {

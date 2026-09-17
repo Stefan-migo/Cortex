@@ -22,7 +22,7 @@ export interface Retrospective {
 export function generateSessionId(): string {
   const date = new Date().toISOString().split('T')[0];
   const suffix = randomBytes(4).toString('hex');
-  return `cortex-${date}-${suffix}`;
+  return `rapso-${date}-${suffix}`;
 }
 
 export async function openSession(projectDir: string, sessionId: string): Promise<boolean> {
@@ -45,9 +45,9 @@ export async function openSession(projectDir: string, sessionId: string): Promis
   }
 
   step('Writing session metadata');
-  const cortexDir = stateDir(projectDir);
-  if (!existsSync(cortexDir)) {
-    mkdirSync(cortexDir, { recursive: true });
+  const rapsodiaDir = stateDir(projectDir);
+  if (!existsSync(rapsodiaDir)) {
+    mkdirSync(rapsodiaDir, { recursive: true });
   }
 
   const sessionInfo: SessionInfo = {
@@ -58,7 +58,7 @@ export async function openSession(projectDir: string, sessionId: string): Promis
   };
 
   writeFileSync(
-    join(cortexDir, 'session.json'),
+    join(rapsodiaDir, 'session.json'),
     JSON.stringify(sessionInfo, null, 2),
     'utf-8',
   );

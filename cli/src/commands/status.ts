@@ -151,7 +151,7 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
     return;
   }
 
-  heading('Cortex Status');
+  heading('Rapsodia Status');
 
   console.log(`Project:     ${report.project.name}`);
   console.log(`Template:    ${report.project.templateVersion} (${report.project.fileCount} files tracked)`);
@@ -159,7 +159,7 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
 
   if (report.session.active) {
     console.log(`Session:     ${report.session.sessionId} (active, started ${report.session.duration} ago)`);
-    console.log(`  └ Run \`cortex close\` to finalize`);
+    console.log(`  └ Run \`rapso close\` to finalize`);
   } else {
     console.log(`Session:     — (none active)`);
   }

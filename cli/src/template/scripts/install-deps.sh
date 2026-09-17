@@ -5,7 +5,7 @@
 set -e
 
 echo "╔══════════════════════════════════════════════════════════╗"
-echo "║        Cortex — Installing Dependencies                 ║"
+echo "║        Rapsodia — Installing Dependencies               ║"
 echo "╚══════════════════════════════════════════════════════════╝"
 echo ""
 

@@ -1,6 +1,6 @@
-# Cortex 2.5 — System Map
+# Rapsodia 2.5 — System Map
 
-How every component of the Cortex 2.5 executive system works, when to use it, and how to maintain it.
+How every component of the Rapsodia 2.5 executive system works, when to use it, and how to maintain it.
 
 ---
 
@@ -11,7 +11,7 @@ How every component of the Cortex 2.5 executive system works, when to use it, an
                          │  FRONTAL LOBE (Planning)  │
                          │     Gentle AI SDD (/sdd-*)│
                          │     SDD change artifacts  │
-                         │     @Cortex-Planner       │
+                         │     @Rapso-Planner       │
                          └──────────┬───────────────┘
                                     │ hands off change
           ┌─────────────────────────┼──────────────────────────┐
@@ -27,14 +27,14 @@ How every component of the Cortex 2.5 executive system works, when to use it, an
    └──────────────────┘    └───────────────────┘    └──────────────────┘
                                     │
                                     │
-   @Cortex-Developer (executes across all lobes via 5-Step Gate)
+   @Rapso-Developer (executes across all lobes via 5-Step Gate)
 ```
 
 ## Identity Quick Reference
 
 ```
 ┌──────────────────┬──────────────────────┬────────────────────┐
-│   IDENTITY       │  @Cortex-Planner     │ @Cortex-Developer  │
+│   IDENTITY       │  @Rapso-Planner     │ @Rapso-Developer  │
 ├──────────────────┼──────────────────────┼────────────────────┤
 │   Permissions    │  Read-only + research│ Full (edit, bash)  │
 │   Model          │  Claude Sonnet 4     │ Claude Sonnet 4    │
@@ -51,7 +51,7 @@ How every component of the Cortex 2.5 executive system works, when to use it, an
 
 **What it is:** A structured spec-driven development workflow. Specs define WHAT before HOW.
 
-**Commands (invoked by @Cortex-Planner):**
+**Commands (invoked by @Rapso-Planner):**
 
 | Command | Purpose | Output |
 |---------|---------|--------|
@@ -128,7 +128,7 @@ wiki/
 
 ## 5. EXECUTION DISCIPLINE (5-Step Gate + Git Hook)
 
-### 5-Step Gate (built into @Cortex-Developer prompt)
+### 5-Step Gate (built into @Rapso-Developer prompt)
 ```
 Step 1: GRAPH CHECK — query_graph before any edit
 Step 2: ATOMIC COMMIT — one concern per commit, ≤5 files
@@ -162,10 +162,10 @@ Step 5: MEMORY — mem_save key learnings
 ┌──────────────────┬──────────────────────┬──────────────────────┐
 │   COMPONENT      │    HOW TO USE        │     WHEN TO USE      │
 ├──────────────────┼──────────────────────┼──────────────────────┤
-│ CORTEX-PLANNER   │ Switch to Tab        │ Planning, spec,      │
+│ RAPSO-PLANNER    │ Switch to Tab        │ Planning, spec,      │
 │                  │                      │ research, memory     │
 ├──────────────────┼──────────────────────┼──────────────────────┤
-│ CORTEX-DEVELOPER │ Switch to Tab        │ Building, testing,   │
+│ RAPSO-DEVELOPER  │ Switch to Tab        │ Building, testing,   │
 │                  │                      │ implementing specs   │
 ├──────────────────┼──────────────────────┼──────────────────────┤
 │ GENTLE AI SDD    │ /sdd-new + /sdd-ff   │ Every feature task   │

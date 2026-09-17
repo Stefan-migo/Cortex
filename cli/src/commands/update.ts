@@ -64,14 +64,14 @@ function showDiff(projectPath: string, templatePath: string): void {
 }
 
 export async function updateCommand(options: UpdateOptions): Promise<void> {
-  heading('Cortex Brain Update');
+  heading('Rapsodia Update');
 
   const projectDir = process.cwd();
-  const cortexDir = stateDir(projectDir);
+  const rapsodiaDir = stateDir(projectDir);
   const manifestPath = statePath(projectDir, 'manifest.json');
 
   if (!existsSync(manifestPath)) {
-    error('No Cortex manifest found. Are you in a Cortex project directory?');
+    error('No Rapsodia manifest found. Are you in a Rapsodia project directory?');
     process.exit(1);
   }
 
