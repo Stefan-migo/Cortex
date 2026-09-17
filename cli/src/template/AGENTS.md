@@ -115,6 +115,15 @@ Save to Engram immediately when you encounter:
 - Write tests alongside implementation
 - NEVER commit secrets or credentials
 
+## Ponytail — Code-Writing Discipline
+
+Ponytail governs HOW code is written. It does not decide authorization, tracking, or review.
+
+- Prefer the standard library or an already-installed dependency before adding a dependency.
+- Do not add an abstraction with one implementation and no second use.
+- When deletion and addition both work, delete.
+- Apply these rules during implementation only; they are not an approval checkbox, a receipt, a line-count target, or a replacement for RDD/native review.
+
 ## ODD Worktrees
 
 During ODD's `Classify` step, substantial work means two or more meaningful implementation steps or progress worth recovering. Code work is born in a sibling worktree (`../<Project>-odd-<slug>`, where `<Project>` is the main worktree's directory name) on branch `odd/<slug>`, not in main. Human consent is explicit and per-feature before invoking `cortex worktree create`; `--yes` is only the consequence of that approval, never a shortcut around it. The ODD task doc `odd/tasks/<feature>.md` is committed on the branch and reaches main through the PR, so it must never live inside a `gentle-ai` managed block.
