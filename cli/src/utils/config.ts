@@ -1,13 +1,14 @@
 import { readFileSync, mkdirSync, existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
+import { GLOBAL_STATE_DIR_NAME } from './state';
 
 interface CortexConfig {
   lastProject?: string;
   projects?: string[];
 }
 
-const CONFIG_DIR = join(homedir(), '.cortex');
+const CONFIG_DIR = join(homedir(), GLOBAL_STATE_DIR_NAME);
 const CONFIG_PATH = join(CONFIG_DIR, 'config.json');
 
 function ensureConfigDir(): void {

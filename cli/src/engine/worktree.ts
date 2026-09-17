@@ -2,6 +2,7 @@ import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, re
 import { execFileSync } from 'child_process';
 import { basename, dirname, join, relative, resolve, sep } from 'path';
 import { ExpectedError } from '../utils/defect';
+import { sessionsDir, statePath, stateDir, SESSIONS_DIR_NAME } from '../utils/state';
 
 export interface WorktreeRecord {
   path: string;
@@ -100,7 +101,7 @@ function hasArchivedTwin(protectedPath: string, main: string): boolean {
 
 function handoffCandidates(main: string, target: string, slug: string): string[] {
   const candidates: string[] = [];
-  for (const readyRoot of [join(target, '.cortex-sessions', 'ready-for-odd'), join(main, '.cortex-sessions', 'ready-for-odd')]) {
+  for (const readyRoot of [join(sessionsDir(target), 'ready-for-odd'), join(sessionsDir(main), 'ready-for-odd')]) {
     if (!existsSync(readyRoot) || !lstatSync(readyRoot).isDirectory()) continue;
     for (const entry of readdirSync(readyRoot)) {
       if (new RegExp(`^\\d{4}-\\d{2}-\\d{2}-${slug}$`).test(entry)) {
@@ -121,7 +122,7 @@ function protectedUntrackedPaths(target: string, main: string, candidates: strin
     const absolute = resolve(target, path);
     const normalized = path.replace(/\\/g, '/');
     const isOpenSpec = normalized === 'openspec' || normalized.startsWith('openspec/');
-    const isSessionState = normalized === '.cortex-sessions' || normalized.startsWith('.cortex-sessions/');
+    const isSessionState = normalized === SESSIONS_DIR_NAME || normalized.startsWith(`${SESSIONS_DIR_NAME}/`);
     const isOdd = normalized === 'odd' || normalized.startsWith('odd/');
     if (!isOpenSpec && !isSessionState && !isOdd) continue;
     if (candidateRoots.some((candidate) => absolute === candidate || absolute.startsWith(`${candidate}${sep}`))) continue;
@@ -135,7 +136,7 @@ function protectedUntrackedPaths(target: string, main: string, candidates: strin
 
 function archiveHandoff(source: string, main: string): void {
   const name = basename(source);
-  const archived = join(main, '.cortex-sessions', 'archived', name);
+  const archived = join(sessionsDir(main), 'archived', name);
   if (existsSync(archived)) {
     if (!sameContent(source, archived)) throw new CleanupRefusalError('Refusing to reconcile differing archived handoff content', [relative(main, source), relative(main, archived)]);
     rmSync(source, { recursive: true, force: true });
@@ -248,8 +249,8 @@ export function provisionWorktree(worktree: string, mainRoot: string): void {
     if (existsSync(link) || (() => { try { lstatSync(link); return true; } catch { return false; } })()) rmSync(link, { force: true });
     if (existsSync(join(main, file))) symlinkSync(relative(target, main) + '/' + file, link);
   }
-  mkdirSync(join(target, '.cortex'), { recursive: true });
-  writeFileSync(join(target, '.cortex', 'worktree.json'), JSON.stringify({ branch: git(target, ['branch', '--show-current']), source: main, provisionedAt: new Date().toISOString() }, null, 2) + '\n');
+  mkdirSync(stateDir(target), { recursive: true });
+  writeFileSync(statePath(target, 'worktree.json'), JSON.stringify({ branch: git(target, ['branch', '--show-current']), source: main, provisionedAt: new Date().toISOString() }, null, 2) + '\n');
 }
 
 export function listWorktrees(root: string): WorktreeRecord[] {
