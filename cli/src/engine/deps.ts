@@ -50,13 +50,5 @@ export function checkDeps(): DepStatus[] {
     required: true,
   });
 
-  const speckit = exec('which speckit 2>/dev/null || which specify 2>/dev/null || command -v speckit 2>/dev/null || command -v specify 2>/dev/null');
-  results.push({
-    name: 'Spec-Kit',
-    installed: speckit.exitCode === 0,
-    version: speckit.exitCode === 0 ? 'found' : undefined,
-    required: true,
-  });
-
   return results;
 }

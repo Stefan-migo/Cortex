@@ -10,12 +10,12 @@ export const OWNED_PATHS = [
   '.opencode/package-lock.json', '.opencode/.gitignore',
 ];
 
-export const NEVER_PATHS = ['.specify/**', 'DESIGN.md', 'SYSTEM-MAP.md', 'USER-GUIDE.md', 'wiki/**', 'scripts/**'];
+export const NEVER_PATHS = ['DESIGN.md', 'SYSTEM-MAP.md', 'USER-GUIDE.md', 'wiki/**', 'scripts/**'];
 
 const CORTEX_IGNORE_ENTRIES = [
   '.cortex/', '.cortex-sessions/', 'graphify-out/',
   '.opencode/tools/node_modules/', '.engram/', '.obsidian/workspace.json',
-  '.obsidian/workspace', '.specify/integrations/', '__pycache__/', '*.pyc',
+  '.obsidian/workspace', '__pycache__/', '*.pyc',
   '*.pyo', '.pytest_cache/', '.ruff_cache/', '.mypy_cache/',
 ];
 
