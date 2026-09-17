@@ -75,12 +75,12 @@ How every component of the Cortex 2.5 executive system works, when to use it, an
 
 | Command | When |
 |---------|------|
-| `python3 -m graphify.serve wiki/graph/graph.json` | Start graph MCP server |
+| `python3 -m graphify.serve graphify-out/graph.json` | Start graph MCP server |
 | `query_graph` | Query for relevant nodes before editing |
 | `god_nodes` | Find highest-degree concepts |
 | `/graphify . --update` | Rebuild graph after code changes |
 
-**Output:** `wiki/graph/` — graph.html, GRAPH_REPORT.md, graph.json
+**Output:** `graphify-out/` — graph.html, GRAPH_REPORT.md, graph.json
 
 **Mandatory use:** BEFORE every code edit session, run query_graph to understand what you're touching.
 

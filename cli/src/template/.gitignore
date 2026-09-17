@@ -9,7 +9,6 @@ Thumbs.db
 
 # Graphify cache
 graphify-out/
-wiki/graph/cache/
 
 # OpenCode
 .opencode/tools/node_modules/
