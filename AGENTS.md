@@ -66,7 +66,7 @@ These commands remain available when explicitly requested; ODD is the default co
 
 ### Start (CLI handles this)
 1. `cortex start` → creates session, pre-loads context from Engram + Graphify, launches OpenCode
-2. Agent detects `.cortex/prelude.md` and uses it as working context
+2. Agent detects `.rapsodia-code/prelude.md` and uses it as working context
 
 ### Work
 1. Planner uses `cortex-session` to seed `odd/tasks/<feature>.md`, then creates the worktree with `cortex worktree create <slug>`

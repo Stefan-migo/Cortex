@@ -19,8 +19,8 @@ COMMON_DIR=$(git rev-parse --git-common-dir)
 if [ "$GIT_DIR" = "$COMMON_DIR" ] && ! git diff --cached --quiet; then
   while IFS= read -r path; do
     case "$path" in
-      .cortex-sessions/*) ;;
-      *) echo "Main worktree guard: direct code commits are only allowed for .cortex-sessions/**"; exit 1 ;;
+      .rapsodia-code/sessions/*) ;;
+      *) echo "Main worktree guard: direct code commits are only allowed for .rapsodia-code/sessions/**"; exit 1 ;;
     esac
   done < <(git diff --cached --name-only --diff-filter=ACDMR)
 fi
