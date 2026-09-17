@@ -10,7 +10,7 @@ Cortex 2.5 collapses the old multi-agent bureaucracy (41 agents, 66 commands, 3 
 
 | Lobe | Cortex 2.5 | Prior Art |
 |------|-----------|-----------|
-| Planning | **Spec-Kit** (github/spec-kit, 93k★) | Replace GSD + Planning-with-Files |
+| Planning | **Gentle AI SDD** | Replace GSD + Planning-with-Files |
 | Memory | **Engram** (Gentleman-Programming/engram, 3.3k★) | Replace file-based wiki memory |
 | Code understanding | **Graphify** (safishamsi/graphify, 39k★) | Same (kept) |
 | API archive | **wiki/** (snapshot via `engram obsidian-export`) | Previously manual wiki ingestion/lint |
@@ -19,7 +19,7 @@ Cortex 2.5 collapses the old multi-agent bureaucracy (41 agents, 66 commands, 3 
 
 Cortex 2.5's advantage is **vertical integration** of three independent open-source tools that other systems use only in isolation:
 
-- No other system combines Spec-Kit + Engram + Graphify
+- No other system combines Gentle AI SDD + Engram + Graphify
 - No other system has the 4-lobe brain metaphor as an architectural pattern
 - No other system has a pre-commit atomicity gate and 5-step execution discipline built in
 
