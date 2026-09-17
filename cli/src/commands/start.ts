@@ -1,40 +1,13 @@
-import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
 import { spawn } from 'child_process';
 import { info, success, warn, error, heading } from '../utils/logger';
 import { generateSessionId, openSession, getSessionInfo } from '../engine/session';
 import { buildPrelude } from '../engine/context';
+import { findProjectRoot, readProjectName } from '../engine/project';
 
 interface StartOptions {
   prelude?: boolean;
   dryRun?: boolean;
   open?: boolean;
-}
-
-function findProjectRoot(dir: string): string | null {
-  const manifestPath = join(dir, '.cortex', 'manifest.json');
-  const sessionPath = join(dir, '.cortex', 'session.json');
-  if (existsSync(manifestPath) || existsSync(sessionPath)) {
-    return dir;
-  }
-
-  const parent = join(dir, '..');
-  if (parent === dir) return null;
-  return findProjectRoot(parent);
-}
-
-function readProjectName(projectDir: string): string {
-  const manifestPath = join(projectDir, '.cortex', 'manifest.json');
-  if (existsSync(manifestPath)) {
-    try {
-      const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
-      return manifest.projectName || 'unknown';
-    } catch {
-      warn('Unable to read project manifest; using unknown project name.');
-      return 'unknown';
-    }
-  }
-  return 'unknown';
 }
 
 export async function startCommand(options: StartOptions): Promise<void> {

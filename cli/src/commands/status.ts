@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import { info, success, warn, error, heading } from '../utils/logger';
+import { findProjectRoot, resolveProjectManifest } from '../engine/project';
 
 interface StatusOptions {
   json?: boolean;
@@ -41,17 +42,6 @@ interface StatusReport {
   };
 }
 
-function findProjectRoot(dir: string): string | null {
-  const manifestPath = join(dir, '.cortex', 'manifest.json');
-  const sessionPath = join(dir, '.cortex', 'session.json');
-  if (existsSync(manifestPath) || existsSync(sessionPath)) {
-    return dir;
-  }
-  const parent = join(dir, '..');
-  if (parent === dir) return null;
-  return findProjectRoot(parent);
-}
-
 function calculateDuration(startedAt: string): string {
   const start = new Date(startedAt).getTime();
   const diff = Date.now() - start;
@@ -89,14 +79,11 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
   };
 
   if (projectDir) {
-    const manifestPath = join(projectDir, '.cortex', 'manifest.json');
-    if (existsSync(manifestPath)) {
-      try {
-        const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
-        report.project.name = manifest.projectName || 'unknown';
-        report.project.templateVersion = manifest.templateVersion || '—';
-        report.project.fileCount = manifest.files?.length || 0;
-      } catch {}
+    const manifest = resolveProjectManifest(projectDir);
+    if (manifest) {
+      report.project.name = manifest.projectName || 'unknown';
+      report.project.templateVersion = manifest.templateVersion || '—';
+      report.project.fileCount = manifest.files?.length || 0;
     }
 
     const sessionPath = join(projectDir, '.cortex', 'session.json');
