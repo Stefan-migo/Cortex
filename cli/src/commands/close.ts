@@ -3,6 +3,7 @@ import { join } from 'path';
 import * as readline from 'readline';
 import { step, info, success, warn, error, heading } from '../utils/logger';
 import { getSessionInfo, closeSession, generateRetrospective, saveRetrospective } from '../engine/session';
+import { resolveGraphifyPaths } from '../engine/project';
 
 interface CloseOptions {
   message?: string;
@@ -116,7 +117,7 @@ export async function closeCommand(options: CloseOptions): Promise<void> {
   if (options.retrospective) {
     step('Generating session retrospective');
     const warnings: string[] = [];
-    if (!existsSync(join(projectDir, 'wiki', 'graph', 'graph.json'))) {
+    if (!existsSync(resolveGraphifyPaths(projectDir).graphJson)) {
       warnings.push('Graphify report not found at session start');
     }
     if (!existsSync(join(projectDir, '.specify'))) {
