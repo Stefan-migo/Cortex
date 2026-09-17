@@ -1,4 +1,4 @@
-# Cortex 2.5 — Tool-Driven Executive Reasoning
+# Rapsodia 2.5 — Tool-Driven Executive Reasoning
 
 ## Brain Lobe Architecture
 
@@ -13,8 +13,8 @@ Occipital Lobe (Archive)    → wiki/ — Obsidian-readable snapshot exported fr
 
 | Agent | Role | Permissions |
 |-------|------|-------------|
-| `@Cortex-Planner` | Human interaction, spec drafting, research, knowledge management | Read-only + webfetch + task |
-| `@Cortex-Developer` | Technical execution, code writing, testing, quality gates | Full (edit, bash, write, task) |
+| `@Rapso-Planner` | Human interaction, spec drafting, research, knowledge management | Read-only + webfetch + task |
+| `@Rapso-Developer` | Technical execution, code writing, testing, quality gates | Full (edit, bash, write, task) |
 
 Switch with Tab: Planner (read-only) / Developer (full tools).
 
@@ -65,12 +65,12 @@ These commands remain available when explicitly requested; ODD is the default co
 ## Session Flow
 
 ### Start (CLI handles this)
-1. `cortex start` → creates session, pre-loads context from Engram + Graphify, launches OpenCode
+1. `rapso start` → creates session, pre-loads context from Engram + Graphify, launches OpenCode
 2. Agent detects `.cortex/prelude.md` and uses it as working context
 
 ### Work
-1. Planner uses `cortex-session` to seed `odd/tasks/<feature>.md`, then creates the worktree with `cortex worktree create <slug>`
-2. Planner hands the ODD task doc to Developer via `@Cortex-Developer`
+1. Planner uses `cortex-session` to seed `odd/tasks/<feature>.md`, then creates the worktree with `rapso worktree create <slug>`
+2. Planner hands the ODD task doc to Developer via `@Rapso-Developer`
 3. Developer runs graphify check before editing code
 4. Developer executes modified 5-Step Gate per task
 
@@ -80,12 +80,12 @@ Step 1: GRAPH CHECK — query_graph before editing
 Step 2: ATOMIC COMMIT — one concern per commit, ≤5 files
 Step 3: VERIFY — lint + typecheck + tests (block on failure)
 Step 4: SPEC CHECK — /sdd-verify after completion
-Step 5: FINALIZE — mem_save + cortex close --message "<summary>"
+Step 5: FINALIZE — mem_save + rapso close --message "<summary>"
 ```
 
 ### End (Agent handles finalization)
-1. `@Cortex-Developer` calls mem_save for all discoveries
-2. `@Cortex-Developer` runs: bash("cortex close --message "<summary>"")
+1. `@Rapso-Developer` calls mem_save for all discoveries
+2. `@Rapso-Developer` runs: bash("rapso close --message "<summary>"")
    → This calls mem_session_summary + wiki export + cleanup
 
 ## Active MCP Servers
@@ -129,7 +129,7 @@ Ponytail governs HOW code is written. It does not decide authorization, tracking
 
 ## ODD Worktrees
 
-During ODD's `Classify` step, substantial work means two or more meaningful implementation steps or progress worth recovering. Code work is born in a sibling worktree (`../<Project>-odd-<slug>`, where `<Project>` is the main worktree's directory name) on branch `odd/<slug>`, not in main. Human consent is explicit and per-feature before invoking `cortex worktree create`; `--yes` is only the consequence of that approval, never a shortcut around it. The ODD task doc `odd/tasks/<feature>.md` is committed on the branch and reaches main through the PR, so it must never live inside a `gentle-ai` managed block.
+During ODD's `Classify` step, substantial work means two or more meaningful implementation steps or progress worth recovering. Code work is born in a sibling worktree (`../<Project>-odd-<slug>`, where `<Project>` is the main worktree's directory name) on branch `odd/<slug>`, not in main. Human consent is explicit and per-feature before invoking `rapso worktree create`; `--yes` is only the consequence of that approval, never a shortcut around it. The ODD task doc `odd/tasks/<feature>.md` is committed on the branch and reaches main through the PR, so it must never live inside a `gentle-ai` managed block.
 
 ## Reporting Cortex Defects
 

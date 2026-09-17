@@ -1,6 +1,6 @@
-# Cortex 2.5 — User Guide
+# Rapsodia 2.5 — User Guide
 
-Your guide to using the Cortex 2.5 tool-driven executive reasoning system with OpenCode.
+Your guide to using the Rapsodia 2.5 tool-driven executive reasoning system with OpenCode.
 
 ---
 
@@ -15,15 +15,15 @@ The system loads automatically. Two agents are available, switch with Tab:
 
 | Agent | Tab | Use for |
 |-------|-----|---------|
-| `@Cortex-Planner` | Planner | Planning, research, specs, memory |
-| `@Cortex-Developer` | Developer | Building, coding, testing, quality |
+| `@Rapso-Planner` | Planner | Planning, research, specs, memory |
+| `@Rapso-Developer` | Developer | Building, coding, testing, quality |
 
 ---
 
 ## Daily Workflow
 
 ### Start a Session
-1. Switch to `@Cortex-Planner`
+1. Switch to `@Rapso-Planner`
 2. Agent auto-runs `mem_session_start` and `mem_context` to restore context
 3. Discuss your goal with the agent
 
@@ -33,7 +33,7 @@ The system loads automatically. Two agents are available, switch with Tab:
 2. /sdd-new                  → Start a structured change (Planner)
 3. /sdd-ff                   → Produce spec, design, and tasks artifacts (Planner)
 4. /sdd-status               → Check change state (Planner)
-   Then Tab to @Cortex-Developer
+   Then Tab to @Rapso-Developer
 5. Developer executes via 5-Step Gate:
    ← Graph check → Atomic commit → Verify → Spec check → Memory save
 6. /sdd-verify               → Verify the implementation and artifacts (Developer)
@@ -41,8 +41,8 @@ The system loads automatically. Two agents are available, switch with Tab:
 ```
 
 ### End a Session
-1. `@Cortex-Developer` saves discoveries: `mem_save`
-2. `@Cortex-Planner` runs `mem_session_summary` + `mem_session_end`
+1. `@Rapso-Developer` saves discoveries: `mem_save`
+2. `@Rapso-Planner` runs `mem_session_summary` + `mem_session_end`
 3. Run `scripts/engram-export-wiki.sh` to sync to Obsidian vault
 
 ---
@@ -83,7 +83,7 @@ The system loads automatically. Two agents are available, switch with Tab:
 | `execute_script` | Run TypeScript/JS snippets for prototyping |
 
 ### Execution Discipline (5-Step Gate)
-Built into `@Cortex-Developer` — fires automatically on every task:
+Built into `@Rapso-Developer` — fires automatically on every task:
 1. **GRAPH CHECK** — query the knowledge graph before editing
 2. **ATOMIC COMMIT** — one concern per commit (≤5 files)
 3. **VERIFY** — lint + typecheck + tests (block on failure)
