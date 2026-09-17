@@ -62,9 +62,13 @@ function readContextBudget(projectDir: string): number {
 async function fetchEngramContext(projectName: string): Promise<ContextItem[]> {
   try {
     const client = new MCPClient('engram', ['mcp']);
-    await client.initialize();
-    const result = await client.callTool('mem_context', { project: projectName });
-    await client.close();
+    let result: any;
+    try {
+      await client.initialize();
+      result = await client.callTool('mem_context', { project: projectName });
+    } finally {
+      await client.close();
+    }
     if (result && result.content) {
       let text = '';
       if (Array.isArray(result.content)) {
@@ -135,45 +139,46 @@ async function fetchGraphifyContext(projectDir: string, projectName: string): Pr
 
   try {
     const client = new MCPClient('python3', ['-m', 'graphify.serve', graphJson]);
-    await client.initialize();
-
     const items: ContextItem[] = [];
-
     try {
-      const queryResult = await client.callTool('query_graph', {
-        question: projectName,
-        depth: 2,
-        token_budget: 1000,
-      });
-      const content = typeof queryResult === 'string' ? queryResult : JSON.stringify(queryResult, null, 2);
-      if (content.trim()) {
-        items.push({
-          source: 'graphify',
-          title: 'Codebase Graph Query',
-          content,
-          score: calculateScore(new Date(), 'architecture', true),
-          type: 'architecture',
-          date: new Date(),
-        });
-      }
-    } catch {}
+      await client.initialize();
 
-    try {
-      const godResult = await client.callTool('god_nodes', { top_n: 5 });
-      const content = typeof godResult === 'string' ? godResult : JSON.stringify(godResult, null, 2);
-      if (content.trim()) {
-        items.push({
-          source: 'graphify',
-          title: 'Key Concepts (God Nodes)',
-          content,
-          score: calculateScore(new Date(), 'architecture', true),
-          type: 'architecture',
-          date: new Date(),
+      try {
+        const queryResult = await client.callTool('query_graph', {
+          question: projectName,
+          depth: 2,
+          token_budget: 1000,
         });
-      }
-    } catch {}
+        const content = typeof queryResult === 'string' ? queryResult : JSON.stringify(queryResult, null, 2);
+        if (content.trim()) {
+          items.push({
+            source: 'graphify',
+            title: 'Codebase Graph Query',
+            content,
+            score: calculateScore(new Date(), 'architecture', true),
+            type: 'architecture',
+            date: new Date(),
+          });
+        }
+      } catch {}
 
-    await client.close();
+      try {
+        const godResult = await client.callTool('god_nodes', { top_n: 5 });
+        const content = typeof godResult === 'string' ? godResult : JSON.stringify(godResult, null, 2);
+        if (content.trim()) {
+          items.push({
+            source: 'graphify',
+            title: 'Key Concepts (God Nodes)',
+            content,
+            score: calculateScore(new Date(), 'architecture', true),
+            type: 'architecture',
+            date: new Date(),
+          });
+        }
+      } catch {}
+    } finally {
+      await client.close();
+    }
 
     if (items.length > 0) {
       info('Graphify context loaded via MCP');

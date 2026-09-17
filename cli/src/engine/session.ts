@@ -31,9 +31,12 @@ export async function openSession(projectDir: string, sessionId: string): Promis
 
   try {
     const client = new MCPClient('engram', ['mcp']);
-    await client.initialize();
-    await client.callTool('mem_session_start', { id: sessionId });
-    await client.close();
+    try {
+      await client.initialize();
+      await client.callTool('mem_session_start', { id: sessionId });
+    } finally {
+      await client.close();
+    }
     success('Engram session started');
   } catch (e: any) {
     warn(`Engram MCP not available: ${e.message || 'unknown error'}`);
@@ -72,28 +75,30 @@ export async function closeSession(
 
   try {
     const client = new MCPClient('engram', ['mcp']);
-    await client.initialize();
-
-    if (summary) {
-      try {
-        await client.callTool('mem_session_summary', {
-          session_id: sessionId,
-          content: summary,
-        });
-        success('Session summary saved');
-      } catch (e: any) {
-        warn(`Failed to save session summary: ${e.message}`);
-      }
-    }
-
     try {
-      await client.callTool('mem_session_end', { id: sessionId });
-      success('Session ended via Engram');
-    } catch (e: any) {
-      warn(`Failed to end session via Engram: ${e.message}`);
-    }
+      await client.initialize();
 
-    await client.close();
+      if (summary) {
+        try {
+          await client.callTool('mem_session_summary', {
+            session_id: sessionId,
+            content: summary,
+          });
+          success('Session summary saved');
+        } catch (e: any) {
+          warn(`Failed to save session summary: ${e.message}`);
+        }
+      }
+
+      try {
+        await client.callTool('mem_session_end', { id: sessionId });
+        success('Session ended via Engram');
+      } catch (e: any) {
+        warn(`Failed to end session via Engram: ${e.message}`);
+      }
+    } finally {
+      await client.close();
+    }
   } catch (e: any) {
     warn(`Engram MCP not available: ${e.message}`);
   }
