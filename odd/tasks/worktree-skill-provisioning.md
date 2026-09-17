@@ -411,6 +411,30 @@ after.
 | 4 | No non-symlink directory is ever removed | Met — adopted-project destinations remained real directories; no skill directory was removed. |
 | 5 | Typecheck and build exit 0 | Met — both commands exited 0. |
 
+## Review outcome
+
+Four-lens native review, lineage `review-73ef2c3b599aa464`, candidate commit `ed36255`
+(workspace projection over base `b06fc06`).
+
+| Lens | Result |
+|---|---|
+| review-risk | zero findings |
+| review-resilience | zero findings |
+| review-reliability | zero findings |
+| review-readability | one WARNING, advisory |
+
+Verdict: **approved** with zero blocking findings. The acknowledgement consumed revision
+`sha256:1f19187b3e6ce05a2d7f8c32943e862d6461b438264a5176e522bf953c85d2f8` and reported
+`authority: burned`.
+
+Advisory, non-blocking — `R2-partial-canonical-root` (readability, `cli/src/engine/worktree.ts:49`):
+`canonicalSkillsRoot` accepts a root when only **one** canonical skill is present, after which the
+linking loop silently skips the skills that root lacks. In a layout where `<root>/skills` holds
+some canonical skills and `.opencode/skills` holds the rest, the chosen source looks complete while
+the others are not linked. It is harmless in both layouts measured here — an adopted project has no
+`<root>/skills` at all, and a destination that is already a real directory is skipped by design —
+so it is recorded as later work rather than as a correction to this candidate.
+
 ## Progress
 
 Implemented D01–D03. Static checks, the executor's two scenarios, the orchestrator's two
