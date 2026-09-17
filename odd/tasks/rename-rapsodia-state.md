@@ -280,7 +280,8 @@ Run from the worktree after `npm run build`. `STATE_CLI="node $PWD/cli/dist/inde
 
 ## Progress
 
-Implementation completed on `odd/rename-rapsodia-state` with local commits:
+Implementation and three post-implementation defect corrections are complete on
+`odd/rename-rapsodia-state` with local commits:
 
 - `9fae71d feat(cli): add compatible project state resolvers`
 - `90c6875 fix(cli): preserve file-level legacy state fallback`
@@ -288,22 +289,60 @@ Implementation completed on `odd/rename-rapsodia-state` with local commits:
 - `55921af docs(cli): update shipped state path references`
 - `a1c26cb docs: update project state path guidance`
 - `aeb8c7b docs: align repository tooling with state rename`
+- `a616030 docs: record state rename verification`
+- `1b7bb67 fix(cli): keep adopt dry runs read-only`
+- `9d77829 refactor(cli): remove dead state directory resolvers`
+- `0a0b426 fix(sync): preserve legacy session-store migration`
 
-T01–T18 are implemented. T19 verification completed: typecheck and build passed; the
-legacy-only, migrated, idempotent, and both-layout-preservation scenarios passed; the
-gitignore carve-out and worktree-list regression passed; `npm pack --dry-run` listed
-`src/template/**`. `cli/dist/index.js` was rebuilt at 223189 bytes.
+Defect 1: `adoptProject` now calls `migrateLegacyState` only when `!options.dryRun`.
+The regression scenario proved that dry-run adoption leaves both legacy directories
+unchanged and creates nothing. A real adoption still reports and performs both moves.
+
+Defect 2: `resolveStateDir` and `resolveSessionsDir` were dropped as dead exported code.
+Neither had a caller; `handoffCandidates` needs both stores rather than a single resolver,
+and `resolveStateDir` returned the legacy path when neither directory existed. `findProjectRoot`
+now checks each of `manifest.json`, `session.json`, and `worktree.json` through
+`resolveStatePath`, preserving the existing root-detection behavior without the trap.
+
+Defect 3: `scripts/cortex-sync.sh` now prefers `.rapsodia-code/sessions` and falls back to
+`.cortex-sessions`, leaving the existing `ready-for-sdd/` to `ready-for-odd/` migration logic
+untouched. A real legacy-only sync moved a session into `ready-for-odd/`.
 
 Discrepancies: `cli/src/engine/context.ts` has no prelude existence read to route through a
 resolver, and `cli/src/engine/manifest.ts` has no state read path beyond its new-path write;
 the task items were satisfied by the existing code rather than by inventing dead logic.
 The requested `npm test` harness remains absent and reports `No test files found` when run by
-the repository hook. T20 is complete as five local work-unit commits; the implementation
-instruction overrides the task's original push wording, so nothing was pushed.
+the repository hook. The implementation instruction overrides the task's original push wording,
+so nothing was pushed.
 
-## Next step
+## Verification evidence
 
-Implement unit A, then B, then C, then D, then E, then F. Verify with unit G.
+- `cd cli && npm run typecheck` — exit 0; `> tsc --noEmit`.
+- `cd cli && npm run build` — exit 0; `cli/dist/index.js` is 222877 bytes.
+- `rg -n 'resolveStateDir|resolveSessionsDir' cli/src` — exit 1; no output.
+- `rg -n '\.cortex' cli/src --glob '!template/**'` — exit 0; only the three legacy/global
+  constants in `cli/src/utils/state.ts` remain.
+- Dry-run adoption of a tree containing `.cortex/manifest.json` and `.cortex-sessions/`
+  printed `Rapsodia Adoption Plan (dry run)` and `Dry run — no changes applied.`; before and
+  after `find` output was identical: the root, `.cortex/manifest.json`, `.cortex-sessions/`,
+  and `.cortex-sessions/ready-for-odd` only.
+- Real adoption printed `.cortex -> .rapsodia-code` and
+  `.cortex-sessions -> .rapsodia-code/sessions`; resulting `find` showed the new state and
+  session paths and no legacy directories.
+- `worktree list --root /home/stefan/Cortex` — exit 0; listed both `/home/stefan/Cortex`
+  (`main`) and `/home/stefan/Cortex-odd-rename-rapsodia-state`
+  (`odd/rename-rapsodia-state`).
+- In this worktree, `status` recognised `Project: Cortex` from legacy `.cortex/worktree.json`.
+  `start --dry-run --no-prelude` printed `State migration: .cortex -> .rapsodia-code` and
+  `find .cortex .rapsodia-code -maxdepth 2` reported `.cortex` missing and
+  `.rapsodia-code/worktree.json` present.
+- A legacy-only `scripts/cortex-sync.sh` run moved `legacy-session -> ready-for-odd/` under
+  `.cortex-sessions`.
+- `cd cli && npm pack --dry-run` — exit 0; the output listed `src/template/**`, including
+  the shipped agents, skills, scripts, and wiki files.
+
+`npm test` remains UNVERIFIED as a test suite: it exits 1 with `No test files found`, and no
+test files were added because TDD is OFF and this repository has no test harness.
 
 ## Rationale log
 
