@@ -5,7 +5,7 @@ import { adoptProject, isDirty } from '../engine/adopt';
 import { error, heading, info, success, warn } from '../utils/logger';
 
 interface AdoptOptions { dryRun?: boolean; yes?: boolean; force?: boolean; }
-const TEMPLATE_DIR = join(__dirname, '..', 'template');
+const TEMPLATE_DIR = join(__dirname, '..', 'src', 'template');
 
 function promptYesNo(question: string): Promise<boolean> {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });

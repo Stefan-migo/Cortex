@@ -18,7 +18,7 @@ interface UpdateResult {
   errors: string[];
 }
 
-const TEMPLATE_DIR = join(__dirname, '..', 'template');
+const TEMPLATE_DIR = join(__dirname, '..', 'src', 'template');
 
 function promptYesNo(question: string): Promise<boolean> {
   const rl = readline.createInterface({
