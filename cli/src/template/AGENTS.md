@@ -3,7 +3,7 @@
 ## Brain Lobe Architecture
 
 ```
-Frontal Lobe (Planning)     → cortex-session + Gentle AI SDD — /sdd-*
+Frontal Lobe (Planning)     → cortex-session + ODD — odd/tasks/<feature>.md
 Parietal Lobe (Spatial)     → Graphify — codebase graph before editing
 Hippocampus (Memory)        → Engram — persistent SQLite memory via MCP
 Occipital Lobe (Archive)    → wiki/ — Obsidian-readable snapshot exported from Engram
@@ -42,6 +42,9 @@ Switch with Tab: Planner (read-only) / Developer (full tools).
 | `/graphify . --update` | Rebuild graph after code changes |
 
 ### Gentle AI SDD (Frontal Lobe — Planning)
+
+These commands remain available when explicitly requested; ODD is the default continuation.
+
 | Command | Purpose |
 |---------|---------|
 | `cortex-session` skill | Discuss and structure planning work with the user |
@@ -66,8 +69,8 @@ Switch with Tab: Planner (read-only) / Developer (full tools).
 2. Agent detects `.cortex/prelude.md` and uses it as working context
 
 ### Work
-1. Planner discusses with user through the `cortex-session` skill, then drafts the change with `/sdd-new`
-2. Planner hands spec to Developer via `@Cortex-Developer`
+1. Planner uses `cortex-session` to seed `odd/tasks/<feature>.md`, then creates the worktree with `cortex worktree create <slug>`
+2. Planner hands the ODD task doc to Developer via `@Cortex-Developer`
 3. Developer runs graphify check before editing code
 4. Developer executes modified 5-Step Gate per task
 
