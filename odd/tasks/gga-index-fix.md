@@ -310,11 +310,39 @@ three files out of its commit. Here no workaround was needed at all.
 | 4 | The review still runs and reports its verdict | Met — the review ran before every commit in T02, T03 and T06 |
 | 5 | Dogfooding: the fix's own commit contains exactly the two authorized files while three untracked `.opencode/` files are present | Met — T06 |
 
+## Review outcome
+
+Native review, lineage `review-23e5ac0996ec0eda`, over the candidate range `6c3321d` (the fix) and
+`543a003` (this document), base `7e00219`.
+
+Risk was assessed **medium**, so the plan selected **one consolidated lens** instead of four:
+
+| Lens | Result |
+|---|---|
+| review-reliability | zero findings |
+
+Verdict: **approved** with zero blocking findings. The acknowledgement consumed revision
+`sha256:000f7caba5c28da6d2a0b8c9dc3a83411fef3e2e5cd5710e02887003dfc89e43` and reported
+`authority: burned`.
+
+The reviewer's own evidence: the hook isolates the review subprocess from the repository index while
+preserving failure propagation, and the accompanying verification documents the relevant regression
+scenarios.
+
+Two notes about the review mechanics, recorded because they are not obvious and will recur:
+
+- The workspace projection required an explicit intended-untracked selection. The three untracked
+  `.opencode/` files are local provisioning state that `main` ignores, so the honest answer is
+  `untracked_scope: exclude` with an empty selection. The schema is
+  `gentle-ai.review-intended-untracked-selection/v1`, the scope lives inside that JSON, and
+  `--untracked-scope` on the command line is a legacy flag that cannot be combined with it.
+- Freezing the candidate did not disturb the three untracked files.
+
 ## Progress
 
 Doc written before the first source write. D01 implemented; T01–T06 verified with the literal output
-recorded above. Pending: the native review and the PR.
+recorded above. Reviewed and approved. Pending: the PR.
 
 ## Next step
 
-Record this result in a documentation commit, then run the native review for the candidate.
+Open the PR for `odd/gga-index-fix`.
