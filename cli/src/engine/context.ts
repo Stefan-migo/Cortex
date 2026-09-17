@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, statSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
 import { info, warn, step, success } from '../utils/logger';
@@ -6,7 +6,7 @@ import { MCPClient } from '../utils/mcp';
 import { resolveGraphifyPaths, resolveProjectManifest } from './project';
 
 interface ContextItem {
-  source: 'engram' | 'graphify' | 'speckit' | 'manifest';
+  source: 'engram' | 'graphify' | 'manifest';
   title: string;
   content: string;
   score: number;
@@ -242,60 +242,6 @@ function fetchGraphifyContextStatic(projectDir: string): ContextItem[] {
   return [];
 }
 
-function fetchSpeckitContext(projectDir: string): ContextItem[] {
-  const items: ContextItem[] = [];
-  const tasksDir = join(projectDir, '.specify', 'tasks');
-  const plansDir = join(projectDir, '.specify', 'plans');
-
-  if (existsSync(tasksDir)) {
-    try {
-      const entries = readdirSync(tasksDir);
-      for (const entry of entries) {
-        const fullPath = join(tasksDir, entry);
-        const st = statSync(fullPath);
-        if (!st.isFile()) continue;
-        const content = readFileSync(fullPath, 'utf-8');
-        items.push({
-          source: 'speckit',
-          title: `Task: ${entry}`,
-          content: `**File**: \`${fullPath.replace(projectDir + '/', '')}\`\n\n${content.substring(0, 2000)}`,
-          score: calculateScore(st.mtime, 'learning', true),
-          type: 'learning',
-          date: st.mtime,
-        });
-      }
-    } catch {}
-  }
-
-  if (existsSync(plansDir)) {
-    try {
-      const entries = readdirSync(plansDir);
-      for (const entry of entries) {
-        const fullPath = join(plansDir, entry);
-        const st = statSync(fullPath);
-        if (!st.isFile()) continue;
-        const content = readFileSync(fullPath, 'utf-8');
-        items.push({
-          source: 'speckit',
-          title: `Plan: ${entry}`,
-          content: `**File**: \`${fullPath.replace(projectDir + '/', '')}\`\n\n${content.substring(0, 2000)}`,
-          score: calculateScore(st.mtime, 'architecture', true),
-          type: 'architecture',
-          date: st.mtime,
-        });
-      }
-    } catch {}
-  }
-
-  if (items.length > 0) {
-    info(`Spec-Kit context loaded (${items.length} items)`);
-  } else {
-    warn('No Spec-Kit tasks or plans found');
-  }
-
-  return items;
-}
-
 function fetchManifestContext(projectDir: string): ContextItem[] {
   const manifest = resolveProjectManifest(projectDir);
   if (!manifest) return [];
@@ -329,14 +275,13 @@ export async function buildPrelude(projectDir: string, projectName: string): Pro
   sections.push(`**Generated**: ${new Date().toISOString()}`);
   sections.push('');
 
-  const [engramItems, graphifyItems, speckitItems, manifestItems] = await Promise.all([
+  const [engramItems, graphifyItems, manifestItems] = await Promise.all([
     fetchEngramContext(projectName),
     fetchGraphifyContext(projectDir, projectName),
-    fetchSpeckitContext(projectDir),
     fetchManifestContext(projectDir),
   ]);
 
-  const allItems = [...engramItems, ...graphifyItems, ...speckitItems, ...manifestItems];
+  const allItems = [...engramItems, ...graphifyItems, ...manifestItems];
   allItems.sort((a, b) => b.score - a.score);
 
   const budget = readContextBudget(projectDir);

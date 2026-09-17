@@ -55,9 +55,6 @@ export async function installCommand(options: InstallOptions): Promise<void> {
       case 'Graphify':
         info('  Run: pip install graphifyy');
         break;
-      case 'Spec-Kit':
-        info('  Run: npm install -g @github/spec-kit');
-        break;
       case 'Node.js':
         info('  Download from: https://nodejs.org (>= 18 required)');
         break;

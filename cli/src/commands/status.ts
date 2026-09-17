@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
+import { existsSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
 import { heading } from '../utils/logger';
@@ -28,10 +28,6 @@ interface StatusReport {
   graphify: {
     exists: boolean;
     stale?: boolean;
-  };
-  speckit: {
-    taskCount: number;
-    planCount: number;
   };
   wiki: {
     lastExport?: string;
@@ -86,7 +82,6 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
     session: { active: false },
     engram: { connected: false },
     graphify: { exists: false },
-    speckit: { taskCount: 0, planCount: 0 },
     wiki: {},
     tools: {
       opencode: { installed: false },
@@ -110,19 +105,6 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
         report.session.sessionId = session.sessionId;
         report.session.startedAt = session.startedAt;
         report.session.duration = calculateDuration(session.startedAt);
-      } catch {}
-    }
-
-    const speckitTasks = join(projectDir, '.specify', 'tasks');
-    if (existsSync(speckitTasks)) {
-      try {
-        report.speckit.taskCount = readdirSync(speckitTasks).length;
-      } catch {}
-    }
-    const speckitPlans = join(projectDir, '.specify', 'plans');
-    if (existsSync(speckitPlans)) {
-      try {
-        report.speckit.planCount = readdirSync(speckitPlans).length;
       } catch {}
     }
 
@@ -197,11 +179,6 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
       : report.graphify.stale ? 'Graph stale — run `graphify update`' : 'Up to date')
     : 'No graph found — run `graphify .`';
   console.log(`Graphify:    ${graphIcon} ${graphMsg}`);
-
-  const speckitStr = [];
-  if (report.speckit.taskCount > 0) speckitStr.push(`${report.speckit.taskCount} task(s)`);
-  if (report.speckit.planCount > 0) speckitStr.push(`${report.speckit.planCount} plan(s)`);
-  console.log(`Spec-Kit:    ${speckitStr.length > 0 ? `✅ ${speckitStr.join(', ')}` : '— (none active)'}`);
 
   const wikiStr = report.wiki.lastExport ? `✅ Last export: ${report.wiki.lastExport}` : '⚠️ No wiki directory';
   console.log(`Wiki:        ${wikiStr}`);

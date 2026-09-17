@@ -17,21 +17,21 @@ Use this skill when starting a new feature, refactoring, or any task that requir
 - **Output**: `proposal.md`
 
 ### Phase 3: Spec 📋
-- Use `.specify/templates/spec-template.md` as template
+- Use the Engram topic key `sdd/<change>/spec` or OpenSpec artifacts under `openspec/changes/<change>/` or `openspec/specs/`
 - Formal feature specification with requirements
-- **Output**: `.specify/features/<feature-name>/spec.md`
+- **Output**: Engram topic `sdd/<change>/spec` or an OpenSpec specification under `openspec/changes/<change>/` or `openspec/specs/`
 
 ### Phase 4: Design 🏗️
 - Technical architecture and component design
-- Use `.specify/templates/plan-template.md` as template
+- Use the Engram topic key `sdd/<change>/design` or OpenSpec artifacts under `openspec/changes/<change>/` or `openspec/specs/`
 - Data flow, interfaces, dependencies
-- **Output**: `.specify/features/<feature-name>/design.md`
+- **Output**: Engram topic `sdd/<change>/design` or an OpenSpec design under `openspec/changes/<change>/` or `openspec/specs/`
 
 ### Phase 5: Tasks 📝
 - Break design into executable tasks
-- Use `.specify/templates/tasks-template.md` as template
+- Use the Engram topic key `sdd/<change>/tasks` or OpenSpec artifacts under `openspec/changes/<change>/` or `openspec/specs/`
 - Each task: one concern, max 5 files
-- **Output**: `.specify/features/<feature-name>/tasks.md`
+- **Output**: Engram topic `sdd/<change>/tasks` or OpenSpec tasks under `openspec/changes/<change>/` or `openspec/specs/`
 
 ### Phase 6: Apply 🛠️
 - Implement each task following the 5-Step Gate:
