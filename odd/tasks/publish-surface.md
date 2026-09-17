@@ -82,24 +82,24 @@ Authorized:
 
 ## Tasks
 
-- [ ] **T01** — Rewrite `cli/README.md` as the npm package page for `rapsodia-code` / `rapso`:
+- [x] **T01** — Rewrite `cli/README.md` as the npm package page for `rapsodia-code` / `rapso`:
       the real install line, a command table copied from `node dist/index.js --help`, the Node
       requirement, and a link to the repository. The repository-internal build instructions
       move to a clearly marked "from source" section or disappear.
-- [ ] **T02** — Rewrite the root `README.md` around the product that actually ships: what
+- [x] **T02** — Rewrite the root `README.md` around the product that actually ships: what
       `rapso` does (scaffold, manage, analyze, ODD worktrees), install, quick start, command
       table, and the skill pack's real current role. Replace or remove the dead `LICENSE`
       badge. Keep skill names as they are today (exclusion 2).
-- [ ] **T03** — Add `LICENSE` (MIT) at the root **and** in `cli/` so the tarball carries it, and
-      add `"license": "MIT"` to `cli/package.json`. The copyright holder is a **pending user
-      decision** — no name is invented here.
-- [ ] **T04** — `cli/package.json` metadata: add `license`, `repository`, `homepage`, `bugs`,
+- [x] **T03** — Add `LICENSE` (MIT) at the root **and** in `cli/` so the tarball carries it, and
+      add `"license": "MIT"` to `cli/package.json`. Copyright holder decided by the parent:
+      `Stefan-migo`.
+- [x] **T04** — `cli/package.json` metadata: add `license`, `repository`, `homepage`, `bugs`,
       `keywords`, `engines` (node >=18, matching esbuild's target); drop the deprecated
       `preferGlobal`; reclassify the already-bundled `dependencies` as `devDependencies` **only
       after** the scenario-6 bundle check proves nothing requires them at runtime.
-- [ ] **T05** — Run the verification scenarios and record real output. Commit as reviewable work
+- [x] **T05** — Run the verification scenarios and record real output. Commit as reviewable work
       units (one concern each, ≤5 files per commit, no `--no-verify`).
-- [ ] **T06** — Report.
+- [x] **T06** — Report.
 
 ## Acceptance criteria
 
@@ -130,8 +130,11 @@ Run from the worktree. `STATE_CLI="node $PWD/cli/dist/index.js"`.
 4. **Install integrity** — `cd cli && npm ci` → exit code and output tail.
 5. **Fresh-install smoke** — rebuild the packed layout in a temp dir (`dist/`, `package.json`,
    `README.md`, `LICENSE`, `src/template`), run `node dist/index.js init demo --no-git --yes`,
-   and report the file count plus the `Rapsodia` brand lines. Baseline from observation #4012:
-   36 files copied, 37 files total.
+   and report the file count plus the `Rapsodia` brand lines. **Corrected baseline:** the packed
+   layout copies **35** files (36 including `manifest.json`). The earlier 36/37 figure was
+   measured on the repository-local tree, whose extra file is an untracked
+   `cli/src/template/.opencode/tools/node_modules/.gitkeep` that npm excludes from the tarball
+   — see the note under `## Progress`.
 6. **Bundle self-sufficiency** (only if T04 reclassifies dependencies) — move `cli/node_modules`
    aside, rebuild, run `node dist/index.js --help`; report the real output.
 7. **Staging discipline** — `git status --short` → only the intended paths.
@@ -152,13 +155,114 @@ Run from the worktree. `STATE_CLI="node $PWD/cli/dist/index.js"`.
 
 ## Progress
 
-Worktree created from `origin/main` @ `1c4d956` with `rapso worktree create publish-surface
---yes`. T01–T06 open. No source write yet.
+Implementation complete and verified. T01–T06 checked against the evidence below. No source
+file under `cli/src/**` was touched, per exclusion 1.
+
+Files changed against `1c4d956`: `README.md` (52 lines, was 83), `cli/README.md` (42 lines, was
+27), `LICENSE` (new, 21 lines), `cli/LICENSE` (new, 21 lines), `cli/package.json` (49 lines),
+`cli/package-lock.json` (regenerated).
+
+## Verification evidence
+
+Observed, not inferred. All commands run from the worktree.
+
+**1. Tarball** — `cd cli && npm pack --dry-run`:
+
+```
+npm notice 1.1kB LICENSE
+npm notice 1.3kB README.md
+npm notice name: rapsodia-code
+npm notice version: 1.0.0
+npm notice package size: 158.1 kB
+npm notice total files: 38
+```
+
+Before this change the same command reported `961B README.md`, no license file, and 37 total
+files. The name, version and `bin` are unchanged.
+
+**2. Stale-string coverage** — `rg -n 'cortex-brain|cd cortex/cli|\bcortex init\b' cli/README.md`
+→ exit code 1, no matches.
+
+**3. Help fidelity** — `node cli/dist/index.js --help`:
+
+```
+Usage: rapso [options] [command]
+
+Scaffold and manage project development workflows
+
+Options:
+  -V, --version           output the version number
+  -h, --help              display help for command
+
+Commands:
+  init [options] <name>   Scaffold a new Rapsodia project
+  install [options]       Check and install dependencies
+  start [options]         Start a session: load context and launch opencode
+  close [options]         Close a session: summarize, export, cleanup
+  status [options]        Show brain health overview
+  update [options]        Update brain template from latest version
+  adopt [options] [path]  Install Rapsodia into an existing project
+  analyze [options]       Analyze session patterns and suggest improvements
+  worktree                Create and manage isolated ODD worktrees
+  help [command]          display help for command
+```
+
+Both README tables carry the same nine commands with descriptions matching this output.
+
+**4. Remaining `cortex`/`Cortex` matches** — `rg -n 'cortex|Cortex' README.md cli/README.md`
+returns three lines, all allowed:
+
+```
+README.md:5      repository identity ("The repository is [Cortex](...)")
+README.md:48     the retained skill names `cortex-persona` / `cortex-session` (exclusion 2)
+cli/README.md:38 repository link
+```
+
+**5. Install integrity** — `cd cli && npm ci` → exit code 0, `added 100 packages, and audited
+101 packages in 3s`. The regenerated lockfile is consistent.
+
+**6. Bundle self-sufficiency** — the packed layout in `/tmp/opencode/pkgsim2` (no `node_modules`
+present anywhere) ran both `node dist/index.js --help` and
+`node dist/index.js init demo --no-git --yes`:
+
+```
+✔ Copied 35 files
+✔ .rapsodia-code/manifest.json created
+ℹ Skipping git init (--no-git)
+ℹ Project "demo" created at /tmp/opencode/pkgsim2/demo
+```
+
+Independent check on the artifact itself: every bare `require()` left in `dist/index.js` is a
+Node builtin. `grep -oE 'require\("[^"./][^"]*"\)' cli/dist/index.js | sort -u` returns only
+`fs`, `path`, `os`, `crypto`, `readline`, `child_process` and their `node:` forms — no
+`commander`, `chalk` or `ora`. That is the evidence for T04's conditional reclassification.
+
+**7. Staging discipline** — `git status --short` reports only the intended paths; the three
+untracked `.opencode/` install artifacts are untouched.
+
+**8. Repository checks** — `npm run typecheck` and `npm run build` in `cli/` both pass.
+
+### Baseline correction found during verification
+
+`init` from the repository-local tree copies 36 files while the packed layout copies 35. The
+extra file is `cli/src/template/.opencode/tools/node_modules/.gitkeep`: it is untracked, it is
+ignored by `cli/.gitignore` (`node_modules/`), and npm excludes it from the tarball — `npm pack
+--dry-run` lists zero `node_modules` entries. It reaches no consumer. The 36/37 baseline in this
+document was measured on the local tree, and the shipped baseline is 35/36. Recorded rather than
+silently adjusted.
+
+### Parent spot checks
+
+Re-run independently of the delegated writer, not accepted on report: `npm pack --dry-run`
+(license + README notice lines confirmed), `adopt --help` (confirms `--yes` exists, so the root
+README's `rapso adopt --yes` is real), `worktree --help` (six subcommands, so the README's
+pointer to it is real), and `diff LICENSE cli/LICENSE` → identical.
 
 ## Next step
 
-Parent decision on the LICENSE copyright holder, then T01–T03 (the surfaces), then T04
-(metadata), then T05 (verification).
+Open the PR. Nothing in this change blocks the remaining rename slices: it touches no file under
+`cli/src/**`. Out of scope and still owed to the release, in its own change: the
+`.opencode/node_modules` gap (exclusion 1).
 
 ## Rationale log
 
