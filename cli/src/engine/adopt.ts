@@ -1,11 +1,11 @@
 import { execFileSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { basename, dirname, join, relative } from 'path';
+import { basename, dirname, join, relative, resolve } from 'path';
 import { collectFiles, hashFile, substituteVariables, TemplateOptions } from './template';
 import { Manifest, ManifestFile } from './manifest';
 
 export const OWNED_PATHS = [
-  '.opencode/agents/**', '.opencode/plugins/**', '.opencode/tools/**',
+  '.opencode/agents/**', '.opencode/tools/**',
   '.opencode/skills/**', '.opencode/mcp-template.json', '.opencode/package.json',
   '.opencode/package-lock.json', '.opencode/.gitignore',
 ];
@@ -69,11 +69,20 @@ function mergeJson(content: string, targetDir: string, templateDir: string): { c
   }
   current.mcp = current.mcp || {};
   for (const name of ['engram', 'graphify']) if (!(name in current.mcp)) current.mcp[name] = template.mcp[name];
-  const plugin = join(targetDir, '.opencode/plugins/graphify.js');
+  const plugin = '.opencode/plugins/graphify.js';
   // A `plugin` key that is present but not an array belongs to the project; replacing it with
   // an empty array would drop whatever it holds. Only ever seed or extend an array.
-  if (current.plugin === undefined) current.plugin = [plugin];
-  else if (Array.isArray(current.plugin) && !current.plugin.includes(plugin)) current.plugin.push(plugin);
+  if (Array.isArray(current.plugin)) {
+    const pluginIdentity = resolve(targetDir, plugin);
+    let found = false;
+    current.plugin = current.plugin.filter((entry) => {
+      if (typeof entry !== 'string' || resolve(targetDir, entry) !== pluginIdentity) return true;
+      if (found) return false;
+      found = true;
+      return true;
+    });
+    if (!found && existsSync(join(targetDir, plugin))) current.plugin.push(plugin);
+  } else if (current.plugin === undefined && existsSync(join(targetDir, plugin))) current.plugin = [plugin];
   const output = JSON.stringify(current, null, 2) + '\n';
   return { content: output, changed: JSON.stringify(current) !== before };
 }
