@@ -4,6 +4,7 @@ import { step, info, success, warn, error, heading } from '../utils/logger';
 import { hashFile, collectFiles } from '../engine/template';
 import { detectChanges, Manifest } from '../engine/manifest';
 import * as readline from 'readline';
+import { stateDir, statePath } from '../utils/state';
 
 interface UpdateOptions {
   dryRun?: boolean;
@@ -66,8 +67,8 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
   heading('Cortex Brain Update');
 
   const projectDir = process.cwd();
-  const cortexDir = join(projectDir, '.cortex');
-  const manifestPath = join(cortexDir, 'manifest.json');
+  const cortexDir = stateDir(projectDir);
+  const manifestPath = statePath(projectDir, 'manifest.json');
 
   if (!existsSync(manifestPath)) {
     error('No Cortex manifest found. Are you in a Cortex project directory?');

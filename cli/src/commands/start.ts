@@ -3,6 +3,7 @@ import { info, success, warn, error, heading } from '../utils/logger';
 import { generateSessionId, openSession, getSessionInfo } from '../engine/session';
 import { buildPrelude } from '../engine/context';
 import { findProjectRoot, readProjectName } from '../engine/project';
+import { PROJECT_STATE_DIR_NAME } from '../utils/state';
 
 interface StartOptions {
   prelude?: boolean;
@@ -52,13 +53,13 @@ export async function startCommand(options: StartOptions): Promise<void> {
     info('The following would happen:');
     info('  1. Generate session ID');
     info('  2. Open Engram session via MCP (mem_session_start)');
-    info('  3. Write .cortex/session.json');
+    info(`  3. Write ${PROJECT_STATE_DIR_NAME}/session.json`);
     if (options.prelude !== false) {
-      info('  4. Build context prelude (.cortex/prelude.md):');
+      info(`  4. Build context prelude (${PROJECT_STATE_DIR_NAME}/prelude.md):`);
       info('     - Engram recent context');
       info('     - Graphify codebase report');
       info('     - Project manifest info');
-      info('  5. Keep the prelude in ignored .cortex/ local state');
+      info(`  5. Keep the prelude in ignored ${PROJECT_STATE_DIR_NAME}/ local state`);
     } else {
       info('  4. Skip context prelude (--no-prelude)');
     }

@@ -4,6 +4,7 @@ import * as readline from 'readline';
 import { step, info, success, warn, error, heading } from '../utils/logger';
 import { getSessionInfo, closeSession, generateRetrospective, saveRetrospective } from '../engine/session';
 import { resolveGraphifyPaths } from '../engine/project';
+import { statePath, PROJECT_STATE_DIR_NAME } from '../utils/state';
 
 interface CloseOptions {
   message?: string;
@@ -51,7 +52,7 @@ export async function closeCommand(options: CloseOptions): Promise<void> {
 
   const projectDir = process.cwd();
 
-  if (!existsSync(join(projectDir, '.cortex', 'session.json'))) {
+  if (!existsSync(statePath(projectDir, 'session.json'))) {
     error('No active session found in this directory.');
     info('Run `cortex start` to begin a session.');
     process.exit(1);
@@ -88,7 +89,7 @@ export async function closeCommand(options: CloseOptions): Promise<void> {
   step('Restoring opencode.json');
   const config = readOpenCodeConfig(projectDir);
   if (config && config.instructions) {
-    const preludePath = '.cortex/prelude.md';
+    const preludePath = `${PROJECT_STATE_DIR_NAME}/prelude.md`;
     const idx = config.instructions.indexOf(preludePath);
     if (idx !== -1) {
       config.instructions.splice(idx, 1);
@@ -102,7 +103,7 @@ export async function closeCommand(options: CloseOptions): Promise<void> {
   }
 
   step('Cleaning up prelude file');
-  const preludePath = join(projectDir, '.cortex', 'prelude.md');
+  const preludePath = statePath(projectDir, 'prelude.md');
   if (existsSync(preludePath)) {
     try {
       unlinkSync(preludePath);

@@ -5,6 +5,7 @@ import { copyTemplate, TemplateOptions } from '../engine/template';
 import { generateManifest } from '../engine/manifest';
 import { info, success, warn, error, step, heading } from '../utils/logger';
 import { addProject } from '../utils/config';
+import { PROJECT_STATE_DIR_NAME } from '../utils/state';
 
 interface InitOptions {
   template?: string;
@@ -65,7 +66,7 @@ export async function initCommand(name: string, options: InitOptions): Promise<v
 
   step('Generating manifest');
   generateManifest(targetDir, templateOptions);
-  success('.cortex/manifest.json created');
+  success(`${PROJECT_STATE_DIR_NAME}/manifest.json created`);
 
   step('Initializing git repository');
   if (options.git !== false) {
