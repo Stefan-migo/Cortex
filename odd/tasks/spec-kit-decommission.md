@@ -194,3 +194,59 @@ $ read cli/src/commands/start.ts dryRun block
     return;
   }
 ```
+
+## Delivery — slice 2
+
+The reviewed candidate (lineage `review-f6f6462d9fb7ac3e`, target `sha256:9cf9830e...`, authority **burned**, 4 lenses, 0 findings) landed byte-exact in four gate-legal commits (≤5 files each):
+
+| Commit | Files |
+|---|---|
+| `aef9534` | `cli/src/commands/{analyze,close,install,start,status}.ts` |
+| `fa6eb99` | `cli/src/engine/{adopt,context,deps}.ts` |
+| `379c8ad` | `scripts/{install-deps,setup}.sh` + delete `scripts/sdd-init.sh` |
+| `dc29481` | `docs/COMPETITIVE-ANALYSIS.md`, `.opencode/skills/sdd/SKILL.md`, this task doc |
+
+### Verification re-run against the committed state
+
+```text
+$ git grep -n "speckit\|Spec-Kit\|\.specify" -- cli/src scripts docs AGENTS.md .opencode
+(exit 1 — no matches)
+
+$ git grep -c "/speckit" -- AGENTS.md .opencode
+(exit 1 — no matches)
+
+$ test ! -e .specify && test ! -e cli/src/template/.specify && echo gone
+gone
+
+$ cd cli && npm run typecheck
+(exit 0)
+$ cd cli && npm run build
+(exit 0)
+$ grep -c "speckit" cli/dist/index.js
+0
+
+$ node cli/dist/index.js init sample --no-git --yes
+(exit 0; scaffold carries no .specify/; Template: 1.0.0 (35 files tracked))
+$ node cli/dist/index.js status
+(exit 0; no "Spec-Kit:" line)
+```
+
+## Escalated review — slice 1 (accepted as informational)
+
+Slice 1 (`1f4c00c`, the vendored tree deletions) was reviewed under lineage `review-ebadd49dedd95411` (authority target `sha256:c43b1b21...`, base tree `e765ee5b...`, 4,774 changed lines, tier `high`). All four lenses were admitted; two returned severe findings whose causality the lenses could not establish, so the authority closed as `escalated` rather than approved:
+
+- `R3-template-runtime-removal`
+- `R4-template-runtime-assets-removed`
+
+`escalation.cause: unknown_causality`. The maintainer accepted the escalation as informational and chose to deliver under ordinary repository policy. Evidence behind that call:
+
+- `copyTemplate()` / `collectFiles()` (`cli/src/engine/template.ts`) discover template files **dynamically**; nothing enumerates `.specify/**` through a fixed path list, lock, or template manifest.
+- `git grep -n specify -- cli/src` → 0 matches: no shipped surface references the deleted trees.
+- The removed trees were never executable in an installed project — no `/speckit.*` command is installed anywhere, and `.opencode/commands/` holds only `cortex-init.md`.
+
+The escalation is **not** an approval, and it is recorded here so the delivery carries its own uncertainty instead of hiding it.
+
+## Follow-ups — out of this change's scope
+
+- `cli/src/engine/manifest.ts:31` hardcodes `templateVersion: '1.0.0'` and nothing bumps it when the template content changes. This change took the template from 69 to 35 files with the version unchanged. Versioning template revisions is its own task.
+- The pre-commit `gga` gate returned `STATUS: FAILED` over the five command files of `aef9534` with **pre-existing** findings (shell interpolation in `analyze.ts:78`, `install` that only prints instructions, session JSON used without validation in `status.ts:103`). None were introduced by this change, so they stay as documented debt rather than scope creep.
