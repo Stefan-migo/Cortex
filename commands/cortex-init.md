@@ -7,7 +7,7 @@ agent: gentle-orchestrator
 
 Bootstraps the Cortex skill pack into the current project.
 
-**Note**: The global orchestrator prompt already includes the Cortex auto-load and Ponytail review workflow integration. This command configures the project so those integrations work.
+**Note**: The global orchestrator prompt ships no Cortex-specific hook. This command links the Cortex skills into `.opencode/skills/`, so they appear in the session's skill list, and writes an `AGENTS.md` that declares the persona and the contextual skill-loading check.
 
 ### What the orchestrator does
 
@@ -36,4 +36,4 @@ Bootstraps the Cortex skill pack into the current project.
 | No MCP config | Adds Graphify MCP to `.opencode/opencode.json` |
 | No AGENTS.md | Creates AGENTS.md with persona reference |
 | No .gitignore update | Adds `.atl/` to `.gitignore` |
-| Manual Ponytail trigger | Orchestrator auto-runs ponytail-review after sdd-apply |
+| Manual Ponytail trigger | Ponytail skills linked into the project; the rules live in the persona and apply at ODD's Implement step |
