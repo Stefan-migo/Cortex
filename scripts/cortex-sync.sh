@@ -53,7 +53,10 @@ sync_skills() {
 # Legacy flat sessions -> open|ready-for-odd|archived. Idempotent.
 migrate_sessions() {
   local root="$1/.rapsodia-code/sessions"
-  [[ -d "$root" ]] || { echo "  - no .rapsodia-code/sessions, skipped"; return 0; }
+  if [[ ! -d "$root" ]]; then
+    root="$1/.cortex-sessions"
+  fi
+  [[ -d "$root" ]] || { echo "  - no session store, skipped"; return 0; }
   run mkdir -p "$root/open" "$root/ready-for-odd" "$root/archived"
   local d name dest moved=0
   local legacy="$root/ready-for-sdd" target="$root/ready-for-odd"
