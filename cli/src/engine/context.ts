@@ -4,7 +4,7 @@ import { execFileSync } from 'child_process';
 import { info, warn, step, success } from '../utils/logger';
 import { MCPClient } from '../utils/mcp';
 import { resolveGraphifyPaths, resolveProjectManifest } from './project';
-import { stateDir, statePath } from '../utils/state';
+import { stateDir, statePath, resolveStatePath } from '../utils/state';
 
 interface ContextItem {
   source: 'engram' | 'graphify' | 'manifest';
@@ -48,8 +48,8 @@ function calculateScore(date: Date, type: string, projectMatches: boolean): numb
 }
 
 function readContextBudget(projectDir: string): number {
-  const configPath = statePath(projectDir, 'config.json');
-  if (existsSync(configPath)) {
+  const configPath = resolveStatePath(projectDir, 'config.json');
+  if (configPath && existsSync(configPath)) {
     try {
       const config = JSON.parse(readFileSync(configPath, 'utf-8'));
       if (typeof config.contextBudget === 'number' && config.contextBudget > 0) {
