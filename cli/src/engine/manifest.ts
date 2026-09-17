@@ -17,9 +17,9 @@ export interface Manifest {
 }
 
 export function generateManifest(targetDir: string, options: TemplateOptions): Manifest {
-  const cortexDir = stateDir(targetDir);
-  if (!existsSync(cortexDir)) {
-    mkdirSync(cortexDir, { recursive: true });
+  const rapsodiaDir = stateDir(targetDir);
+  if (!existsSync(rapsodiaDir)) {
+    mkdirSync(rapsodiaDir, { recursive: true });
   }
 
   const filePaths = hashDirectory(targetDir);
