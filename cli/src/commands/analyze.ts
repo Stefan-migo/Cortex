@@ -1,7 +1,6 @@
-import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
 import { execSync } from 'child_process';
 import { info, success, warn, error, heading } from '../utils/logger';
+import { findProjectRoot, readProjectName } from '../engine/project';
 
 interface AnalyzeOptions {
   json?: boolean;
@@ -18,25 +17,6 @@ interface AnalyzeResult {
   commonThemes: string[];
   gaps: string[];
   suggestions: string[];
-}
-
-function findProjectRoot(dir: string): string | null {
-  const manifestPath = join(dir, '.cortex', 'manifest.json');
-  if (existsSync(manifestPath)) return dir;
-  const parent = join(dir, '..');
-  if (parent === dir) return null;
-  return findProjectRoot(parent);
-}
-
-function readProjectName(projectDir: string): string {
-  const manifestPath = join(projectDir, '.cortex', 'manifest.json');
-  if (existsSync(manifestPath)) {
-    try {
-      const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
-      return manifest.projectName || 'unknown';
-    } catch {}
-  }
-  return 'unknown';
 }
 
 function extractThemes(text: string): Map<string, number> {
