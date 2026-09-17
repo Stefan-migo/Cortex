@@ -100,7 +100,7 @@ function hasArchivedTwin(protectedPath: string, main: string): boolean {
 
 function handoffCandidates(main: string, target: string, slug: string): string[] {
   const candidates: string[] = [];
-  for (const readyRoot of [join(target, '.cortex-sessions', 'ready-for-sdd'), join(main, '.cortex-sessions', 'ready-for-sdd')]) {
+  for (const readyRoot of [join(target, '.cortex-sessions', 'ready-for-odd'), join(main, '.cortex-sessions', 'ready-for-odd')]) {
     if (!existsSync(readyRoot) || !lstatSync(readyRoot).isDirectory()) continue;
     for (const entry of readdirSync(readyRoot)) {
       if (new RegExp(`^\\d{4}-\\d{2}-\\d{2}-${slug}$`).test(entry)) {
