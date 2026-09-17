@@ -29,7 +29,20 @@ FILE_PATTERNS="*.go,*.mod,*.ts,*.tsx,*.yaml,*.json"
 # Examples:
 #   EXCLUDE_PATTERNS="*.test.ts,*.spec.ts"
 #   EXCLUDE_PATTERNS="*_test.go,*.mock.ts"
-EXCLUDE_PATTERNS="*_test.go,*.test.ts,*.spec.ts,*.test.tsx,*.spec.tsx,*.d.ts"
+#
+# opencode.json is excluded on purpose, for the same reason markdown is absent
+# from FILE_PATTERNS above. GGA reviews a file as a whole, and it applies an
+# opencode-config checklist (default_agent, a per-agent model, an explicit
+# question permission) to any file that looks like an opencode config. Those
+# keys are absent from this repository's project configs by design: a project
+# config inherits them from ~/.config/opencode/opencode.json, which already sets
+# default_agent, agent.gentle-orchestrator.model and question: allow. So a
+# one-line edit to an mcp command is rejected for keys the file is correct not to
+# repeat, and the same false positive fires on every opencode config here,
+# including the one shipped in cli/src/template/.
+# gga matches a pattern without a leading * against the file's basename, so this
+# one entry covers opencode.json at any depth.
+EXCLUDE_PATTERNS="*_test.go,*.test.ts,*.spec.ts,*.test.tsx,*.spec.tsx,*.d.ts,opencode.json"
 
 # File containing code review rules
 # Default: AGENTS.md
