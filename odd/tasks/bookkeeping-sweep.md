@@ -36,13 +36,14 @@ This change is the sweep that resolves both.
 | `cortex-adopt.md` | 1 (T04) | Landed as **PR #13** |
 | `ponytail-odd-alignment.md` | 1 (T08) | Landed as **PR #14** |
 | `provision-cli-deps.md` | 1 (T03) | Landed as **PR #10** |
-| `sdd-surface-alignment.md` | 1 (T04) | Spec-Kit suggestion retargeting: **PR #11 and/or #12** — verify which |
-| `spec-kit-false-instructions.md` | 1 (T04) | Same family as above — verify which |
+| `sdd-surface-alignment.md` | 1 (T04) | **PR #12** — resolved during the sweep; its file list carries this document |
+| `spec-kit-false-instructions.md` | 1 (T04) | **PR #11** — resolved during the sweep; its file list carries this document |
 | `template-lock-integrity.md` | 1 (T08) | **Genuinely open.** Slice B, explicitly "separate PR, not started". Keep open |
 | `usability-prerequisites.md` | 2 (VERIFY, DELIVER) | WU1 landed as `a5b4a4e` = **PR #25** |
 | `worktree-skill-provisioning.md` | 1 (T04) | Landed as **PR #17** |
 | `worktree-naming.md` | 3 (T06, T09, T10) | Landed as **PR #9**; the close-out text already exists in `main`'s working tree (see the orphan section) |
 | `rename-rapsodia-brand.md` | 6 (T01–T06 in the task list) | The same six tasks are already checked in that document's `## Progress`; delivered as **PR #30** |
+| `rename-rapsodia-state.md` | 20 (T01–T20) | Landed as **PR #33**. Found during the sweep, not in the parent's first inventory: the branch's own task document travelled inside the PR with every box unchecked |
 
 `rename-rapsodia.md` and the other documents with zero open boxes need no change.
 
@@ -91,7 +92,9 @@ retired Spec-Kit suggestions, and only one of them may belong to each document.
 - [x] **T03** — Reconcile `rename-rapsodia-brand.md`'s task-list boxes with its own `## Progress`
       section, which already records those six tasks as complete.
 - [x] **T04** — Leave every unverifiable box open with a one-line reason, and report the list.
-- [ ] **T05** — Verify, commit as reviewable work units (≤5 files per commit), and report.
+- [x] **T05** — Verify, commit as reviewable work units (≤5 files per commit), and report.
+      **Committed** as `1e909ed`, `75af6cd`, `e5032e7`, and this closing commit; every commit
+      carries at most five files and no `--no-verify` was used.
 
 ## Acceptance criteria
 
@@ -126,11 +129,36 @@ Run from the worktree.
 
 ## Progress
 
-T01–T04 complete. Verified merged references: PRs #9, #10, #11, #12, #13, #14, #17, #25, and #30; PR #26 remains the pre-existing reference for the already-closed worktree-naming T10. The orphan patch applied cleanly and parity is exact. T05 remains open because this authorized work unit must not commit; the parent owns commit history. The only remaining stale/open feature box is `template-lock-integrity.md` T08, which is genuinely open Slice B work.
+**Closed.** T01–T05 complete and committed as four reviewable work units
+(`1e909ed`, `75af6cd`, `e5032e7`, and the closing commit), none over five files, no
+`--no-verify`.
+
+Verified merged references, each confirmed against the PR's own files and body: PRs #9, #10,
+#11, #12, #13, #14, #17, #25, #30, and #33. PR #26 remains the reference for the
+already-closed `worktree-naming` T10. The orphan patch applied cleanly and the parity diff
+against `main`'s working tree prints nothing.
+
+Two open boxes remain in the whole set, both correct:
+
+- `template-lock-integrity.md` T08 — Slice B is genuinely unstarted work, not stale
+  bookkeeping.
+- This document's T05 — the box that describes its own commit, ticked in the commit it
+  describes.
+
+### One correction the sweep had to make to its own output
+
+The delegated writer left `rename-rapsodia-state.md`'s T20 open, reasoning that the work unit
+was forbidden from committing. That reasoning conflated two different things: the prohibition
+applied to *this* sweep, while T20 describes *that* feature's commit-and-push, which PR #33
+already delivered. The parent ticked it with the PR #33 reference, corrected the now-false
+"so nothing was pushed" sentence in its `## Progress`, and rewrote its `## Next step`, which
+had been promising delivery of delivered work. A sweep whose own output keeps one stale box is
+the failure it exists to fix.
 
 ## Next step
 
-Parent: commit the reviewed changes in groups of at most five files. No implementation or verification work remains in this worktree.
+None for this change; the parent opens the PR. The remaining genuine work in the task-document
+set is `template-lock-integrity.md` T08 (Slice B), which belongs to its own change.
 
 ## Rationale log
 
