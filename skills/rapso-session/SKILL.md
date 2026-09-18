@@ -5,7 +5,7 @@ license: MIT
 metadata:
   author: Stefan-migo
   version: "2.1"
-source: github.com/Stefan-migo/cortex
+source: github.com/Stefan-migo/rapsodia-code
 ---
 
 ## When to Load
@@ -84,7 +84,7 @@ Proactively capture these moments WITHOUT asking permission:
 | "costaría X", "toma Y tiempo" | Estimate or number | session.md |
 | "no sabemos aún", "habría que investigar" | Open question | session.md |
 
-**Save format** — EVERY `mem_save` call (init, discussion, close) carries this structured content envelope (Cortex memory standard). A `mem_save` without it does not comply:
+**Save format** — EVERY `mem_save` call (init, discussion, close) carries this structured content envelope (Rapsodia memory standard). A `mem_save` without it does not comply:
 
 ```
 **What**: one-line summary of what was captured
