@@ -66,7 +66,7 @@ Mode: **off**. Two three-line heuristic edits and one Markdown section; there is
 - [x] **T01** — Retarget the gap branch in `cli/src/commands/analyze.ts`.
 - [x] **T02** — Replace the guard in `cli/src/engine/session.ts` and drop the `.specify` existence probe.
 - [x] **T03** — Add the generalized `## ODD Worktrees` section to `cli/src/template/AGENTS.md`.
-- [ ] **T04** — Verify, commit as two work units (code, then template), and open the PR.
+- [x] **T04** — Verify, commit as two work units (code, then template), and open the PR. **Delivered by PR #12** (`fix(cli): retarget the retired Spec-Kit suggestions and teach the template the ODD worktree rule`, merged 2026-09-16); its files and body match the runtime retargets and generalized template worktree section.
 
 ## Acceptance criteria
 
@@ -133,11 +133,11 @@ Neither changed branch was executed end to end. Both fire only when session or m
 
 ## Progress
 
-T01–T03 complete and verified. The first draft was stopped once by a too-broad acceptance criterion authored by the parent (`grep -rn "/speckit" cli/src` without excluding `.specify/`); the criterion was corrected, not the implementation. Changes remain uncommitted.
+**Closed.** T01–T04 complete and delivered by PR #12 (`fix(cli): retarget the retired Spec-Kit suggestions and teach the template the ODD worktree rule`, merged 2026-09-16). The PR files and body match the implementation and verification above.
 
 ## Next step
 
-Commit the two work units (code, then template plus this record), then open the PR.
+None. PR #12 delivered the code, template, and task record.
 
 ## Rationale log
 

@@ -122,7 +122,7 @@ Mode: **off**. No test harness exists (zero test files, `npm test` exits 1). Fun
 - [x] **T01** — Add the engine module: the policy table, the marker injection for Markdown, gitignore, and JSON, the seed logic, and the owned-file copy with substitution and hashing.
 - [x] **T02** — Add `cli/src/commands/adopt.ts` with the surface above, and register it in `cli/src/index.ts`.
 - [x] **T03** — Extend `Manifest` with `excludedPaths` and teach `detectChanges` to honour it.
-- [ ] **T04** — Verify end to end on a synthetic fixture, then commit as reviewable work units and open the PR.
+- [x] **T04** — Verify end to end on a synthetic fixture, then commit as reviewable work units and open the PR. **Delivered by PR #13** (`feat(cli): add cortex adopt for existing projects`, merged 2026-09-17); its files and body match the adopt implementation and synthetic-fixture verification.
 
 ## Acceptance criteria, proven on a fixture
 
@@ -142,7 +142,7 @@ Then assert, with the literal output reported:
 
 ## Verification evidence
 
-T04 remains unchecked because the required second `--yes` invocation is refused by the
+T04 is complete and delivered by PR #13. The required second `--yes` invocation is refused by the
 dirty-tree safety rule after the first adoption; the idempotence run used `--yes --force`.
 
 ```text
@@ -316,11 +316,11 @@ snapshot después: 3f82941fd0521018869f49ff54746693
 
 ## Progress
 
-T01–T03 complete, plus the three review findings above, all verified. T04's commits and PR remain.
+**Closed.** T01–T04 complete and delivered by PR #13 (`feat(cli): add cortex adopt for existing projects`, merged 2026-09-17). The PR files and body match the implementation and verification above.
 
 ## Next step
 
-Commit the work units and open the PR.
+None. PR #13 delivered the work units and opened the PR.
 
 ## Rationale log
 

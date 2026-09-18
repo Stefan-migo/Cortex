@@ -61,7 +61,7 @@ Mode: **off**. This change touches only Markdown instruction files; there is no 
 - [x] **T01** — Root surfaces: remove every `/speckit.*` reference from `AGENTS.md`, `.opencode/agents/cortex-planner.md`, and `.opencode/agents/cortex-developer.md`, replacing each with the real command that exists.
 - [x] **T02** — Template surfaces: apply the identical treatment to `cli/src/template/AGENTS.md`, `cli/src/template/.opencode/agents/cortex-planner.md`, and `cli/src/template/.opencode/agents/cortex-developer.md`, keeping the template consistent with the root.
 - [x] **T03** — Template documentation: apply the identical treatment to `cli/src/template/SYSTEM-MAP.md` and `cli/src/template/USER-GUIDE.md`.
-- [ ] **T04** — Verify, commit as two reviewable work units (root, then template), and open the PR.
+- [x] **T04** — Verify, commit as two reviewable work units (root, then template), and open the PR. **Delivered by PR #11** (`docs: replace non-existent /speckit.* instructions with the installed SDD commands`, merged 2026-09-16); its files and body match the eight documented instruction surfaces.
 
 ## Acceptance criteria
 
@@ -273,11 +273,11 @@ Result: **pass** — every concrete command shown is in the verified installed s
 
 ## Progress
 
-Worktree created and provisioned by the current CLI; it was born with `cli/node_modules` already present, which dogfoods the `provision-cli-deps` fix merged today.
+Worktree created and provisioned by the current CLI; it was born with `cli/node_modules` already present, which dogfoods the `provision-cli-deps` fix merged today. PR #11 delivered T01–T04; its files and body match the implementation and verification above.
 
 ## Next step
 
-T04.
+None. PR #11 delivered the root and template instruction surfaces.
 
 ## Rationale log
 

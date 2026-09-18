@@ -44,7 +44,7 @@ Mode: **off** (resolved from project configuration `AGENTS.md`: no test harness 
 
 - [x] **T01** — In `provisionWorktree`, add `installDependencies(join(target, 'cli'));` immediately after the `.opencode/tools` install.
 - [x] **T02** — Verify: `npm run typecheck` and `npm run build` in `cli/`, then create a scratch worktree with the **rebuilt** CLI and assert that `cli/node_modules` exists in it and that `npm run typecheck` runs there with no manual `npm ci`. Then clean the scratch worktree up.
-- [ ] **T03** — Commit as reviewable work units and open the PR.
+- [x] **T03** — Commit as reviewable work units and open the PR. **Delivered by PR #10** (`fix(worktree): install cli dependencies when provisioning`, merged 2026-09-16); its files and body match the added CLI install and provisioning-cycle verification.
 
 ## Acceptance criteria
 
@@ -104,11 +104,11 @@ Cleanup needed no manual intervention, which also confirms that installing into 
 
 ## Progress
 
-T01 and T02 complete and evidenced above. T03's commit and PR are the immediate next action.
+**Closed.** T01–T03 complete and delivered by PR #10 (`fix(worktree): install cli dependencies when provisioning`, merged 2026-09-16). The PR files and body match the implementation and verification above.
 
 ## Next step
 
-Commit and open the PR. After the merge: rebuild `cli/dist/` in main, then run the graph refresh with the squashed SHA.
+None. PR #10 delivered the change. After the merge, rebuild `cli/dist/` in main and run the graph refresh with the squashed SHA.
 
 ## Rationale log
 
