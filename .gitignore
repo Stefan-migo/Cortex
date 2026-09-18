@@ -16,7 +16,7 @@ node_modules/
 # cortex-init.sh install artifacts (generated per project)
 /cortex-init.sh.bak-*
 /.opencode/commands/
-/.opencode/skills/cortex-*
+/.opencode/skills/rapso-*
 /.opencode/skills/ponytail-*
 
 # Secrets

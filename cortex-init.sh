@@ -67,12 +67,12 @@ link_skill() {
   fi
 }
 
-link_skill "cortex-persona"
+link_skill "rapso-persona"
 link_skill "ponytail-plan"
 for s in ponytail-review ponytail-audit ponytail-debt ponytail-help; do
   link_skill "$s"
 done
-link_skill "cortex-session"
+link_skill "rapso-session"
 
 echo ""
 
@@ -156,34 +156,34 @@ gentle-ai:persona
 ## Rules
 
 - Never add "Co-Authored-By" or AI attribution to commits. Use conventional commits only.
-- This project uses the Cortex skill pack. `cortex-persona` is linked into `.opencode/skills/`,
+- This project uses the Cortex skill pack. `rapso-persona` is linked into `.opencode/skills/`,
   so it appears in the session's skill list and the skill-loading check below applies to it.
-- For detailed persona rules, see .opencode/skills/cortex-persona/SKILL.md
+- For detailed persona rules, see .opencode/skills/rapso-persona/SKILL.md
 
 ## Contextual Skill Loading (MANDATORY)
 
 The session's skill list is authoritative. Before responding, check whether the request matches a
 listed skill and read that skill's `SKILL.md` first; load
-`.opencode/skills/cortex-persona/SKILL.md` at the start of every session. That skill defines:
+`.opencode/skills/rapso-persona/SKILL.md` at the start of every session. That skill defines:
 - Senior architect identity (Rioplatense Spanish in chat, English in artifacts)
 - Ponytail over-engineering rules (YAGNI → stdlib → native → one line → minimum)
 - 5-Step Execution Gate (Graph Check → Atomic Commit → Verify → Spec Check → Finalize)
 - Graphify knowledge graph integration
 - Graphify before code work; Ponytail rules while writing code (ODD's Implement step)
-- See cortex-persona/SKILL.md → "SDD Pipeline Integration" section
+- See rapso-persona/SKILL.md → "SDD Pipeline Integration" section
 
 ## Skills
 
 | Command | What it does |
 |---------|-------------|
-| `/cortex-session` | Planning sessions with automatic decision capture to Engram |
+| `/rapso-session` | Planning sessions with automatic decision capture to Engram |
 | `/ponytail-plan` | Review plans/designs/tasks for over-engineering |
 | `/ponytail-review` | Review code diff for over-engineering |
 | `/ponytail-audit` | Audit full repo for bloat |
 | `/ponytail-debt` | Harvest `ponytail:` shortcuts into a debt ledger |
 | `/ponytail-help` | Quick-reference card for all ponytail commands |
 PERSONA
-  echo "  ✅ AGENTS.md creado con referencia a cortex-persona"
+  echo "  ✅ AGENTS.md creado con referencia a rapso-persona"
 else
   echo "  ✅ AGENTS.md ya existe — no se sobreescribe"
 fi
@@ -207,7 +207,7 @@ cortex_src = os.environ['CORTEX_SRC']
 reg_path = os.environ['SKILL_REGISTRY_FILE']
 
 registry = []
-for name in ['cortex-persona', 'cortex-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help', 'ponytail-plan']:
+for name in ['rapso-persona', 'rapso-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help', 'ponytail-plan']:
     skill_file = os.path.join(skills_base, name, 'SKILL.md')
     if os.path.exists(skill_file):
         registry.append({
@@ -290,7 +290,7 @@ echo ""
 echo "Comandos rápidos:"
 echo "  graphify . --watch     → mantener grafo actualizado"
 echo "  graphify query \"...\"   → consultar el grafo"
-echo "  /cortex-session        → sesión de planeamiento con captura automática"
+echo "  /rapso-session         → sesión de planeamiento con captura automática"
 echo "  /ponytail-plan         → revisar sobreingeniería en planes/diseños/tareas"
 echo "  /ponytail-review       → revisar sobreingeniería"
 echo "  /ponytail-audit        → auditar bloat del repo"

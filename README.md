@@ -45,7 +45,7 @@ Run `rapso <command> --help` for command-specific options. Run `rapso worktree -
 
 ## Included skill pack
 
-The repository also contains the skill pack used by generated projects. It provides the `cortex-persona` and `cortex-session` skills, Ponytail review skills, Graphify integration, Engram memory guidance, and the five-step execution gate. The CLI is the supported installation path for the project files; the skill pack is maintained here as the template content that Rapsodia manages.
+The repository also contains the skill pack used by generated projects. It provides the `rapso-persona` and `rapso-session` skills, Ponytail review skills, Graphify integration, Engram memory guidance, and the five-step execution gate. The CLI is the supported installation path for the project files; the skill pack is maintained here as the template content that Rapsodia manages.
 
 ## License
 

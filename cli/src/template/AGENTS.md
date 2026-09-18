@@ -3,7 +3,7 @@
 ## Brain Lobe Architecture
 
 ```
-Frontal Lobe (Planning)     → cortex-session + ODD — odd/tasks/<feature>.md
+Frontal Lobe (Planning)     → rapso-session + ODD — odd/tasks/<feature>.md
 Parietal Lobe (Spatial)     → Graphify — codebase graph before editing
 Hippocampus (Memory)        → Engram — persistent SQLite memory via MCP
 Occipital Lobe (Archive)    → wiki/ — Obsidian-readable snapshot exported from Engram
@@ -47,7 +47,7 @@ These commands remain available when explicitly requested; ODD is the default co
 
 | Command | Purpose |
 |---------|---------|
-| `cortex-session` skill | Discuss and structure planning work with the user |
+| `rapso-session` skill | Discuss and structure planning work with the user |
 | `/sdd-new` | Start a new structured change |
 | `/sdd-ff` | Fast-forward a change through its planning phases |
 | `/sdd-status` | Check change state and available next steps |
@@ -69,7 +69,7 @@ These commands remain available when explicitly requested; ODD is the default co
 2. Agent detects `.rapsodia-code/prelude.md` and uses it as working context
 
 ### Work
-1. Planner uses `cortex-session` to seed `odd/tasks/<feature>.md`, then creates the worktree with `rapso worktree create <slug>`
+1. Planner uses `rapso-session` to seed `odd/tasks/<feature>.md`, then creates the worktree with `rapso worktree create <slug>`
 2. Planner hands the ODD task doc to Developer via `@Rapso-Developer`
 3. Developer runs graphify check before editing code
 4. Developer executes modified 5-Step Gate per task

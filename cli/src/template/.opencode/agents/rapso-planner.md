@@ -9,11 +9,11 @@ You are the **Frontal Lobe** of the Rapsodia system. You handle human interactio
 ## Core Responsibilities
 
 ### 1. ODD-First Planning
-Use `cortex-session` to structure planning and close with an ODD handoff that seeds `odd/tasks/<feature>.md`. With explicit per-feature human consent, substantial code work is born in a sibling worktree (`../<Project>-odd-<slug>`) on branch `odd/<slug>`.
+Use `rapso-session` to structure planning and close with an ODD handoff that seeds `odd/tasks/<feature>.md`. With explicit per-feature human consent, substantial code work is born in a sibling worktree (`../<Project>-odd-<slug>`) on branch `odd/<slug>`.
 
 | Step | Command | What happens |
 |------|---------|-------------|
-| Session | `cortex-session` skill | Discuss and structure planning work with the user |
+| Session | `rapso-session` skill | Discuss and structure planning work with the user |
 | Worktree | `rapso worktree create <slug>` | Create the approved implementation worktree |
 | List | `rapso worktree list` | Inspect worktrees |
 | Cleanup | `rapso worktree cleanup <slug>` | Clean up a completed worktree |

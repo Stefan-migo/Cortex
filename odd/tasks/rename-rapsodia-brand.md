@@ -75,8 +75,11 @@ command and identifier stem. This is the same split the codebase already used
    `template/.opencode/agents/rapso-planner.md:12,16`. **Skills PR.** Renaming a reference while
    the skill directory keeps its old name would break the reference. The directories live at
    `skills/cortex-persona` and `skills/cortex-session`, resolved by
-   `cli/src/engine/worktree.ts:43` (`CANONICAL_SKILLS`), and ~10 projects hold absolute symlinks
-   into them.
+   `cli/src/engine/worktree.ts:43` (`CANONICAL_SKILLS`). This document originally justified the
+   deferral with "~10 projects hold absolute symlinks into them". Measured on 2026-09-17, that is
+   false: the only links are **2 relative symlinks inside this repository's own gitignored
+   `.opencode/skills/`**, and no project outside the pack holds one. See
+   [Correction — the slice-3 blast radius](#correction--the-slice-3-blast-radius-2026-09-17).
 3. **`# cortex:start` / `# cortex:end` / `# Cortex managed entries`**
    (`cli/src/engine/adopt.ts:63,67,68`). These markers are already persisted in every adopted
    project's `.gitignore`. Renaming them makes `mergeGitignore` stop matching and append a
@@ -159,7 +162,54 @@ coupling. The plan is re-cut by **blast radius** instead:
 |---|---|---|
 | 1 (this) | The visible brand: `template/**` + `cli/src` user-facing strings + the `adopt.ts` coupling | None. No on-disk value changes. |
 | 2 | The on-disk state: flip `PROJECT_STATE_DIR_NAME` / `SESSIONS_DIR_NAME`, nest the session store, `.gitignore` rule, `.githooks/pre-commit` carve-out, with read-compat | Controlled read-compat |
-| 3 | The symlinks: `skills/cortex-persona` → `rapso-persona`, `skills/cortex-session` → `rapso-session`, `CANONICAL_SKILLS`, and repair the absolute symlinks in the ~10 Gen-1 projects | **Breaks symlinks — migrate explicitly**, in the order `lumat-agent` → the 10 Gen-1 projects → self last |
+| 3 | The skills: `skills/cortex-persona` → `rapso-persona`, `skills/cortex-session` → `rapso-session`, `CANONICAL_SKILLS`, `cortex-init.sh`'s hardcoded name list, and every reference in `template/**`, this repository's `AGENTS.md` and its tracked agents | **Local only.** Corrected 2026-09-17 — the ~10 Gen-1 projects holding absolute symlinks do not exist. Scope is this repository, plus one post-merge repair of its own 2 links. |
+
+### Correction — the slice-3 blast radius (2026-09-17)
+
+Slice 3 was deferred as "**Breaks symlinks — migrate explicitly**", in the order
+`lumat-agent` → the 10 Gen-1 projects → self last. That premise was never re-measured, and the
+filesystem does not support it:
+
+```
+$ find /home/stefan -maxdepth 9 -path '*/.opencode/skills/*' -type l -not -path '*/node_modules/*' | wc -l
+7
+$ find /home/stefan -maxdepth 9 -path '*/.opencode/skills/*' -type l | sort
+/home/stefan/Cortex/.opencode/skills/cortex-persona
+/home/stefan/Cortex/.opencode/skills/cortex-session
+/home/stefan/Cortex/.opencode/skills/ponytail-audit
+/home/stefan/Cortex/.opencode/skills/ponytail-debt
+/home/stefan/Cortex/.opencode/skills/ponytail-help
+/home/stefan/Cortex/.opencode/skills/ponytail-plan
+/home/stefan/Cortex/.opencode/skills/ponytail-review
+
+$ ls -la /home/stefan/repos/lumat-agent/.opencode/skills/cortex-session/
+-rw-r--r--. 1 stefan stefan 7057 Sep 12 11:06 SKILL.md      # a copy, not a symlink
+```
+
+What that shows:
+
+1. **No project outside this repository holds a link into `skills/`.** All 7 are local, and only
+   **2** belong to the skills being renamed. `lumat-agent`, the only other project carrying the
+   pack, tracks real copies — renaming the source directory cannot break it.
+2. **The two link styles are not inconsistent, so there is no installer defect to fix.**
+   `cortex-init.sh`'s `link_skill` (`cortex-init.sh:57-68`) builds `$src` from the absolute
+   `$CORTEX_PACK_DIR`; `canonicalSkillsRoot` (`cli/src/engine/worktree.ts:49`) emits a relative
+   `../../skills/<name>`. Each is correct for its own root — the relative form resolves only
+   inside the pack repository, and the absolute form is what lets an installed project track pack
+   updates. `worktree.ts` links at all only when the target already holds `skills/**`, which an
+   adopted project does not.
+3. **`lumat-agent` is a follow-up, not a blocker.** It keeps the old skill names until somebody
+   re-provisions it, and it holds copies, so nothing dangles in the meantime.
+4. **The `~/Cortex` lever (state document, exclusion 5) is where absoluteness actually costs
+   something.** Renaming the folder breaks **8** links, all on this machine: the 7 above plus
+   `/home/stefan/.local/bin/cortex`, this CLI's own shim. That is the real content of the deferral
+   — not "~8 across 10 projects", and not a reason to change the installer.
+
+This repository's own 2 links are the only thing the slice has to repair, and they are gitignored
+local artifacts, so the PR cannot carry them; `cortex-init.sh` recreates them after the merge.
+Creating the new links before the merge and deleting the old ones right after keeps the window at
+zero — a dangling `.opencode/skills/` entry is skipped by the skill registry rather than fatal.
+There is no cross-project migration step and no ordering constraint.
 
 ## Acceptance criteria
 

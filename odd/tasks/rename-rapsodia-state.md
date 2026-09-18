@@ -106,8 +106,11 @@ Out of scope for this slice, and recorded so it is not "helpfully" fixed:
    orphans the registry for every project at once, with no read path, so it gets its own change
    with its own migration. It keeps the value `.cortex` in this PR **on purpose**.
 2. **Renaming the `cortex-persona` / `cortex-session` skill directories** and `CANONICAL_SKILLS`
-   (`cli/src/engine/worktree.ts:43`). Slice 3. Their ~10 Gen-1 absolute symlinks break
-   physically, which is exactly why they get their own PR.
+   (`cli/src/engine/worktree.ts:43`). Slice 3, its own PR. The deferral reason recorded here
+   ("their ~10 Gen-1 absolute symlinks break physically") was measured on 2026-09-17 and does not
+   hold: the only links are 2 relative symlinks inside this repository's own gitignored
+   `.opencode/skills/`, and `lumat-agent` holds copies rather than links. The commands and output
+   live in the correction section of `odd/tasks/rename-rapsodia-brand.md`.
 3. **`# cortex:start` / `# cortex:end` / `# Cortex managed entries`** (`cli/src/engine/adopt.ts:63,67,68`)
    and **`__managed_by: 'cortex'`** (`adopt.ts:80,81`). Persisted markers in every adopted
    project. Renaming them stops `mergeGitignore` from matching and appends a duplicate managed
@@ -115,8 +118,10 @@ Out of scope for this slice, and recorded so it is not "helpfully" fixed:
 4. **`## Reporting Cortex Defects`** (`cli/src/template/AGENTS.md:134`, `cli/src/engine/adopt.ts:40,43`)
    and **`cli/src/utils/defect.ts`**. They name the repository, which is still `Cortex` and stays
    that way. **Keep.**
-5. **Renaming the local folder `~/Cortex`.** Breaks ~8 absolute symlinks across 10 projects
-   silently. Deferrable lever. **Keep.**
+5. **Renaming the local folder `~/Cortex`.** Measured 2026-09-17: it breaks **8** links and all of
+   them are on this machine — the 7 skill links in this repository's `.opencode/skills/` plus
+   `/home/stefan/.local/bin/cortex`, the CLI's own shim. No other project links into the folder,
+   so "~8 across 10 projects" overstated it. It stays deferred as a lever, not as a hazard. **Keep.**
 6. **`wiki/**` and `odd/**`.** Historical engram exports and recorded evidence. Rewriting them
    would falsify the record. **Do not touch.**
 7. **`openspec/**`.** Untracked; synced in `main` at close.

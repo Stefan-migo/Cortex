@@ -1,6 +1,6 @@
 ---
-name: cortex-session
-description: "Trigger: discuss, analicemos, brainstorm, planeemos, cotización, session, cortex-session. Structured planning sessions with automatic decision capture for architecture discussions, requirement analysis, quotes, and pre-ODD work."
+name: rapso-session
+description: "Trigger: discuss, analicemos, brainstorm, planeemos, cotización, session, rapso-session. Structured planning sessions with automatic decision capture for architecture discussions, requirement analysis, quotes, and pre-ODD work."
 license: MIT
 metadata:
   author: Stefan-migo
@@ -10,7 +10,7 @@ source: github.com/Stefan-migo/cortex
 
 ## When to Load
 
-Load when entering **planning mode** — discussing architecture, analyzing requirements, building proposals, estimating, brainstorming, or any conversation where decisions are being made. Invoke explicitly via `/cortex-session` or when the conversation shifts to planning.
+Load when entering **planning mode** — discussing architecture, analyzing requirements, building proposals, estimating, brainstorming, or any conversation where decisions are being made. Invoke explicitly via `/rapso-session` or when the conversation shifts to planning.
 
 Do NOT load during ODD task implementation or quick Q&A.
 
