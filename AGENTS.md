@@ -1,4 +1,4 @@
-# Cortex 2.5 — Tool-Driven Executive Reasoning
+# Rapsodia 2.5 — Tool-Driven Executive Reasoning
 
 ## Brain Lobe Architecture
 
@@ -65,11 +65,11 @@ These commands remain available when explicitly requested; ODD is the default co
 ## Session Flow
 
 ### Start (CLI handles this)
-1. `cortex start` → creates session, pre-loads context from Engram + Graphify, launches OpenCode
+1. `rapso start` → creates session, pre-loads context from Engram + Graphify, launches OpenCode
 2. Agent detects `.rapsodia-code/prelude.md` and uses it as working context
 
 ### Work
-1. Planner uses `rapso-session` to seed `odd/tasks/<feature>.md`, then creates the worktree with `cortex worktree create <slug>`
+1. Planner uses `rapso-session` to seed `odd/tasks/<feature>.md`, then creates the worktree with `rapso worktree create <slug>`
 2. Planner hands the ODD task doc to Developer via `@Cortex-Developer`
 3. Developer runs graphify check before editing code
 4. Developer executes modified 5-Step Gate per task
@@ -80,12 +80,12 @@ Step 1: GRAPH CHECK — query_graph before editing
 Step 2: ATOMIC COMMIT — one concern per commit, ≤5 files
 Step 3: VERIFY — lint + typecheck + tests (block on failure)
 Step 4: SPEC CHECK — /sdd-verify after completion
-Step 5: FINALIZE — mem_save + cortex close --message "<summary>"
+Step 5: FINALIZE — mem_save + rapso close --message "<summary>"
 ```
 
 ### End (Agent handles finalization)
 1. `@Cortex-Developer` calls mem_save for all discoveries
-2. `@Cortex-Developer` runs: bash("cortex close --message "<summary>"")
+2. `@Cortex-Developer` runs: bash("rapso close --message "<summary>"")
    → This calls mem_session_summary + wiki export + cleanup
 
 ## Active MCP Servers
@@ -130,22 +130,22 @@ Ponytail governs HOW code is written. It does not decide authorization, tracking
 
 ## ODD Worktrees
 
-During ODD's `Classify` step, substantial work means two or more meaningful implementation steps or progress worth recovering. Code work is born in a sibling worktree (`../Cortex-odd-<slug>`) on branch `odd/<slug>`, not in main. Human consent is explicit and per-feature before invoking `cortex worktree create`; `--yes` is only the consequence of that approval, never a shortcut around it. The ODD task doc `odd/tasks/<feature>.md` is committed on the branch and reaches main through the PR, so it must never live inside a `gentle-ai` managed block. After the merge, rebuild `cli/dist/` in main before dogfooding the CLI because `cli/dist/` is gitignored and the merge does not update it.
+During ODD's `Classify` step, substantial work means two or more meaningful implementation steps or progress worth recovering. Code work is born in a sibling worktree (`../<Project>-odd-<slug>`, where `<Project>` is the main worktree's directory name) on branch `odd/<slug>`, not in main. Human consent is explicit and per-feature before invoking `rapso worktree create`; `--yes` is only the consequence of that approval, never a shortcut around it. The ODD task doc `odd/tasks/<feature>.md` is committed on the branch and reaches main through the PR, so it must never live inside a `gentle-ai` managed block. After the merge, rebuild `cli/dist/` in main before dogfooding the CLI because `cli/dist/` is gitignored and the merge does not update it.
 
-## Reporting Cortex Defects
+## Reporting Rapsodia Defects
 
-Cortex is a tool you are USING, not the project you are working on.
+Rapsodia is a tool you are USING, not the project you are working on.
 
-When you identify a failure that belongs to Cortex itself — not to this project, its
+When you identify a failure that belongs to Rapsodia itself — not to this project, its
 configuration, or its environment — say so, and **suggest** opening an issue at
-https://github.com/Stefan-migo/Cortex/issues with the evidence: what you ran, what happened,
+https://github.com/Stefan-migo/rapsodia-code/issues with the evidence: what you ran, what happened,
 and the smallest reproduction you have.
 
-- Suggest only. Never open the issue, never run `gh`, and never write to the Cortex
+- Suggest only. Never open the issue, never run `gh`, and never write to the Rapsodia
   repository from a project workflow. The human decides.
 - Only for an identified defect. Do not speculate, and do not suggest an issue for expected
   refusals, for this project's own bugs, or for environment and dependency failures.
-- If you cannot tell whether the cause is Cortex, say that instead of filing.
+- If you cannot tell whether the cause is Rapsodia, say that instead of filing.
 
 ## graphify
 

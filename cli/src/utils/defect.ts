@@ -53,5 +53,5 @@ export function formatDefectReport(error: unknown, context: DefectContext): stri
     errorName: name,
     message: scrub(message, cwd),
   };
-  return `\nThis looks like a defect in Cortex, not a problem with your project.\nPlease search before opening an issue: https://github.com/Stefan-migo/Cortex/issues\nReport it here: https://github.com/Stefan-migo/Cortex/issues/new\nThe CLI is offline and will not call GitHub. The payload below is already scrubbed; review it before pasting.\n\n${JSON.stringify(payload, null, 2)}\n`;
+  return `\nThis looks like a defect in Rapsodia, not a problem with your project.\nPlease search before opening an issue: https://github.com/Stefan-migo/rapsodia-code/issues\nReport it here: https://github.com/Stefan-migo/rapsodia-code/issues/new\nThe CLI is offline and will not call GitHub. The payload below is already scrubbed; review it before pasting.\n\n${JSON.stringify(payload, null, 2)}\n`;
 }
