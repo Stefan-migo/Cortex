@@ -1,6 +1,6 @@
 # ODD Tasks — rename-rapsodia-repo
 
-Worktree: `/home/stefan/Cortex-odd-rename-rapsodia-repo`
+Worktree: `/home/stefan/rapsodia-code-odd-rename-rapsodia-repo`
 Branch: `odd/rename-rapsodia-repo`
 Base: `23a1881`
 TDD: OFF — this repository has no test harness (`npm test` exits 1: "No test files found").
@@ -55,6 +55,50 @@ cortex-init.sh` → **38 occurrences across 9 files**. Of those, the following a
 | `cli/README.md` | L38 | issue-tracking URL |
 | `commands/cortex-init.md` | L27 | see T07 — independent defect |
 
+## Scope expansion (2026-09-18)
+
+The measurement above was **incomplete**, and so was the first correction of it. The original
+`grep -rn "Cortex"` is **case-sensitive**, and its path list omitted `scripts/`, `skills/`, and
+`docs/`. Lowercase references such as `cortex close` and `cortex worktree create`, and whole
+directories, were therefore invisible. A repo-wide case-insensitive scan is the corrected
+measurement.
+
+The remaining work was split into four buckets. Only Bucket 1 belongs to this work unit.
+
+**Bucket 1 — prose and stale commands (this work unit).** Human-facing `Cortex` prose, plus
+commands and paths that are now factually wrong because the binary is `rapso`:
+
+| File | What changed |
+|---|---|
+| `AGENTS.md` | H1 → `Rapsodia 2.5`; `cortex start` / `cortex close` / `cortex worktree create` → `rapso …`; worktree pattern `../Cortex-odd-<slug>` → `../<Project>-odd-<slug>` |
+| `commands/cortex-init.md` | prose only |
+| `cortex-init.sh` | human-facing prose only |
+| `scripts/setup.sh`, `rollback.sh`, `install-deps.sh`, `backup.sh`, `cortex-sync.sh`, `migrate-wiki-to-engram.sh`, `engram-export-wiki.sh` | prose only |
+| `skills/rapso-persona/SKILL.md` | all 14 refs: identity, defect heading, defect prose, URLs, `source:` |
+| `skills/rapso-session/SKILL.md` | only `source:` and the `(Cortex memory standard)` parenthetical |
+| `docs/COMPETITIVE-ANALYSIS.md`, `DESIGN.md` | prose only |
+| `cli/scripts/generate-retrospective.sh` | stale `cortex close` → `rapso close` |
+
+**Bucket 2 — agent identity (deferred to its own change).** `@Cortex-Planner` / `@Cortex-Developer`
+in `AGENTS.md` and `skills/rapso-session/SKILL.md`, the `agent` keys in `opencode.json`, and the
+tracked `.opencode/agents/cortex-{planner,developer}.md` filenames with their contents. These
+cannot be renamed alone: `AGENTS.md` would point at agents that `opencode.json` does not define.
+The root files are a stale copy of `cli/src/template/**`, which already ships `rapso-*`, so this is
+a sync rather than new authoring. It requires an OpenCode restart, because agent keys are read at
+session start.
+
+**Bucket 3 — command names and identifiers (deferred to its own decision).** The filenames
+`cortex-init.sh`, `commands/cortex-init.md`, and `scripts/cortex-sync.sh` define the user-visible
+command `/cortex-init`; renaming them changes an API, not prose. Also the internal identifiers
+`CORTEX_PACK_DIR`, `CORTEX_SRC`, `CORTEX_WORKTREE_PROVISION`, `cortex_dir`, `_cortex_mcp_tmp.json`,
+and `cortexVersion` in `cli/src/utils/defect.ts`.
+
+**Bucket 4 — deliberate compatibility (never renamed).** `cli/src/utils/state.ts`
+(`GLOBAL_STATE_DIR_NAME = '.cortex'`, `LEGACY_SESSIONS_DIR_NAME = '.cortex-sessions'`), the
+`# Cortex managed entries` / `# cortex:start` / `# cortex:end` markers and `__managed_by: 'cortex'`
+in `cli/src/engine/adopt.ts`, the `cortex-session/*` Engram topic keys, and
+`scripts/migrate-wiki-to-engram.sh`'s `PROJECT="cortex-plugin"`.
+
 ## Exclusions
 
 Recorded so they are not "helpfully" renamed. Every one of these is compared against content that
@@ -104,12 +148,14 @@ identity rename to `cli/src/template/**` only. It also requires an OpenCode rest
 ## Sequencing
 
 1. **This work unit** (worktree + PR): the reviewable source changes above.
-2. **GitHub rename** `Stefan-migo/Cortex` → `Stefan-migo/rapsodia-code`. **Decided 2026-09-17: the
-   human performs this rename manually before implementation resumes.** It is not executed from this
-   worktree and not delegated to the agent. T02–T06 stay blocked until the human confirms it is done.
+2. **GitHub rename** `Stefan-migo/Cortex` → `Stefan-migo/rapsodia-code`. **Done 2026-09-18 by the
+   human, manually.** The old URL redirects and `git fetch` still resolves, so nothing broke.
+   T02–T06 are unblocked. The local `origin` URL was deliberately left on the old name: Engram
+   derives the project from the local remote, and updating it would split the persisted `cortex`
+   memory project.
 3. **Folder rename in `main`, with zero registered worktrees.** `git worktree` stores its gitdir by
-   absolute path, so renaming the main with live sibling worktrees breaks them. Measured
-   blast radius for the folder move:
+   absolute path, so renaming the main with live sibling worktrees breaks them. **Done 2026-09-18:
+   `/home/stefan/Cortex` → `/home/stefan/rapsodia-code`.** Measured blast radius for the folder move:
    - 6 symlinks pointing into the folder — 5 `ponytail-*` under the repo's gitignored
      `.opencode/skills/` (recreated by `cortex-init.sh`) and `~/.local/bin/cortex` (one `ln -sf`).
      The earlier "~8 absolute symlinks across 10 projects" premise was measured as 6 in 1 project.
@@ -117,27 +163,32 @@ identity rename to `cli/src/template/**` only. It also requires an OpenCode rest
    - `graphify-out/.graphify_root` contains `.` and `graph.json` has **0** absolute-path fields —
      verified; a `graphify update` refresh is a nicety, not a repair.
    - `.atl/skill-registry.md` is generated and must be regenerated.
+   **Outcome:** the 5 `ponytail-*` links were re-pointed to relative `../../skills/...`; the
+   `~/.local/bin/cortex` shim and the `~/.npm-global` links were converged to `rapso`. No `cortex`
+   shim remains. `.atl/skill-registry.md` was regenerated.
 
 ## Tasks
 
-- [ ] **T01** — `cli/src/engine/adopt.ts`: teach the defect-section matcher the legacy heading.
+- [x] **T01** — `cli/src/engine/adopt.ts`: teach the defect-section matcher the legacy heading.
       `markdownSections` must emit the **new** heading while `injectSections` treats either the new
       or the legacy heading as already satisfied. Add a named legacy-alias constant rather than an
       inline string, so the excluded-marker list stays in one place.
-- [ ] **T02** — `cli/src/template/AGENTS.md`: rename the heading to `## Reporting Rapsodia Defects`,
+- [x] **T02** — `cli/src/template/AGENTS.md`: rename the heading to `## Reporting Rapsodia Defects`,
       update the prose and the issue URL.
-- [ ] **T03** — root `AGENTS.md`: same heading, prose and URL as T02, keeping the two files in sync
+- [x] **T03** — root `AGENTS.md`: same heading, prose and URL as T02, keeping the two files in sync
       (T02 is the template that `adopt` reads).
-- [ ] **T04** — `cli/src/utils/defect.ts:56`: defect prose and both issue URLs.
-- [ ] **T05** — `cli/package.json`: `repository.url`, `homepage`, `bugs.url`.
-- [ ] **T06** — `README.md:5` and `cli/README.md:38`: the identity sentence and the issue URL.
-- [ ] **T07** — `commands/cortex-init.md:27`: the line
+- [x] **T04** — `cli/src/utils/defect.ts:56`: defect prose and both issue URLs.
+- [x] **T05** — `cli/package.json`: `repository.url`, `homepage`, `bugs.url`.
+- [x] **T06** — `README.md:5` and `cli/README.md:38`: the identity sentence and the issue URL.
+- [x] **T07** — `commands/cortex-init.md:27`: the line
       `` - `cortex-init.sh` is the single entry point — lives at `/home/stefan/Cortex/cortex-init.sh` ``
       hardcodes the author's absolute home path in a **tracked, published** file that is installed
       globally and into every project. It is wrong for every other user today, independently of any
       rename. Remove the absolute path; keep the entry-point statement.
-- [ ] **T08** — Observable checks (see ## Checks), and confirm no in-scope `Cortex` identity
-      reference remains.
+- [x] **T08** — Observable checks (see ## Checks). Checks 1–3 and 5 pass. Check 4 (`rg -n 'Cortex'`)
+      now returns only the Bucket 2, 3, and 4 items catalogued in ## Scope expansion: the agent
+      identities, the `cortex-init` / `cortex-sync` names, and the deliberate compatibility keys.
+      Bucket 1 is complete; the acceptance criterion is fully met only once Buckets 2 and 3 land.
 
 ## Checks
 
@@ -166,9 +217,19 @@ All commands are run from this worktree; report the real output, never an inferr
   implementation resumes. The agent does not perform the remote rename and is not authorized to.
 - **2026-09-17 — decision still open:** the agent-identity convergence under ## Deferred is
   unanswered.
-- **2026-09-17 — session paused for continuation the next day.** This doc is **uncommitted** in the
-  worktree `../Cortex-odd-rename-rapsodia-repo` on branch `odd/rename-rapsodia-repo`; no commit was
-  requested and none was made. Resume by reading this file and its mirror at Engram topic
+- **2026-09-18 — the doc is committed, not uncommitted.** It lives on `odd/rename-rapsodia-repo` as
+  `3a585de`; the old worktree was closed (so the folder rename had zero registered worktrees) and a
+  new one was created at `../rapsodia-code-odd-rename-rapsodia-repo`. Mirror: Engram topic
   `odd/rename-rapsodia-repo/tasks`.
-- **Next step** — after the human confirms the GitHub rename is done, land T01 (matcher alias)
-  **before** T02/T03, then T04–T07, then T08's observable checks.
+- **2026-09-18 — both blocking renames are done** (## Sequencing 2 and 3). T02–T06 are unblocked.
+- **2026-09-18 — T01–T07 and Bucket 1 implemented and verified.** `npm run typecheck` exit 0,
+  `npm run build` exit 0. The acceptance scenario was run against a throwaway target, not inferred:
+  a project carrying `## Reporting Cortex Defects` got `Injected (2)` with its `AGENTS.md`
+  untouched, and a fresh project got `Injected (3)` with the new heading.
+- **2026-09-18 — scope corrected (see ## Scope expansion).** The original measurement was
+  case-sensitive and omitted `scripts/`, `skills/`, and `docs/`. Bucket 1 was completed against a
+  repo-wide case-insensitive scan. A final scan leaves `cortex` in exactly ten tracked files, and
+  every remaining hit is Bucket 2, Bucket 3, or Bucket 4.
+- **Next step** — Bucket 2 (agent identity: `opencode.json` + `.opencode/agents/cortex-*.md` + the
+  `@Cortex-*` references), then Bucket 3 (the `cortex-init` / `cortex-sync` command names and the
+  internal identifiers).
