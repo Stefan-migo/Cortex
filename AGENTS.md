@@ -119,6 +119,36 @@ Save to Engram immediately when you encounter:
 - Verify code changes with `npm run typecheck`, `npm run build`, and concrete manual shell scenarios. Report the exact commands and their real output — never infer a pass from intent.
 - NEVER commit secrets or credentials
 
+## Defect-Report Privacy Contract
+
+`cli/src/utils/defect.ts` builds a payload the CLI invites a user to paste into a **public GitHub
+issue**, and `gga` reviews that file as a whole. This is the bounded contract it must satisfy, so a
+review has a finite bar instead of an open-ended privacy demand.
+
+`scrub` **must** redact:
+
+- Credentials in named assignments — `--flag=value`, `--flag value`, and `NAME=value` — when the name
+  carries a credential word (`token`, `secret`, `password`, `passwd`, `pass`, `pwd`, `apikey`,
+  `privatekey`, `auth`, `credential`, `credentials`, `creds`) as any `-`/`_`-separated segment. A
+  quoted value counts as the whole value.
+- The credential following an auth scheme (`Bearer`, `Token`, `Basic`, optionally after
+  `Authorization:`). The scheme keyword stays visible; the credential does not.
+- Absolute paths, and the `cwd`/`HOME` prefixes, as a whitespace-delimited value, as the value of a
+  named assignment, or embedded in a quoted value.
+- The path, query and fragment of every scheme URL (`https://…`, `file://…`).
+
+`scrub` deliberately **does not** redact, and a review must not require it to:
+
+- **The scheme and host of a URL.** That is the endpoint, and the endpoint is the diagnostic the
+  report exists to carry. Full URL redaction was considered and rejected.
+- **A value shorter than 8 characters after an auth scheme, or any word of ordinary prose.** The
+  length gate is what keeps "the token file is missing" readable. It is a deliberate false negative,
+  not an oversight.
+- **Unmarked secrets.** A bare credential with no name, no auth scheme and no URL is out of scope.
+
+The report string must stay honest: it may say the payload was scrubbed on a best-effort basis, and
+must never claim the payload is "already scrubbed".
+
 ## Ponytail — Post-Write Simplification Check
 
 Ponytail operates on code that already exists and asks whether the same behavior can be expressed more simply. It never decides whether a feature should exist, which dependency gets added, which pattern is used, or how the system is structured.
