@@ -132,6 +132,30 @@ Ponytail operates on code that already exists and asks whether the same behavior
 
 During ODD's `Classify` step, substantial work means two or more meaningful implementation steps or progress worth recovering. Code work is born in a sibling worktree (`../<Project>-odd-<slug>`, where `<Project>` is the main worktree's directory name) on branch `odd/<slug>`, not in main. Human consent is explicit and per-feature before invoking `rapso worktree create`; `--yes` is only the consequence of that approval, never a shortcut around it. The ODD task doc `odd/tasks/<feature>.md` is committed on the branch and reaches main through the PR, so it must never live inside a `gentle-ai` managed block. After the merge, rebuild `cli/dist/` in main before dogfooding the CLI because `cli/dist/` is gitignored and the merge does not update it.
 
+## Pull Request Policy
+
+This repository declares its own policy, and **it is the source of truth: where an installed generic
+skill contradicts what is written here, this repository wins.**
+
+What is actually enforced, measured rather than assumed:
+
+| Rule | Enforced by |
+|------|-------------|
+| Atomicity Gate — at most 5 staged files per commit | `.githooks/pre-commit` — hard block |
+| No direct code commits in the main worktree (only `.rapsodia-code/sessions/**` is exempt) | `.githooks/pre-commit` step 1b — hard block |
+| `gga` review of staged `*.go,*.mod,*.ts,*.tsx,*.yaml,*.json` | `.githooks/pre-commit` — blocks on failure |
+| Conventional commit messages | **Convention only** — there is no `commit-msg` hook |
+| Exactly one `type:*` label | **Convention only** — no CI |
+| Linked issue (`Closes #N`) | **Convention only** — no CI; issues are the human's to open |
+| PR body structure | `.github/PULL_REQUEST_TEMPLATE.md` — a review aid, not validated |
+
+- This repository has **no `.github/workflows`**. Never report a gate, check, or block that does not
+  exist here. When an installed skill asserts one, say so plainly instead of inventing it.
+- Skills such as `branch-pr` are **third-party defaults**, not this repository's policy. Do not patch
+  them locally to fit: policy belongs in this file, versioned with the code.
+- `shellcheck` is not installed in this environment. Use `bash -n` for shell syntax, and report it as
+  the check actually run.
+
 ## Reporting Rapsodia Defects
 
 Rapsodia is a tool you are USING, not the project you are working on.
