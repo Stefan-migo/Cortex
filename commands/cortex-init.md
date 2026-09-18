@@ -13,7 +13,7 @@ Bootstraps the Cortex skill pack into the current project.
 
 1. **Check prerequisites**: opencode + engram installed.
 2. **Delegate to sub-agent** with bash access to run `cortex-init.sh`:
-   - Links `cortex-persona` + `cortex-session` + `ponytail-*` skills to `.opencode/skills/`
+   - Links `rapso-persona` + `rapso-session` + `ponytail-*` skills to `.opencode/skills/`
    - Builds Graphify knowledge graph (`graphify-out/`)
    - Adds Graphify MCP server to `.opencode/opencode.json`
    - Creates `AGENTS.md` with persona reference
