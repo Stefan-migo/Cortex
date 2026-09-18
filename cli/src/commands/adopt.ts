@@ -30,8 +30,13 @@ export async function adoptCommand(path: string | undefined, options: AdoptOptio
   if (!options.yes && !options.dryRun && !(await promptYesNo(`Adopt Rapsodia into "${targetDir}"?`))) { info('Adoption cancelled.'); return; }
   const plan = adoptProject(targetDir, options, TEMPLATE_DIR);
   heading(options.dryRun ? 'Rapsodia Adoption Plan (dry run)' : 'Rapsodia Adoption');
-  for (const [label, items] of [['Created', plan.created], ['Refreshed', plan.refreshed], ['Conflicting', plan.conflicting], ['Injected', plan.injected], ['Seeded', plan.seeded], ['Skipped', plan.skipped]] as const) {
+  for (const [label, items] of [['Created', plan.created], ['Refreshed', plan.refreshed], ['Removed', plan.removed], ['Leftover', plan.leftover], ['Conflicting', plan.conflicting], ['Injected', plan.injected], ['Seeded', plan.seeded], ['Skipped', plan.skipped]] as const) {
     info(`${label} (${items.length}):`); items.forEach((item) => info(`  ${item}`));
+  }
+  if (plan.leftover.length > 0) {
+    // Report the outcome, never prescribe it: these paths are the project's own, and no flag
+    // overwrites them. The human decides what to do with the retired identity left behind.
+    warn(`${plan.leftover.length} retired path(s) kept because their content differs from what Rapsodia wrote.`);
   }
   if (plan.conflicting.length > 0) {
     // Report the outcome, never prescribe it: after a forced overwrite the conflicts are gone, so

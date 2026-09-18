@@ -1,9 +1,9 @@
 import { execFileSync } from 'child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { basename, dirname, join, relative, resolve } from 'path';
 import { collectFiles, hashFile, hashTemplateFile, substituteVariables, TemplateOptions } from './template';
 import { Manifest, ManifestFile } from './manifest';
-import { migrateLegacyState, sessionsDir, statePath, PROJECT_STATE_DIR_NAME } from '../utils/state';
+import { migrateLegacyState, resolveStatePath, sessionsDir, statePath, PROJECT_STATE_DIR_NAME } from '../utils/state';
 
 export const OWNED_PATHS = [
   '.opencode/agents/**', '.opencode/tools/**',
@@ -24,7 +24,24 @@ const RAPSO_IGNORE_ENTRIES = [
 /** Adopted projects may already carry this heading; matching it avoids duplicate defect sections. */
 const LEGACY_DEFECT_HEADING = '## Reporting Cortex Defects';
 
-export interface AdoptPlan { created: string[]; refreshed: string[]; conflicting: string[]; injected: string[]; seeded: string[]; skipped: string[]; }
+/**
+ * Agent identities this pack renamed. The key is the retired name, the value the one that
+ * replaced it. Both live in `agent` entries and in `.opencode/agents/<name>.md`, and adoption
+ * must retire both or the consumer runs two generations of the same agent.
+ */
+const LEGACY_AGENTS: Record<string, string> = {
+  'cortex-planner': 'rapso-planner',
+  'cortex-developer': 'rapso-developer',
+};
+
+/** The managed `.gitignore` block was marked with the retired name; rename the markers on sight. */
+const LEGACY_GITIGNORE_MARKERS: Array<[string, string]> = [
+  ['# cortex:start', '# rapso:start'],
+  ['# cortex:end', '# rapso:end'],
+];
+const GITIGNORE_HEADER = '# Rapsodia managed entries';
+
+export interface AdoptPlan { created: string[]; refreshed: string[]; removed: string[]; leftover: string[]; conflicting: string[]; injected: string[]; seeded: string[]; skipped: string[]; }
 
 interface AdoptOptions { dryRun?: boolean; yes?: boolean; force?: boolean; }
 
@@ -67,18 +84,25 @@ function injectMarked(content: string, start: string, end: string, block: string
 }
 
 function mergeGitignore(content: string): { content: string; changed: boolean } {
-  const marked = content.match(/# cortex:start[\s\S]*?# cortex:end/)?.[0] || '';
-  const outside = content.replace(marked, '');
+  // Rename the retired markers before looking for the block: an already-adopted file carries the
+  // new pair, an unmigrated one the old, and a matcher that knows only one form would append a
+  // second block instead of maintaining the one that exists.
+  let renamed = content;
+  for (const [from, to] of LEGACY_GITIGNORE_MARKERS) renamed = renamed.split(from).join(to);
+  const marked = renamed.match(/# rapso:start[\s\S]*?# rapso:end/)?.[0] || '';
+  const outside = renamed.replace(marked, '');
   const existingOutside = new Set(outside.split(/\r?\n/).map((line) => line.trim()));
   const entries = RAPSO_IGNORE_ENTRIES.filter((entry) => !existingOutside.has(entry));
-  const block = ['# Cortex managed entries', ...entries].join('\n');
-  return injectMarked(content, '# cortex:start', '# cortex:end', block);
+  const block = [GITIGNORE_HEADER, ...entries].join('\n');
+  const result = injectMarked(renamed, '# rapso:start', '# rapso:end', block);
+  return { content: result.content, changed: result.content !== content };
 }
 
-function mergeJson(content: string, targetDir: string, templateDir: string): { content: string; changed: boolean } {
+function mergeJson(content: string, targetDir: string, templateDir: string, retireAgents: string[]): { content: string; changed: boolean; removed: string[] } {
   const current = JSON.parse(content || '{}') as Record<string, any>;
   const template = JSON.parse(readFileSync(join(templateDir, 'opencode.json'), 'utf-8')) as Record<string, any>;
   const before = JSON.stringify(current);
+  const removed: string[] = [];
   current.agent = current.agent || {};
   for (const name of ['rapso-planner', 'rapso-developer']) {
     const existing = current.agent[name] as Record<string, any> | undefined;
@@ -86,6 +110,17 @@ function mergeJson(content: string, targetDir: string, templateDir: string): { c
     // share our name is the project's, and silently replacing it would destroy configuration.
     if (existing && existing.__managed_by !== 'cortex') continue;
     current.agent[name] = { ...template.agent[name], __managed_by: 'cortex' };
+  }
+  // Retire the identity this pack superseded, but only for the names the caller proved safe to
+  // retire and only when the entry is provably ours and its replacement is present. A project
+  // agent that merely shares a retired name is never touched, and removing the config entry
+  // before the replacement exists would leave the project with no agent at all.
+  for (const legacy of retireAgents) {
+    const entry = current.agent[legacy] as Record<string, any> | undefined;
+    if (!entry || entry.__managed_by !== 'cortex') continue;
+    if (!current.agent[LEGACY_AGENTS[legacy]]) continue;
+    delete current.agent[legacy];
+    removed.push(`agent.${legacy}`);
   }
   current.mcp = current.mcp || {};
   for (const name of ['engram', 'graphify']) if (!(name in current.mcp)) current.mcp[name] = template.mcp[name];
@@ -104,7 +139,7 @@ function mergeJson(content: string, targetDir: string, templateDir: string): { c
     if (!found && existsSync(join(targetDir, plugin))) current.plugin.push(plugin);
   } else if (current.plugin === undefined && existsSync(join(targetDir, plugin))) current.plugin = [plugin];
   const output = JSON.stringify(current, null, 2) + '\n';
-  return { content: output, changed: JSON.stringify(current) !== before };
+  return { content: output, changed: JSON.stringify(current) !== before, removed };
 }
 
 function writeFile(path: string, content: string): void {
@@ -118,11 +153,15 @@ export function adoptProject(targetDir: string, options: AdoptOptions, templateD
   }
   const projectName = basename(targetDir) || 'project';
   const templateOptions: TemplateOptions = { projectName, projectType: 'default', date: getDate(), year: new Date().getFullYear().toString() };
-  const plan: AdoptPlan = { created: [], refreshed: [], conflicting: [], injected: [], seeded: [], skipped: [] };
-  const manifestPath = statePath(targetDir, 'manifest.json');
+  const plan: AdoptPlan = { created: [], refreshed: [], removed: [], leftover: [], conflicting: [], injected: [], seeded: [], skipped: [] };
+  const manifestWritePath = statePath(targetDir, 'manifest.json');
+  // Read through the legacy path too: a dry run does not migrate the state directory, so
+  // `.rapsodia-code/manifest.json` is absent until the real run renames it. Reading only the new
+  // path made the dry run report refreshed files as conflicting and hid every legacy hash.
+  const manifestReadPath = resolveStatePath(targetDir, 'manifest.json');
   let oldManifest: Manifest | undefined;
-  if (existsSync(manifestPath)) {
-    try { oldManifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as Manifest; }
+  if (manifestReadPath) {
+    try { oldManifest = JSON.parse(readFileSync(manifestReadPath, 'utf-8')) as Manifest; }
     catch { oldManifest = undefined; }
   }
   const oldHashes = new Map((oldManifest?.files || []).map((file) => [file.path, file.hash]));
@@ -145,27 +184,59 @@ export function adoptProject(targetDir: string, options: AdoptOptions, templateD
     }
   }
 
+  // A retired agent is safe to remove only when it is provably ours and its replacement is
+  // installed. Its file, when it has one, must still carry the bytes the legacy manifest
+  // recorded, which is the same evidence that decides `refreshed` above; a file that fails that
+  // check is the project's, and its config entry is kept with it, or the consumer would be left
+  // with a config entry and no file, or a file and no config entry.
+  const retireAgents: string[] = [];
+  for (const [legacy, replacement] of Object.entries(LEGACY_AGENTS)) {
+    const legacyFile = `.opencode/agents/${legacy}.md`;
+    const legacyPath = join(targetDir, legacyFile);
+    const replacementFile = `.opencode/agents/${replacement}.md`;
+    const replacementInstalled = existsSync(join(targetDir, replacementFile)) || plan.created.includes(replacementFile);
+    const fileUntouched = !existsSync(legacyPath) || oldHashes.get(legacyFile) === hashFile(legacyPath);
+    if (!replacementInstalled || !fileUntouched) {
+      if (existsSync(legacyPath)) plan.leftover.push(legacyFile);
+      continue;
+    }
+    if (existsSync(legacyPath)) {
+      plan.removed.push(legacyFile);
+      if (!options.dryRun) rmSync(legacyPath, { force: true });
+    }
+    retireAgents.push(legacy);
+  }
+
   const agentsPath = join(targetDir, 'AGENTS.md');
   const ignorePath = join(targetDir, '.gitignore');
   const configs = [join(targetDir, 'opencode.json'), join(targetDir, '.opencode/opencode.json')].filter((path) => existsSync(path));
   if (configs.length === 0) configs.push(join(targetDir, 'opencode.json'));
-  const merges: Array<[string, { content: string; changed: boolean }]> = [];
+  const merges: Array<[string, { content: string; changed: boolean; removed?: string[] }]> = [];
   merges.push([agentsPath, injectSections(existsSync(agentsPath) ? readFileSync(agentsPath, 'utf-8') : '', markdownSections(templateDir, templateOptions))]);
   merges.push([ignorePath, mergeGitignore(existsSync(ignorePath) ? readFileSync(ignorePath, 'utf-8') : '')]);
-  for (const path of configs) merges.push([path, mergeJson(existsSync(path) ? readFileSync(path, 'utf-8') : '', targetDir, templateDir)]);
+  for (const path of configs) merges.push([path, mergeJson(existsSync(path) ? readFileSync(path, 'utf-8') : '', targetDir, templateDir, retireAgents)]);
   for (const [path, result] of merges) {
     const label = relative(targetDir, path);
+    for (const name of result.removed ?? []) plan.removed.push(`${label} → ${name}`);
     if (!result.changed) plan.skipped.push(label);
     else { plan.injected.push(label); if (!options.dryRun) writeFile(path, result.content); }
   }
 
-  for (const [path, content] of [[join(sessionsDir(targetDir), '.gitignore'), '*\n'], [join(targetDir, 'odd/tasks/.gitkeep'), ''],] as const) {
-    if (existsSync(path)) plan.skipped.push(relative(targetDir, path));
+  const sessionsIgnore = join(sessionsDir(targetDir), '.gitignore');
+  // `migrateLegacyState` renames the legacy session store into the new one, so a legacy
+  // `.gitignore` already sits at the new path when this check runs. A dry run does not perform
+  // that rename, and must still not promise to create a file the real run leaves alone.
+  const legacySessionsIgnore = join(targetDir, '.cortex-sessions', '.gitignore');
+  for (const [path, content, present] of [
+    [sessionsIgnore, '*\n', existsSync(sessionsIgnore) || existsSync(legacySessionsIgnore)],
+    [join(targetDir, 'odd/tasks/.gitkeep'), '', existsSync(join(targetDir, 'odd/tasks/.gitkeep'))],
+  ] as const) {
+    if (present) plan.skipped.push(relative(targetDir, path));
     else { plan.seeded.push(relative(targetDir, path)); if (!options.dryRun) writeFile(path, content); }
   }
   if (!options.dryRun) {
     const files: ManifestFile[] = collectFiles(templateDir, templateDir).filter(isOwned).map((file) => ({ path: file, hash: hashTemplateFile(join(templateDir, file), templateOptions) }));
-    writeFile(manifestPath, JSON.stringify({ templateVersion: '1.0.0', createdAt: getDate(), projectName, files, excludedPaths: NEVER_PATHS }, null, 2) + '\n');
+    writeFile(manifestWritePath, JSON.stringify({ templateVersion: '1.0.0', createdAt: getDate(), projectName, files, excludedPaths: NEVER_PATHS }, null, 2) + '\n');
   }
   if (oldManifest) plan.skipped.push(join(PROJECT_STATE_DIR_NAME, 'manifest.json'));
   else plan.seeded.push(join(PROJECT_STATE_DIR_NAME, 'manifest.json'));
