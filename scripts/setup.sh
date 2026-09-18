@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ================================================================
-# Cortex — Project Setup
+# Rapsodia — Project Setup
 # ================================================================
-# Initializes the Cortex template for a new project.
+# Initializes the Rapsodia template for a new project.
 # The agent will handle AGENTS.md via the bootstrap skill.
 #
 # Usage:

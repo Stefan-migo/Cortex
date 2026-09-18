@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# rollback.sh — Restore cortex configuration from backup
+# rollback.sh — Restore Rapsodia configuration from backup
 # Usage: ./scripts/rollback.sh <name>
 #   Restores files from .rapsodia-code/backups/<name>/
 
