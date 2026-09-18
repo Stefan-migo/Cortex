@@ -118,13 +118,13 @@ Save to Engram immediately when you encounter:
 - Write tests alongside implementation
 - NEVER commit secrets or credentials
 
-## Ponytail — Code-Writing Discipline
+## Ponytail — Post-Write Simplification Check
 
-Ponytail governs HOW code is written. It does not decide authorization, tracking, or review.
+Ponytail operates on code that already exists and asks whether the same behavior can be expressed more simply. It never decides whether a feature should exist, which dependency gets added, which pattern is used, or how the system is structured.
 
-- Prefer the standard library or an already-installed dependency before adding a dependency.
-- Do not add an abstraction with one implementation and no second use.
-- When deletion and addition both work, delete.
+- Never remove, reduce, or alter behavior the task authorized. Report it as a finding instead; the human decides.
+- When deletion and addition both work and the authorized behavior stays identical, delete.
+- If the simpler form requires changing the design, dependencies, or structure, that is a finding for the human, not an edit.
 - Apply these rules during implementation only; they are not an approval checkbox, a receipt, a line-count target, or a replacement for RDD/native review.
 
 ## ODD Worktrees

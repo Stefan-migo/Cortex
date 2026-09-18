@@ -68,7 +68,8 @@ link_skill() {
 }
 
 link_skill "rapso-persona"
-link_skill "ponytail-plan"
+# ponytail-plan is deliberately not linked: it reviews plans, designs and task lists,
+# not written code. See odd/tasks/ponytail-post-write.md.
 for s in ponytail-review ponytail-audit ponytail-debt ponytail-help; do
   link_skill "$s"
 done
@@ -166,10 +167,10 @@ The session's skill list is authoritative. Before responding, check whether the 
 listed skill and read that skill's `SKILL.md` first; load
 `.opencode/skills/rapso-persona/SKILL.md` at the start of every session. That skill defines:
 - Senior architect identity (Rioplatense Spanish in chat, English in artifacts)
-- Ponytail over-engineering rules (YAGNI → stdlib → native → one line → minimum)
+- Ponytail post-write simplification check (stdlib → native → already-installed dependency → one line → minimum)
 - 5-Step Execution Gate (Graph Check → Atomic Commit → Verify → Spec Check → Finalize)
 - Graphify knowledge graph integration
-- Graphify before code work; Ponytail rules while writing code (ODD's Implement step)
+- Graphify before code work; Ponytail check after the code is written (ODD's Implement step)
 - See rapso-persona/SKILL.md → "SDD Pipeline Integration" section
 
 ## Skills
@@ -177,7 +178,6 @@ listed skill and read that skill's `SKILL.md` first; load
 | Command | What it does |
 |---------|-------------|
 | `/rapso-session` | Planning sessions with automatic decision capture to Engram |
-| `/ponytail-plan` | Review plans/designs/tasks for over-engineering |
 | `/ponytail-review` | Review code diff for over-engineering |
 | `/ponytail-audit` | Audit full repo for bloat |
 | `/ponytail-debt` | Harvest `ponytail:` shortcuts into a debt ledger |
@@ -207,7 +207,7 @@ cortex_src = os.environ['CORTEX_SRC']
 reg_path = os.environ['SKILL_REGISTRY_FILE']
 
 registry = []
-for name in ['rapso-persona', 'rapso-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help', 'ponytail-plan']:
+for name in ['rapso-persona', 'rapso-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help']:
     skill_file = os.path.join(skills_base, name, 'SKILL.md')
     if os.path.exists(skill_file):
         registry.append({
@@ -291,6 +291,5 @@ echo "Comandos rápidos:"
 echo "  graphify . --watch     → mantener grafo actualizado"
 echo "  graphify query \"...\"   → consultar el grafo"
 echo "  /rapso-session         → sesión de planeamiento con captura automática"
-echo "  /ponytail-plan         → revisar sobreingeniería en planes/diseños/tareas"
 echo "  /ponytail-review       → revisar sobreingeniería"
 echo "  /ponytail-audit        → auditar bloat del repo"
