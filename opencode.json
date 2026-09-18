@@ -5,7 +5,7 @@
     "DESIGN.md"
   ],
   "agent": {
-    "cortex-planner": {
+    "rapso-planner": {
       "mode": "primary",
       "model": "anthropic/claude-sonnet-4-20250514",
       "temperature": 0.3,
@@ -22,7 +22,7 @@
         "task": { "*": "allow" }
       }
     },
-    "cortex-developer": {
+    "rapso-developer": {
       "mode": "primary",
       "model": "anthropic/claude-sonnet-4-20250514",
       "temperature": 0.2,
