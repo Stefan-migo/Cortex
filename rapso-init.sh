@@ -56,7 +56,8 @@ mkdir -p "$PROJECT_DIR/.opencode/skills"
 
 link_skill() {
   local name="$1"
-  local src="$RAPSO_PACK_DIR/skills/$name"
+  # The skills live in the CLI template, the one store the published package ships.
+  local src="$RAPSO_PACK_DIR/cli/src/template/.opencode/skills/$name"
   local target="$PROJECT_DIR/.opencode/skills/$name"
   if [ -f "$src/SKILL.md" ]; then
     if [ -d "$target" ] && [ ! -L "$target" ]; then

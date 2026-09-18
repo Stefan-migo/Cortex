@@ -42,12 +42,13 @@ function commandAvailable(command: string): boolean {
 
 const CANONICAL_SKILLS = ['rapso-persona', 'rapso-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help'];
 
-// The canonical skills live in `<repo>/skills/` only in the Rapsodia pack repository. An adopted
-// project tracks its own copies under `.opencode/skills/` instead, and a project created by
-// `rapso init` has neither. Resolving the source against the new worktree produced links that
-// only resolved inside Rapsodia, after deleting whatever already occupied the destination.
+// The canonical skills live in the CLI template, because that is the only store the published
+// package ships. They used to live in `<repo>/skills/`, which `cli/package.json` never carried, so
+// a project created by `rapso init` received none of them. Resolving the source against the new
+// worktree produced links that only resolved inside Rapsodia, after deleting whatever already
+// occupied the destination.
 function canonicalSkillsRoot(root: string): string | null {
-  const canonical = join(root, 'skills');
+  const canonical = join(root, 'cli', 'src', 'template', '.opencode', 'skills');
   return CANONICAL_SKILLS.some((name) => existsSync(join(canonical, name, 'SKILL.md'))) ? canonical : null;
 }
 

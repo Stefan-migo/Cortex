@@ -47,7 +47,8 @@ sync_skills() {
   local -a pack_skills=(rapso-persona rapso-session ponytail-review ponytail-audit ponytail-debt ponytail-help)
   local -a installed=()
   for name in "${pack_skills[@]}"; do
-    src="$PACK_DIR/skills/$name"
+    # The skills live in the CLI template, the one store the published package ships.
+    src="$PACK_DIR/cli/src/template/.opencode/skills/$name"
     if [[ ! -f "$src/SKILL.md" ]]; then
       echo "    missing pack skill: $name"
       continue
