@@ -183,7 +183,7 @@ listed skill and read that skill's `SKILL.md` first; load
 | `/ponytail-debt` | Harvest `ponytail:` shortcuts into a debt ledger |
 | `/ponytail-help` | Quick-reference card for all ponytail commands |
 PERSONA
-  echo "  ✅ AGENTS.md creado con referencia a cortex-persona"
+  echo "  ✅ AGENTS.md creado con referencia a rapso-persona"
 else
   echo "  ✅ AGENTS.md ya existe — no se sobreescribe"
 fi
