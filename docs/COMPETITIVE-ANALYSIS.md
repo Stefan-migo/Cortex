@@ -1,14 +1,14 @@
-# Cortex 2.5 — Competitive Analysis
+# Rapsodia 2.5 — Competitive Analysis
 
-How Cortex 2.5 compares to the coding agent ecosystem after the Architecture 2.5 upgrade.
+How Rapsodia 2.5 compares to the coding agent ecosystem after the Architecture 2.5 upgrade.
 
 ---
 
-## Architecture Shift: Cortex 2.5 vs Prior Art
+## Architecture Shift: Rapsodia 2.5 vs Prior Art
 
-Cortex 2.5 collapses the old multi-agent bureaucracy (41 agents, 66 commands, 3 planning systems) into a **two-persona, four-lobe model** powered by three real tools:
+Rapsodia 2.5 collapses the old multi-agent bureaucracy (41 agents, 66 commands, 3 planning systems) into a **two-persona, four-lobe model** powered by three real tools:
 
-| Lobe | Cortex 2.5 | Prior Art |
+| Lobe | Rapsodia 2.5 | Prior Art |
 |------|-----------|-----------|
 | Planning | **Gentle AI SDD** | Replace GSD + Planning-with-Files |
 | Memory | **Engram** (Gentleman-Programming/engram, 3.3k★) | Replace file-based wiki memory |
@@ -17,7 +17,7 @@ Cortex 2.5 collapses the old multi-agent bureaucracy (41 agents, 66 commands, 3 
 
 ## Competitive Positioning
 
-Cortex 2.5's advantage is **vertical integration** of three independent open-source tools that other systems use only in isolation:
+Rapsodia 2.5's advantage is **vertical integration** of three independent open-source tools that other systems use only in isolation:
 
 - No other system combines Gentle AI SDD + Engram + Graphify
 - No other system has the 4-lobe brain metaphor as an architectural pattern
