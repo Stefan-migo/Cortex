@@ -1,13 +1,13 @@
 ---
-description: Bootstrap Cortex skill pack in a project — links skills, registers them, adds Graphify MCP, creates AGENTS.md
+description: Bootstrap Rapsodia skill pack in a project — links skills, registers them, adds Graphify MCP, creates AGENTS.md
 agent: gentle-orchestrator
 ---
 
 ## cortex-init
 
-Bootstraps the Cortex skill pack into the current project.
+Bootstraps the Rapsodia skill pack into the current project.
 
-**Note**: The global orchestrator prompt ships no Cortex-specific hook. This command links the Cortex skills into `.opencode/skills/`, so they appear in the session's skill list, and writes an `AGENTS.md` that declares the persona and the contextual skill-loading check.
+**Note**: The global orchestrator prompt ships no Rapsodia-specific hook. This command links the Rapsodia skills into `.opencode/skills/`, so they appear in the session's skill list, and writes an `AGENTS.md` that declares the persona and the contextual skill-loading check.
 
 ### What the orchestrator does
 
@@ -24,7 +24,7 @@ Bootstraps the Cortex skill pack into the current project.
 
 ### Notes
 
-- `cortex-init.sh` is the single entry point — lives at `/home/stefan/Cortex/cortex-init.sh`
+- `cortex-init.sh` is the single entry point.
 - **Idempotent**: safe to run multiple times. Already-installed skills and config are skipped.
 - Requires: graphify, gentle-ai
 

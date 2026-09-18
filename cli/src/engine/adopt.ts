@@ -21,6 +21,9 @@ const RAPSO_IGNORE_ENTRIES = [
   '*.pyo', '.pytest_cache/', '.ruff_cache/', '.mypy_cache/',
 ];
 
+/** Adopted projects may already carry this heading; matching it avoids duplicate defect sections. */
+const LEGACY_DEFECT_HEADING = '## Reporting Cortex Defects';
+
 export interface AdoptPlan { created: string[]; refreshed: string[]; conflicting: string[]; injected: string[]; seeded: string[]; skipped: string[]; }
 
 interface AdoptOptions { dryRun?: boolean; yes?: boolean; force?: boolean; }
@@ -38,16 +41,19 @@ function markdownSections(templateDir: string, options: TemplateOptions): Array<
   const source = substituteVariables(readFileSync(join(templateDir, 'AGENTS.md'), 'utf-8'), options);
   const gate = source.match(/### 5-Step Execution Gate \(MANDATORY\)[\s\S]*?(?=\n### |\n## |$)/)?.[0].trim();
   const worktrees = source.match(/## ODD Worktrees[\s\S]*?(?=\n## |$)/)?.[0].trim();
-  const defects = source.match(/## Reporting Cortex Defects[\s\S]*?(?=\n## |$)/)?.[0].trim();
+  const defects = source.match(/## Reporting Rapsodia Defects[\s\S]*?(?=\n## |$)/)?.[0].trim();
   return [
     ['## ODD Worktrees', worktrees],
-    ['## Reporting Cortex Defects', defects],
+    ['## Reporting Rapsodia Defects', defects],
     ['### 5-Step Execution Gate (MANDATORY)', gate],
   ].filter((section): section is [string, string] => Boolean(section[1]));
 }
 
 function injectSections(content: string, sections: Array<[string, string]>): { content: string; changed: boolean } {
-  const missing = sections.filter(([heading]) => !content.split(/\r?\n/).some((line) => line.trim() === heading));
+  const missing = sections.filter(([heading]) => !content.split(/\r?\n/).some((line) => {
+    const currentHeading = line.trim();
+    return currentHeading === heading || (heading === '## Reporting Rapsodia Defects' && currentHeading === LEGACY_DEFECT_HEADING);
+  }));
   if (missing.length === 0) return { content, changed: false };
   const suffix = missing.map(([, section]) => section).join('\n\n');
   return { content: `${content.replace(/\s*$/, '')}\n\n${suffix}\n`, changed: true };

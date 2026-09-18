@@ -5,12 +5,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Stefan-migo/Cortex.git",
+    "url": "https://github.com/Stefan-migo/rapsodia-code.git",
     "directory": "cli"
   },
-  "homepage": "https://github.com/Stefan-migo/Cortex#readme",
+  "homepage": "https://github.com/Stefan-migo/rapsodia-code#readme",
   "bugs": {
-    "url": "https://github.com/Stefan-migo/Cortex/issues"
+    "url": "https://github.com/Stefan-migo/rapsodia-code/issues"
   },
   "keywords": [
     "rapsodia",

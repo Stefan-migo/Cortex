@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# cortex-sync.sh — push the Cortex pack into every project on your list.
+# cortex-sync.sh — push the Rapsodia pack into every project on your list.
 #
 # For each project it:
 #   1. Copies the pack's skills into <project>/.opencode/skills/ (overwrite).
@@ -97,7 +97,7 @@ migrate_sessions() {
   return 0
 }
 
-echo "Cortex sync"
+echo "Rapsodia sync"
 echo "  pack: $PACK_DIR"
 echo "  list: $PROJECTS_FILE"
 [[ $DRY_RUN -eq 1 ]] && echo "  mode: dry-run (nothing is written)"

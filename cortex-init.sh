@@ -33,7 +33,7 @@ if [ "$INSTALL_GLOBAL" = true ]; then
   fi
 fi
 
-echo "🧠 Inicializando Cortex en $(basename "$PROJECT_DIR")"
+echo "🧠 Inicializando Rapsodia en $(basename "$PROJECT_DIR")"
 echo ""
 
 # ─── 1. Check prerequisites ────────────────────────────────────────────────
@@ -50,7 +50,7 @@ fi
 echo ""
 
 # ─── 2. Link skills to project ─────────────────────────────────────────────
-echo "📂 Instalando skills Cortex..."
+echo "📂 Instalando skills Rapsodia..."
 
 mkdir -p "$PROJECT_DIR/.opencode/skills"
 
@@ -145,7 +145,7 @@ fi
 echo ""
 
 # ─── 5. Create AGENTS.md with persona reference ────────────────────────────
-echo "📝 Creando AGENTS.md con identidad Cortex..."
+echo "📝 Creando AGENTS.md con identidad Rapsodia..."
 
 AGENTS_FILE="$PROJECT_DIR/AGENTS.md"
 if [ ! -f "$AGENTS_FILE" ]; then
@@ -156,7 +156,7 @@ gentle-ai:persona
 ## Rules
 
 - Never add "Co-Authored-By" or AI attribution to commits. Use conventional commits only.
-- This project uses the Cortex skill pack. `rapso-persona` is linked into `.opencode/skills/`,
+- This project uses the Rapsodia skill pack. `rapso-persona` is linked into `.opencode/skills/`,
   so it appears in the session's skill list and the skill-loading check below applies to it.
 - For detailed persona rules, see .opencode/skills/rapso-persona/SKILL.md
 
@@ -218,7 +218,7 @@ for name in ['rapso-persona', 'rapso-session', 'ponytail-review', 'ponytail-audi
 
 with open(reg_path, 'w') as f:
     f.write('# Skill Registry — cortex-init\n\n')
-    f.write(f'Source: Cortex pack at {cortex_src}\n')
+    f.write(f'Source: Rapsodia pack at {cortex_src}\n')
     f.write(f'Indexed: {len(registry)} skills\n\n')
     f.write('| Name | Path | Scope |\n')
     f.write('|------|------|-------|\n')
@@ -273,7 +273,7 @@ fi
 echo ""
 
 # ─── 8. Summary and next steps ─────────────────────────────────────────────
-echo "🎯 ¡Cortex listo en $(basename "$PROJECT_DIR")!"
+echo "🎯 ¡Rapsodia listo en $(basename "$PROJECT_DIR")!"
 echo ""
 echo "Resumen:"
 echo "  Skills:      $(ls -d "$PROJECT_DIR/.opencode/skills/"*/ 2>/dev/null | wc -l) enlazados"

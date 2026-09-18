@@ -1,4 +1,4 @@
-# Cortex — Design System
+# Rapsodia — Design System
 
 ## Visual Theme & Atmosphere
 - **Mood**: Clean, professional, developer-focused

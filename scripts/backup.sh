@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# backup.sh — Snapshot cortex configuration before major changes
+# backup.sh — Snapshot Rapsodia configuration before major changes
 # Usage: ./scripts/backup.sh [name]
 #   Creates a timestamped backup of all config files
 

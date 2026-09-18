@@ -1,5 +1,5 @@
 #!/bin/bash
-# Cortex 2.5 — One-time migration: seed Engram from wiki/log.md entries.
+# Rapsodia 2.5 — One-time migration: seed Engram from wiki/log.md entries.
 # Usage: bash scripts/migrate-wiki-to-engram.sh
 
 set -e

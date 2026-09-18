@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ================================================================
-# Cortex — Install Dependencies
+# Rapsodia — Install Dependencies
 # ================================================================
-# Run this after cloning Cortex on a new machine.
+# Run this after cloning Rapsodia on a new machine.
 # Installs everything needed that can't live in the repo.
 #
 # Usage:
@@ -12,7 +12,7 @@
 set -e
 
 echo "╔══════════════════════════════════════════════════════════╗"
-echo "║        Cortex — Installing Dependencies                ║"
+echo "║       Rapsodia — Installing Dependencies               ║"
 echo "╚══════════════════════════════════════════════════════════╝"
 echo ""
 
