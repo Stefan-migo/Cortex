@@ -185,10 +185,11 @@ identity rename to `cli/src/template/**` only. It also requires an OpenCode rest
       hardcodes the author's absolute home path in a **tracked, published** file that is installed
       globally and into every project. It is wrong for every other user today, independently of any
       rename. Remove the absolute path; keep the entry-point statement.
-- [x] **T08** — Observable checks (see ## Checks). Checks 1–3 and 5 pass. Check 4 (`rg -n 'Cortex'`)
-      now returns only the Bucket 2, 3, and 4 items catalogued in ## Scope expansion: the agent
-      identities, the `cortex-init` / `cortex-sync` names, and the deliberate compatibility keys.
-      Bucket 1 is complete; the acceptance criterion is fully met only once Buckets 2 and 3 land.
+- [x] **T08** — Observable checks (see ## Checks). Checks 1–3 and 5 pass. Check 4 as originally
+      written returned only Bucket 2, 3, and 4 items — but it was a path-scoped instrument, so that
+      result was a **false completion**. Six tracked Bucket-1 files were outside its path list and
+      still said `Cortex`. **Corrected 2026-09-18; see ## Progress.** Bucket 1 was closed for real
+      by the `rename-rapsodia-residual-prose` work unit.
 
 ## Checks
 
@@ -197,9 +198,20 @@ All commands are run from this worktree; report the real output, never an inferr
 1. `cd cli && npm run typecheck` — must exit 0 with no diagnostics.
 2. `cd cli && npm run build` — must exit 0.
 3. `node cli/dist/index.js --help` — must exit 0 and list the `rapso` command surface.
-4. `rg -n 'Cortex' cli/src cli/package.json cli/README.md AGENTS.md README.md commands cortex-init.sh`
-   — must return only the exclusions listed above (the three managed markers in `adopt.ts`, plus
-   zero remaining identity prose or URLs). Report the exact output.
+4. **Repo-wide residual scan.** The original form of this check was a hardcoded, case-sensitive
+   path list. It could not prove a claim that quantifies over the whole repository, and it reported
+   a false completion: six tracked Bucket-1 files lay outside every path it listed. It is replaced
+   by the scan below, whose pass condition is a classification rather than a path list.
+
+   ```bash
+   rg -ni --hidden \
+     -g '!.git' -g '!node_modules' -g '!cli/dist' -g '!graphify-out' \
+     -g '!odd/tasks/**' -g '!wiki/**' -g '!.rapsodia-code/**' -g '!openspec/**' \
+     'cortex' .
+   ```
+
+   **Pass condition:** every surviving hit must be classified as Bucket 2, 3, or 4 with a recorded
+   reason. An unclassified hit fails the check. "The listed paths are clean" is not a pass.
 5. `git diff --stat` — no path outside ## In scope.
 
 ## Acceptance criteria
@@ -228,8 +240,30 @@ All commands are run from this worktree; report the real output, never an inferr
   untouched, and a fresh project got `Injected (3)` with the new heading.
 - **2026-09-18 — scope corrected (see ## Scope expansion).** The original measurement was
   case-sensitive and omitted `scripts/`, `skills/`, and `docs/`. Bucket 1 was completed against a
-  repo-wide case-insensitive scan. A final scan leaves `cortex` in exactly ten tracked files, and
-  every remaining hit is Bucket 2, Bucket 3, or Bucket 4.
+  repo-wide case-insensitive scan. ~~A final scan leaves `cortex` in exactly ten tracked files, and
+  every remaining hit is Bucket 2, Bucket 3, or Bucket 4.~~ **That claim was false.** The scan
+  behind it was still path-scoped, so it missed six Bucket-1 files. See the correction below.
+- **2026-09-18 — CORRECTION: the acceptance criterion was NOT met, and `## Checks` #4 was the
+  reason.** Six tracked Bucket-1 files were outside its path list and still carried `Cortex` prose:
+
+  | File | Line(s) |
+  |---|---|
+  | `.githooks/post-merge` | 7 — printed to the user on every merge |
+  | `.opencode/skills/bootstrap/SKILL.md` | 12, 53, 171 |
+  | `.githooks/pre-commit` | 2 |
+  | `.env.example` | 1 |
+  | `.gitignore` | 1 |
+  | `.opencode/mcp-template.json` | 3 |
+
+  None of them is Bucket 2, 3, or 4; all six were in this work unit's scope and were missed by it.
+  The instrument was the defect, not the measurement: a hardcoded path list is case-sensitive,
+  path-scoped, and therefore unfalsifiable on a file nobody listed. This is the **fourth consecutive
+  path-scoped measurement** in this document. The T08 claim that Bucket 1 was complete, and the
+  `## Scope expansion` claim that only ten tracked files remained, were both false and are struck
+  above. Check 4 is replaced by a repo-wide scan whose pass condition requires every surviving hit
+  to be classified. The evidence originally recorded here is preserved; this entry is appended, not
+  substituted. Closed by the `rename-rapsodia-residual-prose` work unit on branch
+  `odd/rename-rapsodia-residual-prose`.
 - **Next step** — Bucket 2 (agent identity: `opencode.json` + `.opencode/agents/cortex-*.md` + the
-  `@Cortex-*` references), then Bucket 3 (the `cortex-init` / `cortex-sync` command names and the
-  internal identifiers).
+  `@Cortex-*` references), then Bucket 3 (the `cortex-init` / `cortex-sync` command names, the
+  `.gitignore` L16/L17/L33 references to those filenames, and the internal identifiers).

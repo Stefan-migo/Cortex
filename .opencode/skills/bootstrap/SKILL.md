@@ -9,7 +9,7 @@ metadata:
 ---
 
 ## What It Does
-Transforms the generic Cortex template into a fully specialized, professional-grade project environment with custom primary agents, specialized subagent teams, MCP servers, and tools — all tailored to the project's tech stack, domain, and architecture.
+Transforms the generic Rapsodia template into a fully specialized, professional-grade project environment with custom primary agents, specialized subagent teams, MCP servers, and tools — all tailored to the project's tech stack, domain, and architecture.
 
 ## When to Load
 - User types `/new-project`
@@ -50,7 +50,7 @@ ls .opencode/plugins/graphify.js 2>/dev/null
 Present findings:
 ```
 ╔══════════════════════════════════════════════════╗
-║          CORTEX — PRE-FLIGHT CHECK              ║
+║          RAPSODIA — PRE-FLIGHT CHECK            ║
 ╠══════════════════════════════════════════════════╣
 ║  ✓ Node.js {version}                             ║
 ║  ✓ GSD commands + runtime (v{v})                 ║
@@ -168,7 +168,7 @@ Based on project type, determine which specialized agents are needed:
 For a typical full-stack web app, create all 6. For a CLI tool, maybe just backend + qa. For an API, backend + database + security. Use judgment.
 
 ### 3.2 Propose Primary Agent Names
-Primary agents in Cortex are switched with Tab. For {PROJECT_NAME}:
+Primary agents in Rapsodia are switched with Tab. For {PROJECT_NAME}:
 - **Build** → `{PROJECT_NAME}Build`
 - **Plan** → `{PROJECT_NAME}Plan`
 

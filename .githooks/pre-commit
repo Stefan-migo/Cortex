@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# cortex pre-commit hook — Atomicity Gate + GGA Guardian
+# Rapsodia pre-commit hook — Atomicity Gate + GGA Guardian
 set -euo pipefail
 
 # === Step 1: Atomicity Gate (≤5 files) ===
