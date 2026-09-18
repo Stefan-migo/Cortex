@@ -350,8 +350,9 @@ ever bites, the remedy is to resolve the plugin version from the installed runti
 
 ## Progress
 
-Slice A implemented, verified, and reviewed. Slice B not started.
+Slice A is complete and delivered by PR #15. T08 remains open: Slice B (B1/B3) was explicitly
+separated into its own PR and was not started.
 
 ## Next step
 
-Open the Pull Request for Slice A. Slice B follows as the chained PR.
+Start Slice B in a separate PR if approved; do not treat T08 as stale bookkeeping.

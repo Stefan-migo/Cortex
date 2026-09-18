@@ -127,8 +127,8 @@ not change the conclusion above, but worth investigating separately.
 
 - [x] **WU1** — resolve the runtime template from `src/template`; delete the now-dead build copy
       step (D1). Landed in `a5b4a4e`.
-- [ ] **VERIFY** — full functional verification against the scenarios below.
-- [ ] **DELIVER** — review at the boundary, then PR.
+- [x] **VERIFY** — full functional verification against the scenarios below. **Delivered by PR #25** (`fix(cli): resolve the runtime template from the published source`, merged 2026-09-17); its body records the build, faithful install-layout simulation, all template consumers, and regression checks.
+- [x] **DELIVER** — review at the boundary, then PR. **Delivered by PR #25** (`fix(cli): resolve the runtime template from the published source`, merged 2026-09-17).
 
 ## Acceptance criteria
 
@@ -222,3 +222,11 @@ cli/template — build artifact, no longer read after WU1
 - New build still reported `Project: unknown` in `/home/stefan/Cortex` — the change fixed nothing
 - Commit removed by reset to `a5b4a4e`; branch carried only `a5b4a4e` afterwards; no `project.json`
   reference remains in `cli/`
+
+## Progress
+
+**Closed.** WU1 and its full verification and delivery are complete in PR #25 (`fix(cli): resolve the runtime template from the published source`, merged 2026-09-17). The PR files and body match the implementation and evidence above.
+
+## Next step
+
+None. PR #25 delivered WU1; the withdrawn WU2 remains intentionally out of scope.

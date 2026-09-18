@@ -88,7 +88,7 @@ Applicable functional verification for this change is assertion-based, and it is
 - [x] **T06** — Add the surgical ponytail rule set to `AGENTS.md` and mirror it in `cli/src/template/AGENTS.md`.
 - [x] **T07** — Own the toggle truthfully: state in `cortex-persona` that the upstream env/config switch requires the upstream runtime and does not govern Cortex's embedded rules; leave `skills/ponytail-help/SKILL.md` untouched. Also wire the ODD **Close** step to harvest the `ponytail:` ledger, so the ledger stops being write-only-in-theory.
 - [x] **T07b** — Unplanned, found during verification: correct a second false capability claim of the same class as the dead toggle. `:206` asserted that the orchestrator "already runs `ponytail-review` automatically over the diff (built-in hook)". **No such hook exists.**
-- [ ] **T08** — Verify and deliver: run the assertions below, record real output, commit as reviewable work units, open the PR.
+- [x] **T08** — Verify and deliver: run the assertions below, record real output, commit as reviewable work units, open the PR. **Delivered by PR #14** (`refactor(persona): scope ponytail to code writing and align it with ODD`, merged 2026-09-17); its files and body match the boundary, gate-visible rules, and verification.
 
 ## Acceptance criteria
 
@@ -194,11 +194,11 @@ The same verification pass surfaced a real defect the writer had left standing: 
 
 ## Progress
 
-T01–T07b complete, with the assertions above recorded from real output. T08 in progress: the work is implemented and verified, but not yet committed or delivered.
+**Closed.** T01–T08 complete and delivered by PR #14 (`refactor(persona): scope ponytail to code writing and align it with ODD`, merged 2026-09-17). The PR files and body match the implementation and verification above.
 
 ## Next step
 
-Commit the three authorized files as one reviewable work unit, open the PR, and state in the PR body that `commands/cortex-init.md:39` carries the same false auto-run claim as an out-of-scope follow-up. After the merge: `npm run build` in `cli/` of main (the template mirror requires it), then the graph refresh with the squashed SHA.
+None. PR #14 delivered the three authorized files and recorded `commands/cortex-init.md:39` as an out-of-scope follow-up. After the merge, the documented build and graph refresh remain operational follow-ups.
 
 ## Rationale log
 

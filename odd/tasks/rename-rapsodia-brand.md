@@ -127,28 +127,28 @@ discovered. The migration PR resolves it by removing the old keys when
 
 ## Tasks
 
-- [ ] **T01** — Rename the two template agent files and their contents:
+- [x] **T01** — Rename the two template agent files and their contents:
       `cli/src/template/.opencode/agents/cortex-planner.md` → `rapso-planner.md`,
       `cortex-developer.md` → `rapso-developer.md`. Apply the scheme inside them. Leave the
-      `cortex-session` skill references alone (item 2 of the exclusions).
-- [ ] **T02** — Rename the template agent keys in `cli/src/template/opencode.json`
+      `cortex-session` skill references alone (item 2 of the exclusions). **Delivered by PR #30.**
+- [x] **T02** — Rename the template agent keys in `cli/src/template/opencode.json`
       (`cortex-planner` → `rapso-planner`, `cortex-developer` → `rapso-developer`) **and** the
-      matching loop in `cli/src/engine/adopt.ts:76`, in the same commit.
-- [ ] **T03** — Apply the scheme to the rest of `cli/src/template/**`: `AGENTS.md`,
+      matching loop in `cli/src/engine/adopt.ts:76`, in the same commit. **Delivered by PR #30.**
+- [x] **T03** — Apply the scheme to the rest of `cli/src/template/**`: `AGENTS.md`,
       `SYSTEM-MAP.md`, `USER-GUIDE.md`, `.opencode/mcp-template.json`,
       `.opencode/skills/bootstrap/SKILL.md`, `scripts/install-deps.sh`,
       `scripts/engram-export-wiki.sh`, `scripts/generate-retrospective.sh` (command name only,
-      not the `.cortex/` path).
-- [ ] **T04** — Apply the scheme to the user-facing strings in `cli/src/**` excluding
+      not the `.cortex/` path). **Delivered by PR #30.**
+- [x] **T04** — Apply the scheme to the user-facing strings in `cli/src/**` excluding
       `template/**`: `commands/{adopt,analyze,close,init,install,start,status,update}.ts`,
       `engine/{context,manifest,project,session,worktree}.ts`,
       `utils/{config,mcp}.ts`, `index.ts`. Internal renames (`RAPSO_IGNORE_ENTRIES`,
-      `RapsodiaConfig`) count as part of this.
-- [ ] **T05** — Update `odd/tasks/rename-rapsodia.md`: replace its `## Tasks — Slice 2` and
+      `RapsodiaConfig`) count as part of this. **Delivered by PR #30.**
+- [x] **T05** — Update `odd/tasks/rename-rapsodia.md`: replace its `## Tasks — Slice 2` and
       `## Tasks — Slice 3` sections with a `## Re-sequencing` note pointing at this document and
       at the three-PR blast-radius plan, so the umbrella doc stops describing a slice layout
-      that no longer exists.
-- [ ] **T06** — Verify with real output (see below), commit as reviewable work units, report.
+      that no longer exists. **Delivered by PR #30.**
+- [x] **T06** — Verify with real output (see below), commit as reviewable work units, report. **Delivered by PR #30**; its body records the required verification.
 
 ## The re-sequencing
 
@@ -217,8 +217,7 @@ Run from the worktree after `npm run build`.
 
 ## Progress
 
-Implementation complete in the worktree. T01–T06 are checked after the implementation and
-verification outcomes below were observed. The repository pre-commit review reported unrelated
+**Closed.** T01–T06 are delivered by PR #30 (`refactor(cli): rename the visible brand and the template agent identities`, merged 2026-09-17). The PR files and body match the implementation and verification outcomes below. The repository pre-commit review reported unrelated
 pre-existing findings in changed TypeScript files, but the hook allowed the commits in its
 non-strict mode; no `--no-verify` bypass was used.
 
@@ -333,8 +332,7 @@ Coupling proof, throwaway directory cleaned afterwards:
 
 ## Next step
 
-Parent should review the pre-commit review findings and the documented exclusions before opening
-the pull request.
+None. PR #30 delivered the brand slice; the documented exclusions and post-merge build remain reference material.
 
 ## Rationale log
 
