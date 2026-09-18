@@ -45,7 +45,14 @@ Run `rapso <command> --help` for command-specific options. Run `rapso worktree -
 
 ## Included skill pack
 
-The repository also contains the skill pack used by generated projects. It provides the `rapso-persona` and `rapso-session` skills, Ponytail review skills, Graphify integration, Engram memory guidance, and the five-step execution gate. The CLI is the supported installation path for the project files; the skill pack is maintained here as the template content that Rapsodia manages.
+The CLI ships the skills a generated project runs on, as template content under `.opencode/skills/`. `rapso init` writes them into a new project, `rapso adopt` installs them into an existing one, and `rapso update` refreshes them against the manifest.
+
+| Skill | What it carries |
+|---|---|
+| `rapso-persona` | The Senior Architect identity, the Ponytail post-write check, the five-step execution gate, and Graphify integration |
+| `rapso-session` | The structured planning-session protocol and its Engram capture rules |
+| `ponytail-review`, `ponytail-audit`, `ponytail-debt`, `ponytail-help` | The post-write simplification check over written code, and its tooling |
+| `bootstrap`, `design-system`, `graphify` | Project bootstrap, the UI design rules, and the knowledge-graph integration |
 
 ## License
 
