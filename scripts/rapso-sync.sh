@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# cortex-sync.sh — push the Rapsodia pack into every project on your list.
+# rapso-sync.sh — push the Rapsodia pack into every project on your list.
 #
 # For each project it:
 #   1. Copies the pack's skills into <project>/.opencode/skills/ (overwrite).
@@ -7,7 +7,7 @@
 #
 # Idempotent. Git is your backup: review `git diff` before committing.
 #
-# Usage: scripts/cortex-sync.sh [--dry-run] [--projects <file>]
+# Usage: scripts/rapso-sync.sh [--dry-run] [--projects <file>]
 #
 # Project list format (default: <pack>/projects.txt):
 #   one path per line, '#' starts a comment, '~' expands to $HOME.
