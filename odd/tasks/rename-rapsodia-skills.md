@@ -88,7 +88,7 @@ This is a manual sequence that the Orchestrator requests from the human; the PR 
 - [x] **T04** — Update the shipped template: `cli/src/template/{AGENTS,SYSTEM-MAP,USER-GUIDE}.md`.
 - [x] **T05** — Update this repository's own references: `AGENTS.md`,
       `.opencode/agents/cortex-planner.md`, `commands/cortex-init.md`, `README.md`.
-- [ ] **T06** — Verify: typecheck, build, the audit command, and a real
+- [x] **T06** — Verify: typecheck, build, the audit command, and a real
       `worktree create` / `cleanup` probe that proves the new names provision and resolve.
 - [x] **T07** — Recreate this worktree's own 2 links and record the exact commands.
 

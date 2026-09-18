@@ -3,7 +3,7 @@
 ## Brain Lobe Architecture
 
 ```
- Frontal Lobe (Planning)     → rapso-session + ODD — odd/tasks/<feature>.md
+Frontal Lobe (Planning)     → rapso-session + ODD — odd/tasks/<feature>.md
 Parietal Lobe (Spatial)     → Graphify — codebase graph before editing
 Hippocampus (Memory)        → Engram — persistent SQLite memory via MCP
 Occipital Lobe (Archive)    → wiki/ — Obsidian-readable snapshot exported from Engram
