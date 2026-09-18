@@ -38,10 +38,11 @@ Mode: **off** (resolved from project configuration `AGENTS.md`: this repository 
 - [x] **T03** — Add `odd/` to `protectedUntrackedPaths()` in `cli/src/engine/worktree.ts`, in the same shape as the existing `openspec/` / `.cortex-sessions/` predicates.
 - [x] **T04** — Update the `.githooks/post-merge` comment and its advisory message that named `sdd/<slug>` and "the merged SDD PR".
 - [x] **T05** — Update the Graphify-refresh note in `skills/cortex-persona/SKILL.md:200` that named `sdd/<slug>` (reached through `.opencode/skills/cortex-persona`, a symlink — one file only).
-- [ ] **T06** — Sync base specs in main (untracked, at close, after merge): generalize `worktree-safety/spec.md:5` `### Requirement: Consent controls SDD entry`; update `worktree-provisioning/spec.md:13` and `worktree-lifecycle/spec.md:85,89` to the new branch name. Blocked on the merge — the specs only become relevant once main carries the new contract, and they cannot travel by PR.
+- [x] **T06** — Sync base specs in main (untracked, at close, after merge): generalize `worktree-safety/spec.md:5` `### Requirement: Consent controls SDD entry`; update `worktree-provisioning/spec.md:13` and `worktree-lifecycle/spec.md:85,89` to the new branch name. **Already satisfied before this box was written** — the named sites were synced on 2026-09-16 18:01, one minute after the namespace rename merged as **PR #9** (`f5675af`, 18:00). Verified against `0518a67`: `worktree-safety/spec.md:5` reads `### Requirement: Consent controls substantial work entry`, `worktree-provisioning/spec.md:13` reads `Cortex-odd-<slug>` / `odd/<slug>`, and `worktree-lifecycle/spec.md:91` reads `odd/<slug>`. All three spec files carry mtime 2026-09-16 18:01:25-27. The box was stale, not the spec.
 - [x] **T07** — Document the ODD worktree rule in `AGENTS.md` as a new `## ODD Worktrees` section, outside any managed block.
 - [x] **T08** — Verify: typecheck, build, and a real dogfood cycle of the rebuilt CLI (create → assert naming → cleanup → assert removal). See evidence below.
-- [ ] **T09** — Commit as reviewable work units (code rename, cleanup protection, docs) and open the PR. Commits land on this branch; the PR is opened by the parent afterward, so this box is checked in the follow-up that closes the change.
+- [x] **T09** — Commit as reviewable work units (code rename, cleanup protection, docs) and open the PR. **Landed as PR #9** (commit `f5675af`, merged 2026-09-16 18:00), title `refactor(worktree): rename the worktree namespace from sdd/ to odd/`. Verified present in `0518a67`.
+- [x] **T10** — Close-out spec sync, re-measured against `0518a67` on 2026-09-17. The literal T06 was satisfied, but the **handoff-inbox rename** (`ready-for-sdd` → `ready-for-odd`) landed afterwards as **PR #26**, an ODD change with no OpenSpec delta, so the base specs went stale again. Fixed 6 sites: `worktree-safety/spec.md:11,17` (`ready-for-SDD handoff` → `ready-for-odd handoff`), `worktree-safety/spec.md:19` (`no SDD phase` → `no worktree, no ODD task doc`), `worktree-lifecycle/spec.md:13,19,79` (`ready-for-sdd/` → `ready-for-odd/`), `worktree-lifecycle/spec.md:91` (`SDD archive` → `archive`). Cross-checked against live code: `cli/src/engine/worktree.ts:103` resolves `ready-for-odd` in `handoffCandidates()`. `rg -n 'sdd|SDD' openspec/specs/` now returns nothing.
 
 ## Acceptance criteria
 
@@ -121,11 +122,11 @@ Sibling directory `Cortex-odd-<slug>`, branch `odd/<slug>`, no upstream, and a c
 
 ## Progress
 
-T01–T05, T07 and the verification cycle are complete and evidenced above. Changes remain uncommitted in the worktree. T06 is blocked on the merge by design. T09's commits are the immediate next action.
+**Closed.** T01–T09 landed as PR #9 (`f5675af`, merged 2026-09-16 18:00) and are present in `0518a67`. T06 was a stale checkbox whose literal content had already been synced one minute after that merge; T10 covers the sync that was genuinely outstanding, produced by the later handoff-inbox rename (PR #26). Nothing remains open in this change.
 
 ## Next step
 
-Commit the work units, then open the PR. After the merge: `npm ci && npm run build` in main's `cli/`, then T06's spec sync.
+None. The only remaining asymmetry is intentional and permanent: `openspec/` is untracked in this repository, so T10's spec edits live in the working tree of `main` and cannot travel by PR.
 
 ## Rationale log
 

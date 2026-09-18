@@ -144,14 +144,14 @@ Out of scope for this slice, and recorded so it is not "helpfully" fixed:
 
 ### Unit A — the constants, the resolver, the migration
 
-- [ ] **T01** — `cli/src/utils/state.ts`: flip `PROJECT_STATE_DIR_NAME` to `.rapsodia-code` and
+- [x] **T01** — `cli/src/utils/state.ts`: flip `PROJECT_STATE_DIR_NAME` to `.rapsodia-code` and
       `SESSIONS_DIR_NAME` to `.rapsodia-code/sessions`. Leave `GLOBAL_STATE_DIR_NAME` at `.cortex`
       with a comment stating why (exclusion 1). Add `LEGACY_PROJECT_STATE_DIR_NAME = '.cortex'` and
       `LEGACY_SESSIONS_DIR_NAME = '.cortex-sessions'`.
-- [ ] **T02** — Add the read-compat resolvers to the same module: `resolveStateDir(root)`,
+- [x] **T02** — Add the read-compat resolvers to the same module: `resolveStateDir(root)`,
       `resolveStatePath(root, ...parts)` (new first, legacy second, `null` when neither exists),
       and `resolveSessionsDir(root)`. Reads only; they must never create anything.
-- [ ] **T03** — Add `migrateLegacyState(root): string[]` to the same module. It renames
+- [x] **T03** — Add `migrateLegacyState(root): string[]` to the same module. It renames
       `.cortex/` → `.rapsodia-code/` and `.cortex-sessions/` → `.rapsodia-code/sessions/` when the
       destination does not exist, creating parents as needed; returns the repository-relative
       moves it performed so the caller can print them. Idempotent. When both the legacy and the
@@ -159,61 +159,61 @@ Out of scope for this slice, and recorded so it is not "helpfully" fixed:
 
 ### Unit B — engine reads
 
-- [ ] **T04** — `cli/src/engine/project.ts`: `findProjectRoot` must recognise a legacy state dir
+- [x] **T04** — `cli/src/engine/project.ts`: `findProjectRoot` must recognise a legacy state dir
       (resolve `manifest.json` / `session.json` / `worktree.json` through `resolveStatePath`);
       `worktreeSource` and `resolveProjectManifestPath` read through `resolveStatePath`.
-- [ ] **T05** — `cli/src/engine/session.ts`: `getSessionInfo` reads through `resolveStatePath`.
+- [x] **T05** — `cli/src/engine/session.ts`: `getSessionInfo` reads through `resolveStatePath`.
       `openSession` keeps writing to the new path. Do not change the `preludeFile` metadata shape.
-- [ ] **T06** — `cli/src/engine/context.ts`: the `config.json` budget read and the prelude
+- [x] **T06** — `cli/src/engine/context.ts`: the `config.json` budget read and the prelude
       existence checks fall back to legacy; the prelude write stays on the new path.
-- [ ] **T07** — `cli/src/engine/manifest.ts`: reads fall back; the write stays new.
+- [x] **T07** — `cli/src/engine/manifest.ts`: reads fall back; the write stays new.
 
 ### Unit C — the adapters that read the state
 
-- [ ] **T08** — `cli/src/engine/worktree.ts`: `handoffCandidates` must consider the legacy session
+- [x] **T08** — `cli/src/engine/worktree.ts`: `handoffCandidates` must consider the legacy session
       store as well as the new one, for both `target` and `main`; `archiveHandoff` targets the new
       store; `protectedUntrackedPaths`'s `isSessionState` predicate must treat both
       `.rapsodia-code/sessions/` and the legacy `.cortex-sessions/` as session state, or cleanup
       will silently stop protecting the legacy store.
-- [ ] **T09** — `cli/src/engine/adopt.ts`: call `migrateLegacyState(targetDir)` before the
+- [x] **T09** — `cli/src/engine/adopt.ts`: call `migrateLegacyState(targetDir)` before the
       `.gitignore` merge and report the moves; drop the now-redundant
       `SESSIONS_DIR_NAME` entry from `RAPSO_IGNORE_ENTRIES` because `PROJECT_STATE_DIR_NAME/`
       already covers the nested store — record that reasoning in a comment; keep seeding the
       sessions `.gitignore` at the resolved (new) path. Do **not** touch the persisted markers
       (exclusion 3).
-- [ ] **T10** — `cli/src/engine/template.ts`: the `PROJECT_STATE_DIR_NAME` substitution follows the
+- [x] **T10** — `cli/src/engine/template.ts`: the `PROJECT_STATE_DIR_NAME` substitution follows the
       new value.
 
 ### Unit D — commands
 
-- [ ] **T11** — `cli/src/commands/start.ts`: call `migrateLegacyState` after the project root is
+- [x] **T11** — `cli/src/commands/start.ts`: call `migrateLegacyState` after the project root is
       resolved and before anything is written, and print what moved. The prelude and session paths
       follow the new constants.
-- [ ] **T12** — `cli/src/commands/close.ts`: the active-session check falls back to legacy; the
+- [x] **T12** — `cli/src/commands/close.ts`: the active-session check falls back to legacy; the
       prelude file removal removes the new path and then the legacy path if it is still present.
       `close.ts:92`'s `opencode.json.instructions` splice stays as the constant-based lookup — it
       is a pre-existing dead path (nothing writes the prelude reference; the template ships
       `["AGENTS.md", "DESIGN.md"]`), so it is reported, not fixed here.
-- [ ] **T13** — `cli/src/commands/{status,update,init}.ts`: reads fall back, writes stay new.
+- [x] **T13** — `cli/src/commands/{status,update,init}.ts`: reads fall back, writes stay new.
 
 ### Unit E — the shipped template
 
-- [ ] **T14** — `cli/src/template/AGENTS.md:69` and
+- [x] **T14** — `cli/src/template/AGENTS.md:69` and
       `cli/src/template/scripts/generate-retrospective.sh:4`: the `.cortex/` state path follows
       the rename. Leave the `cortex-session` skill references alone (exclusion 2).
 
 ### Unit F — the repository's own surface for these paths
 
-- [ ] **T15** — `.gitignore`: replace `/.cortex/` with the contents-exclusion form plus the
+- [x] **T15** — `.gitignore`: replace `/.cortex/` with the contents-exclusion form plus the
       sessions carve-out, exactly as specified under coupling 2.
-- [ ] **T16** — `.githooks/pre-commit`: the carve-out case pattern and the message follow the
+- [x] **T16** — `.githooks/pre-commit`: the carve-out case pattern and the message follow the
       rename. The `ACDMR` comment above it stays valid and must not be weakened.
-- [ ] **T17** — `AGENTS.md:69` and `skills/cortex-session/SKILL.md`: every `.cortex-sessions/`
+- [x] **T17** — `AGENTS.md:69` and `skills/cortex-session/SKILL.md`: every `.cortex-sessions/`
       and `.cortex/prelude.md` path follows the rename. **Path strings only** — the skill keeps
       its name. The one line at `SKILL.md:149` that documents the *legacy*
       `ready-for-sdd/` → `ready-for-odd/` migration is about a different, already-retired
       migration: leave the historical sentence intact and only move the live store path.
-- [ ] **T18** — Repository tooling, marked as such in the commit message:
+- [x] **T18** — Repository tooling, marked as such in the commit message:
       `cortex-init.sh:239,254`, `scripts/backup.sh:9`, `scripts/rollback.sh:4,9,14`,
       `cli/scripts/generate-retrospective.sh:4`. For `scripts/cortex-sync.sh:6,55,56` the store
       path follows the rename while the already-retired `.cortex-sessions/ready-for-sdd/`
@@ -222,9 +222,11 @@ Out of scope for this slice, and recorded so it is not "helpfully" fixed:
 
 ### Unit G — verification and delivery
 
-- [ ] **T19** — Run the verification scenarios below and record real output.
-- [ ] **T20** — Commit as reviewable work units (one concern each, ≤5 files per commit), push,
-      and report.
+- [x] **T19** — Run the verification scenarios below and record real output.
+- [x] **T20** — Commit as reviewable work units (one concern each, ≤5 files per commit), push,
+      and report. **Delivered by PR #33** (`refactor(cli): rename the on-disk project state to
+      rapsodia-code with read compatibility`, merged as `1c4d956`); its files and body match the
+      implementation and verification above.
 
 ## Acceptance criteria
 
@@ -280,7 +282,8 @@ Run from the worktree after `npm run build`. `STATE_CLI="node $PWD/cli/dist/inde
 
 ## Progress
 
-Implementation and three post-implementation defect corrections are complete on
+**Closed.** Delivered by **PR #33** (merged as `1c4d956`). Implementation and three
+post-implementation defect corrections are complete on
 `odd/rename-rapsodia-state` with local commits:
 
 - `9fae71d feat(cli): add compatible project state resolvers`
@@ -312,8 +315,9 @@ Discrepancies: `cli/src/engine/context.ts` has no prelude existence read to rout
 resolver, and `cli/src/engine/manifest.ts` has no state read path beyond its new-path write;
 the task items were satisfied by the existing code rather than by inventing dead logic.
 The requested `npm test` harness remains absent and reports `No test files found` when run by
-the repository hook. The implementation instruction overrides the task's original push wording,
-so nothing was pushed.
+the repository hook. The implementation instruction overrode the task's original push wording,
+so this work unit itself pushed nothing; the parent pushed the branch and opened **PR #33**,
+which merged as `1c4d956`.
 
 ## Verification evidence
 
@@ -343,6 +347,10 @@ so nothing was pushed.
 
 `npm test` remains UNVERIFIED as a test suite: it exits 1 with `No test files found`, and no
 test files were added because TDD is OFF and this repository has no test harness.
+
+## Next step
+
+None. PR #33 delivered the work units and opened the PR.
 
 ## Rationale log
 

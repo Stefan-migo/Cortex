@@ -145,10 +145,10 @@ Cortex and now non-empty for an adopted project when the fallback ever runs.
       `provisionWorktree()`.
 - [x] **T02** — Implement D03 in `refreshRegistry()`.
 - [x] **T03** — `npm run typecheck` and `npm run build` from `cli/` in the worktree.
-- [ ] **T04** — Manual repro: a project **without** `<repo>/skills/` gains a worktree with zero
+- [x] **T04** — Manual repro: a project **without** `<repo>/skills/` gains a worktree with zero
       deleted tracked files and zero dangling links, and its seven skills resolve. The fixture
       contains only two canonical project copies, so five are correctly absent rather than
-      dangling.
+      dangling. **Delivered by PR #17** (`fix(cli): resolve skill sources instead of assuming them in worktrees`, merged 2026-09-17); its files and body match this manual repro.
 - [x] **T05** — Manual repro: a worktree created inside Cortex still resolves to the canonical
       `skills/`.
 - [x] **T06** — Re-verify the pre-fix failure fixture is gone (no dangling links, no deletions)
@@ -437,13 +437,12 @@ so it is recorded as later work rather than as a correction to this candidate.
 
 ## Progress
 
-Implemented D01–D03. Static checks, the executor's two scenarios, the orchestrator's two
+**Closed.** D01–D03 and T04–T07 are delivered by PR #17 (`fix(cli): resolve skill sources instead of assuming them in worktrees`, merged 2026-09-17). Static checks, the executor's two scenarios, the orchestrator's two
 independent spot checks (the nine-skill `lumat-agent` shape and the Cortex shape), and the
 before/after pair on the real `lumat-agent` content all passed as recorded above. No tracked file
 was deleted in any after-the-fix scenario, and no non-symlink directory was removed.
 
 ## Next step
 
-Implementation and verification are complete. Pending: commit on `odd/worktree-skill-provisioning`,
-native review, and the PR. The `gga` pre-commit index defect (pending item 1) may interfere with
-the commit and is fixed separately.
+None. PR #17 delivered the implementation and verification. The `gga` pre-commit index defect
+(pending item 1) remains a separate follow-up.
