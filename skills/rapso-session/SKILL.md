@@ -146,7 +146,7 @@ mv .rapsodia-code/sessions/ready-for-odd/<slug> .rapsodia-code/sessions/archived
 
 ## Migration
 
-Projects that ran the previous sync may hold the legacy `.cortex-sessions/ready-for-sdd/` directory. `scripts/cortex-sync.sh` migrates it once to `ready-for-odd/` without overwriting a colliding session in the target; collisions remain in the legacy directory and are reported. Reading both directory names is forbidden — this migration is the only path.
+Projects that ran the previous sync may hold the legacy `.cortex-sessions/ready-for-sdd/` directory. `scripts/rapso-sync.sh` migrates it once to `ready-for-odd/` without overwriting a colliding session in the target; collisions remain in the legacy directory and are reported. Reading both directory names is forbidden — this migration is the only path.
 
 Older sessions live flat at `.rapsodia-code/sessions/<slug>/`. Migrate them once with this rule:
 
@@ -156,7 +156,7 @@ Older sessions live flat at `.rapsodia-code/sessions/<slug>/`. Migrate them once
 | only `session.md` | `open/` |
 | neither (deliverables only) | `archived/` |
 
-Do NOT touch directories already inside `open/`, `ready-for-odd/`, or `archived/` — the migration is idempotent. `scripts/cortex-sync.sh` runs it automatically for every project on the list.
+Do NOT touch directories already inside `open/`, `ready-for-odd/`, or `archived/` — the migration is idempotent. `scripts/rapso-sync.sh` runs it automatically for every project on the list.
 
 ## Artifacts
 

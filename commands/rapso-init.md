@@ -3,7 +3,7 @@ description: Bootstrap Rapsodia skill pack in a project — links skills, regist
 agent: gentle-orchestrator
 ---
 
-## cortex-init
+## rapso-init
 
 Bootstraps the Rapsodia skill pack into the current project.
 
@@ -12,19 +12,19 @@ Bootstraps the Rapsodia skill pack into the current project.
 ### What the orchestrator does
 
 1. **Check prerequisites**: opencode + engram installed.
-2. **Delegate to sub-agent** with bash access to run `cortex-init.sh`:
+2. **Delegate to sub-agent** with bash access to run `rapso-init.sh`:
    - Links `rapso-persona` + `rapso-session` + `ponytail-*` skills to `.opencode/skills/`
    - Builds Graphify knowledge graph (`graphify-out/`)
    - Adds Graphify MCP server to `.opencode/opencode.json`
    - Creates `AGENTS.md` with persona reference
    - Writes skill registry to `.atl/skill-registry.md`
    - Adds `.atl/` to `.gitignore`
-   - Installs `/cortex-init` command in project
+   - Installs `/rapso-init` command in project
 3. After completion, suggest running `/sdd-init`.
 
 ### Notes
 
-- `cortex-init.sh` is the single entry point.
+- `rapso-init.sh` is the single entry point.
 - **Idempotent**: safe to run multiple times. Already-installed skills and config are skipped.
 - Requires: graphify, gentle-ai
 

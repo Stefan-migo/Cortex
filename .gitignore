@@ -13,8 +13,8 @@ node_modules/
 /.opencode/node_modules/
 /.opencode/tools/node_modules/
 
-# cortex-init.sh install artifacts (generated per project)
-/cortex-init.sh.bak-*
+# rapso-init.sh install artifacts (generated per project)
+/rapso-init.sh.bak-*
 /.opencode/commands/
 /.opencode/skills/rapso-*
 /.opencode/skills/ponytail-*
@@ -30,5 +30,5 @@ Thumbs.db
 # Local AI runtime state
 .atl/
 
-# Personal project list for scripts/cortex-sync.sh
+# Personal project list for scripts/rapso-sync.sh
 /projects.txt
