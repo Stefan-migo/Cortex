@@ -35,7 +35,7 @@ Run `rapso <command> --help` for command-specific options. Run `rapso worktree -
 
 ## Repository
 
-Source code and issue tracking: [github.com/Stefan-migo/Cortex](https://github.com/Stefan-migo/Cortex)
+Source code and issue tracking: [github.com/Stefan-migo/rapsodia-code](https://github.com/Stefan-migo/rapsodia-code)
 
 ## License
 

@@ -2,7 +2,7 @@
 
 Rapsodia is the project workflow CLI published as [`rapsodia-code`](https://www.npmjs.com/package/rapsodia-code). Its `rapso` command scaffolds projects, manages sessions and dependencies, analyzes session patterns, installs Rapsodia into existing projects, and creates isolated ODD worktrees.
 
-The repository is [Cortex](https://github.com/Stefan-migo/Cortex). The package and CLI use the Rapsodia name; the repository keeps its existing identity.
+The repository is [Rapsodia](https://github.com/Stefan-migo/rapsodia-code).
 
 ## Install
 
