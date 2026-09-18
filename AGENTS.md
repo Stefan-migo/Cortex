@@ -13,8 +13,8 @@ Occipital Lobe (Archive)    → wiki/ — Obsidian-readable snapshot exported fr
 
 | Agent | Role | Permissions |
 |-------|------|-------------|
-| `@Cortex-Planner` | Human interaction, spec drafting, research, knowledge management | Read-only + webfetch + task |
-| `@Cortex-Developer` | Technical execution, code writing, testing, quality gates | Full (edit, bash, write, task) |
+| `@Rapso-Planner` | Human interaction, spec drafting, research, knowledge management | Read-only + webfetch + task |
+| `@Rapso-Developer` | Technical execution, code writing, testing, quality gates | Full (edit, bash, write, task) |
 
 Switch with Tab: Planner (read-only) / Developer (full tools).
 
@@ -70,7 +70,7 @@ These commands remain available when explicitly requested; ODD is the default co
 
 ### Work
 1. Planner uses `rapso-session` to seed `odd/tasks/<feature>.md`, then creates the worktree with `rapso worktree create <slug>`
-2. Planner hands the ODD task doc to Developer via `@Cortex-Developer`
+2. Planner hands the ODD task doc to Developer via `@Rapso-Developer`
 3. Developer runs graphify check before editing code
 4. Developer executes modified 5-Step Gate per task
 
@@ -84,8 +84,8 @@ Step 5: FINALIZE — mem_save + rapso close --message "<summary>"
 ```
 
 ### End (Agent handles finalization)
-1. `@Cortex-Developer` calls mem_save for all discoveries
-2. `@Cortex-Developer` runs: bash("rapso close --message "<summary>"")
+1. `@Rapso-Developer` calls mem_save for all discoveries
+2. `@Rapso-Developer` runs: bash("rapso close --message "<summary>"")
    → This calls mem_session_summary + wiki export + cleanup
 
 ## Active MCP Servers
