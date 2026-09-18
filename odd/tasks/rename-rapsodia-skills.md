@@ -72,6 +72,9 @@ skill registry, not fatal, but the skill would be unavailable until repaired:
 1. Before merging: create `../../skills/rapso-persona` and `../../skills/rapso-session` links in
    `main`'s `.opencode/skills/` (they dangle until the merge lands, harmlessly).
 2. After merging: rebuild `cli/dist/` and delete the 2 old dangling `cortex-*` links.
+   This step is **required, not cosmetic**: the PR moves the ignore rule on `.gitignore:19` from
+   `/.opencode/skills/cortex-*` to `/.opencode/skills/rapso-*`, so a stale `cortex-*` link is no
+   longer ignored and would show up as an untracked artifact in `main`.
 
 This is a manual sequence that the Orchestrator requests from the human; the PR body carries it.
 
