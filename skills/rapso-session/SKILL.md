@@ -14,7 +14,7 @@ Load when entering **planning mode** — discussing architecture, analyzing requ
 
 Do NOT load during ODD task implementation or quick Q&A.
 
-> **Write authority**: this skill creates, moves and migrates files under `.rapsodia-code/sessions/`. It must run under the write-capable executor agent (`@Cortex-Developer`). The read-only `@Cortex-Planner` never performs these writes — it delegates them. Session bookkeeping is knowledge management, not code modification.
+> **Write authority**: this skill creates, moves and migrates files under `.rapsodia-code/sessions/`. It must run under the write-capable executor agent (`@Rapso-Developer`). The read-only `@Rapso-Planner` never performs these writes — it delegates them. Session bookkeeping is knowledge management, not code modification.
 
 ## Session Lifecycle
 
