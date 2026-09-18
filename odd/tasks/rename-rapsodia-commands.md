@@ -25,10 +25,10 @@ Five tracked surfaces still carry `cortex` names that the brand rename did not r
 | `commands/cortex-init.md` | filename + heading + 3 refs |
 | `scripts/cortex-sync.sh` | filename + 2 self-refs |
 | `.gitignore` | L16, L17, L33 |
-| `cli/src/utils/defect.ts` | L48 (`cortexVersion`) |
+| `skills/rapso-session/SKILL.md` | L149, L159 (`scripts/cortex-sync.sh`) |
 
-Two live references point at those filenames: `skills/rapso-session/SKILL.md` L149 and L159 name
-`scripts/cortex-sync.sh`.
+`cli/src/utils/defect.ts:48` (`cortexVersion`) was also mapped to this bucket, but it is **separated
+into its own change** — see ## Deferred to a follow-up change.
 
 ## Why it is its own change
 
@@ -95,6 +95,26 @@ to Bucket 4.
 6. **`cli/src/template/**`** — ships no `commands/` and neither init nor sync script; nothing to sync.
 7. **`cli/dist/`** — rebuilt in `main` after the merge, per repository policy.
 
+## Deferred to a follow-up change
+
+**`cli/src/utils/defect.ts`** — two items that must land together, in their own change:
+
+1. `cortexVersion` → `rapsoVersion` (the Bucket 3 rename item, L48).
+2. **The pre-existing scrub defect the gate surfaced** (finding 5): `scrubToken` lets
+   `--token=secret`, the token after `Authorization: Bearer`, and `file:///abs/path` reach a payload
+   the report string calls "already scrubbed".
+
+Why they go together: the pre-commit gate (`gga`, patterns include `*.ts`) reviews the whole file, so
+the one-line rename cannot land alone — every attempt re-surfaces the scrub finding. Hardening the
+scrubber is a behavior change in a secrets-handling path; it needs its own decision on what counts as
+a secret, its own evidence, and, once a harness exists, its own tests.
+
+**Delivery note carried over from the Bucket 2 work unit:** this follow-up **does** change
+`cli/src/**`, so after it merges, `npm run build` must run in `cli/` in `main` before dogfooding the
+CLI — `cli/dist/` is gitignored and the merge does not update it. **The Bucket 2 and Bucket 3 slices
+do not need that rebuild**: this slice touches zero `cli/src` files, verified with
+`git diff --name-only e632be9..HEAD -- cli/src` (empty output).
+
 ## Constraints
 
 - Atomicity Gate: **at most 5 staged files per commit** (`.githooks/pre-commit`). Six tracked files
@@ -128,6 +148,17 @@ to Bucket 4.
    clobbers it. Confirmed by the smoke run: the final header is gentle-ai's
    `# Skill Registry — bucket3-smoke`, not the script's. A ponytail finding for the human, not a
    rename edit.
+5. **BLOCKER — gga rejects the `defect.ts` rename on a pre-existing defect (2026-09-18).** The
+   pre-commit hook reviews staged `*.ts`, and on this **one-line rename** it returned
+   `STATUS: FAILED` against `cli/src/utils/defect.ts:28–37, 49, 54`, with violations unrelated to the
+   rename. The finding is **real and pre-existing**: `scrubToken` (L20–33) returns any
+   whitespace-delimited token unchanged when it matches none of its rules, and `scrubUrl` (L14–18)
+   only strips a scheme URL's query. Consequences, read from the source: `--token=secret` survives
+   verbatim; the token after `Authorization: Bearer` survives; `file:///abs/path` matches
+   `HAS_SCHEME` (L12) and is then returned practically untouched. All three reach a payload the
+   report string calls "already scrubbed".
+   **Resolved by separation (human decision, 2026-09-18):** the file was reverted to base and both
+   items moved to their own change. See ## Deferred to a follow-up change.
 
 ## Tasks
 
@@ -135,10 +166,13 @@ to Bucket 4.
 - [x] **T02** — `git mv commands/cortex-init.md commands/rapso-init.md` + heading and 3 refs.
 - [x] **T03** — `git mv scripts/cortex-sync.sh scripts/rapso-sync.sh` + L2/L10 self-refs.
 - [x] **T04** — `.gitignore` L16, L17, L33.
-- [x] **T05** — `cli/src/utils/defect.ts:48` `cortexVersion` → `rapsoVersion`.
+- [ ] **T05 — DEFERRED** — `cli/src/utils/defect.ts:48` moved to its own change. See
+      ## Deferred to a follow-up change.
 - [x] **T06** — `skills/rapso-session/SKILL.md` L149, L159.
 - [x] **T07** — Checks and Progress.
-- [ ] **T08** — Commit in Atomicity-Gate batches and open the PR.
+- [ ] **T08** — Commit in Atomicity-Gate batches and open the PR. **Two commits landed**
+      (`13a7d95`, `bdb9a95`); `defect.ts` is out of this slice by human decision. PR pending explicit
+      request.
 
 ## Checks
 
@@ -166,8 +200,9 @@ Every check runs from the worktree root and its real output is recorded.
 
 ## Acceptance criteria
 
-- No tracked live surface declares a `cortex-init` / `cortex-sync` filename or a `CORTEX_*` /
-  `cortexVersion` identifier.
+- No tracked live surface declares a `cortex-init` / `cortex-sync` filename or a `CORTEX_*`
+  identifier. The one remaining Bucket 3 identifier, `cli/src/utils/defect.ts:48` (`cortexVersion`),
+  is **explicitly deferred** to its own change and is the only known exception.
 - `scripts/rapso-sync.sh:57` and every other Bucket 4 surface are unchanged byte for byte.
 - The renamed script still bootstraps a project end to end (Check 4, observed).
 - `cli/src` typechecks and builds after the defect-payload key rename.
@@ -200,7 +235,28 @@ Every check runs from the worktree root and its real output is recorded.
 - **Check 7** — `cd cli && npm run build` → exit 0.
 - **Check 8** — `git diff --stat` → 6 files changed, **34 insertions(+), 34 deletions(-)**, all three
   detected as renames. No path outside ## In scope; far below the 400-line budget.
+- **2026-09-18 — `defect.ts` separated on human decision.** After the gate rejected its one-line
+  rename (finding 5), the file was reverted to base and both items moved to their own change. This
+  slice now touches **zero** `cli/src` files — verified with
+  `git diff --name-only e632be9..HEAD -- cli/src` (empty output) — so it needs **no** `cli/dist`
+  rebuild. That requirement travels with the follow-up, which does touch `cli/src`.
 - **Next step** — T08: two commits, then the PR.
+
+### Commit log
+
+- `13a7d95` — `refactor(init): rename the cortex-init command and script to rapso` — 4 files
+  (`rapso-init.sh`, `commands/rapso-init.md`, `.gitignore`, this doc). gga: no matching files staged.
+- `bdb9a95` — `refactor: rename the cortex-sync script and its references to rapso` — 2 files
+  (`scripts/rapso-sync.sh`, `skills/rapso-session/SKILL.md`). gga: no matching files staged.
+- **Excluded by decision** — `cli/src/utils/defect.ts`, reverted to base. See
+  ## Deferred to a follow-up change.
+
+### Verification of the committed state
+
+- Repo-wide Bucket 3 scan on the committed tree: **one hit**, `cli/src/utils/defect.ts:48`
+  (`cortexVersion`), which is the explicitly deferred item. All other hits are Bucket 2 or Bucket 4.
+- `git diff --stat` vs `e632be9`: 5 files, all three renames detected, no path outside ## In scope.
+- No `cli/src` file changed, so no `cli/dist` rebuild is required for this slice.
 
 ## Next step after this change
 
