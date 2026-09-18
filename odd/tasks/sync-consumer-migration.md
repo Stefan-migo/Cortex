@@ -232,6 +232,13 @@ CLI's template so one owner installs everything — changes the design and belon
 - [x] Design settled with the human: the marked `AGENTS.md` region plus the known references.
 - [x] Design settled with the human: state and `.gitignore` migration **removed** from the
       script, because `adopt` already owns both and `mergeGitignore` would overwrite it.
+- [x] Pre-freeze normalization: the script header claimed it "copies the pack's skills" and never
+      mentioned the `AGENTS.md` repair. It now names the allowlist, the stale removal, the
+      `AGENTS.md` repair, and the fact that it renames no store and writes no `.gitignore`.
+- [x] Independent parent spot check on a fresh fixture: 6 planned copies, 0 `ponytail-plan`
+      matches, 2 stale removals, 0 false "legacy directory remains", `AGENTS.md` diff confined to
+      table lines with the hand-written line intact, `.cortex/` and `.cortex-sessions/` untouched,
+      no `.gitignore` written, second dry-run planning 0 commands, `lumat-agent` status empty.
 - [x] **T01** — `sync_skills` copies exactly the six allowlisted skills and reports missing
       allowlisted skills; `ponytail-plan` is not copied or planned.
 - [x] **T02** — stale `cortex-persona` and `cortex-session` entries are removed only after their

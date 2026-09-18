@@ -2,8 +2,13 @@
 # rapso-sync.sh — push the Rapsodia pack into every project on your list.
 #
 # For each project it:
-#   1. Copies the pack's skills into <project>/.opencode/skills/ (overwrite).
-#   2. Migrates legacy flat .rapsodia-code/sessions/ into open|ready-for-odd|archived.
+#   1. Installs the six skills the pack owns into <project>/.opencode/skills/, and removes the
+#      stale directory of any skill the pack has renamed (cortex-persona, cortex-session).
+#      A pack skill outside that list does not travel.
+#   2. Repairs the legacy Cortex references in <project>/AGENTS.md.
+#   3. Migrates legacy flat session directories into open|ready-for-odd|archived.
+#
+# It renames no state store and writes no .gitignore: `rapso adopt` owns both.
 #
 # Idempotent. Git is your backup: review `git diff` before committing.
 #
