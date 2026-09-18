@@ -40,7 +40,7 @@ function commandAvailable(command: string): boolean {
   try { execFileSync('which', [command], { stdio: 'ignore' }); return true; } catch { return false; }
 }
 
-const CANONICAL_SKILLS = ['rapso-persona', 'rapso-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help', 'ponytail-plan'];
+const CANONICAL_SKILLS = ['rapso-persona', 'rapso-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help'];
 
 // The canonical skills live in `<repo>/skills/` only in the Rapsodia pack repository. An adopted
 // project tracks its own copies under `.opencode/skills/` instead, and a project created by
