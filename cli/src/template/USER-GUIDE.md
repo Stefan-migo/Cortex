@@ -29,7 +29,7 @@ The system loads automatically. Two agents are available, switch with Tab:
 
 ### Build a Feature (SDD)
 ```
-1. Use the `cortex-session` skill to discuss and structure the goal (Planner)
+1. Use the `rapso-session` skill to discuss and structure the goal (Planner)
 2. /sdd-new                  → Start a structured change (Planner)
 3. /sdd-ff                   → Produce spec, design, and tasks artifacts (Planner)
 4. /sdd-status               → Check change state (Planner)

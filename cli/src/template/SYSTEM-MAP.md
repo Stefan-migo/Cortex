@@ -38,7 +38,7 @@ How every component of the Rapsodia 2.5 executive system works, when to use it, 
 ├──────────────────┼──────────────────────┼────────────────────┤
 │   Permissions    │  Read-only + research│ Full (edit, bash)  │
 │   Model          │  Claude Sonnet 4     │ Claude Sonnet 4    │
-│   Primary tool   │ cortex-session       │ /sdd-apply         │
+│   Primary tool   │ rapso-session        │ /sdd-apply         │
 │   Memory         │  mem_session_start   │ mem_save results   │
 │   Code access    │  Read only           │ Edit + write       │
 │   When to use    │  Planning, research  │ Building, testing  │
@@ -55,7 +55,7 @@ How every component of the Rapsodia 2.5 executive system works, when to use it, 
 
 | Command | Purpose | Output |
 |---------|---------|--------|
-| `cortex-session` skill | Structure planning discussions | Session context |
+| `rapso-session` skill | Structure planning discussions | Session context |
 | `/sdd-new` | Start a structured change | Change proposal |
 | `/sdd-ff` | Fast-forward planning | Spec, design, and tasks artifacts |
 | `/sdd-status` | Check change state | Current change status |
