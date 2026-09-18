@@ -124,7 +124,8 @@ Authorized (Rapsodia-owned surfaces only):
   Skills table and from the Python registry array, and removed the `/ponytail-plan` line from the
   closing `echo` block. A comment now records why it is not linked.
 - [x] **T06** — Removed `'ponytail-plan'` from `CANONICAL_SKILLS` in `cli/src/engine/worktree.ts:43`.
-- [x] **T07** — Verified with real output (below). Commits and PR pending.
+- [x] **T07** — Verified with real output (below). Delivered by **PR #42**
+  (`refactor(ponytail): make it a post-write check over written code`).
 
 ## Acceptance criteria
 
@@ -282,7 +283,9 @@ which is why the fixture run carries a `YAGNI` check that the original assertion
 
 ## Progress
 
-Implementation complete and verified. T01–T06 done; T07 verified with the literal output above.
+**Delivered by PR #42** (`refactor(ponytail): make it a post-write check over written code`,
+https://github.com/Stefan-migo/rapsodia-code/pull/42 — 6 files, +364 / -41).
+T01–T06 done; T07 verified with the literal output above.
 Worktree created at `../rapsodia-code-odd-ponytail-post-write` with explicit human consent.
 
 Five authorized surfaces changed, plus this task document:
