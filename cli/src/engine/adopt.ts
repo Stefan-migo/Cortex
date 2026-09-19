@@ -4,22 +4,15 @@ import { basename, dirname, join, relative, resolve } from 'path';
 import { collectFiles, hashFile, hashTemplateFile, substituteVariables, TemplateOptions } from './template';
 import { Manifest, ManifestFile } from './manifest';
 import { migrateLegacyState, resolveStatePath, sessionsDir, statePath, PROJECT_STATE_DIR_NAME } from '../utils/state';
+import { mergeGitignore, OPENCODE_GITIGNORE } from './gitignore';
 
 export const OWNED_PATHS = [
   '.opencode/agents/**', '.opencode/tools/**',
   '.opencode/skills/**', '.opencode/mcp-template.json', '.opencode/package.json',
-  '.opencode/package-lock.json', '.opencode/.gitignore',
+  '.opencode/package-lock.json',
 ];
 
 export const NEVER_PATHS = ['DESIGN.md', 'SYSTEM-MAP.md', 'USER-GUIDE.md', 'wiki/**', 'scripts/**'];
-
-const RAPSO_IGNORE_ENTRIES = [
-  // The nested sessions store is already covered by the state directory contents rule.
-  `${PROJECT_STATE_DIR_NAME}/`, 'graphify-out/',
-  '.opencode/tools/node_modules/', '.engram/', '.obsidian/workspace.json',
-  '.obsidian/workspace', '__pycache__/', '*.pyc',
-  '*.pyo', '.pytest_cache/', '.ruff_cache/', '.mypy_cache/',
-];
 
 /** Adopted projects may already carry this heading; matching it avoids duplicate defect sections. */
 const LEGACY_DEFECT_HEADING = '## Reporting Cortex Defects';
@@ -33,13 +26,6 @@ const LEGACY_AGENTS: Record<string, string> = {
   'cortex-planner': 'rapso-planner',
   'cortex-developer': 'rapso-developer',
 };
-
-/** The managed `.gitignore` block was marked with the retired name; rename the markers on sight. */
-const LEGACY_GITIGNORE_MARKERS: Array<[string, string]> = [
-  ['# cortex:start', '# rapso:start'],
-  ['# cortex:end', '# rapso:end'],
-];
-const GITIGNORE_HEADER = '# Rapsodia managed entries';
 
 export interface AdoptPlan { created: string[]; refreshed: string[]; removed: string[]; leftover: string[]; conflicting: string[]; injected: string[]; seeded: string[]; skipped: string[]; }
 
@@ -74,28 +60,6 @@ function injectSections(content: string, sections: Array<[string, string]>): { c
   if (missing.length === 0) return { content, changed: false };
   const suffix = missing.map(([, section]) => section).join('\n\n');
   return { content: `${content.replace(/\s*$/, '')}\n\n${suffix}\n`, changed: true };
-}
-
-function injectMarked(content: string, start: string, end: string, block: string): { content: string; changed: boolean } {
-  const marker = new RegExp(`${start}[\\s\\S]*?${end}`);
-  const replacement = `${start}\n${block}\n${end}`;
-  if (marker.test(content)) return { content: content.replace(marker, replacement), changed: content.replace(marker, replacement) !== content };
-  return { content: `${content.replace(/\s*$/, '')}\n\n${replacement}\n`, changed: true };
-}
-
-function mergeGitignore(content: string): { content: string; changed: boolean } {
-  // Rename the retired markers before looking for the block: an already-adopted file carries the
-  // new pair, an unmigrated one the old, and a matcher that knows only one form would append a
-  // second block instead of maintaining the one that exists.
-  let renamed = content;
-  for (const [from, to] of LEGACY_GITIGNORE_MARKERS) renamed = renamed.split(from).join(to);
-  const marked = renamed.match(/# rapso:start[\s\S]*?# rapso:end/)?.[0] || '';
-  const outside = renamed.replace(marked, '');
-  const existingOutside = new Set(outside.split(/\r?\n/).map((line) => line.trim()));
-  const entries = RAPSO_IGNORE_ENTRIES.filter((entry) => !existingOutside.has(entry));
-  const block = [GITIGNORE_HEADER, ...entries].join('\n');
-  const result = injectMarked(renamed, '# rapso:start', '# rapso:end', block);
-  return { content: result.content, changed: result.content !== content };
 }
 
 function mergeJson(content: string, targetDir: string, templateDir: string, retireAgents: string[]): { content: string; changed: boolean; removed: string[] } {
@@ -227,8 +191,12 @@ export function adoptProject(targetDir: string, options: AdoptOptions, templateD
   // `.gitignore` already sits at the new path when this check runs. A dry run does not perform
   // that rename, and must still not promise to create a file the real run leaves alone.
   const legacySessionsIgnore = join(targetDir, '.cortex-sessions', '.gitignore');
+  // npm never publishes a file named `.gitignore`, so the template cannot carry this one either;
+  // adoption seeds it the same way it seeds the session store's.
+  const opencodeIgnore = join(targetDir, '.opencode', '.gitignore');
   for (const [path, content, present] of [
     [sessionsIgnore, '*\n', existsSync(sessionsIgnore) || existsSync(legacySessionsIgnore)],
+    [opencodeIgnore, OPENCODE_GITIGNORE, existsSync(opencodeIgnore)],
     [join(targetDir, 'odd/tasks/.gitkeep'), '', existsSync(join(targetDir, 'odd/tasks/.gitkeep'))],
   ] as const) {
     if (present) plan.skipped.push(relative(targetDir, path));

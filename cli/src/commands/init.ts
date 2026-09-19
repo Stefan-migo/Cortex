@@ -2,6 +2,7 @@ import { existsSync, rmSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import { copyTemplate, TemplateOptions } from '../engine/template';
+import { writeProjectIgnores } from '../engine/gitignore';
 import { generateManifest } from '../engine/manifest';
 import { info, success, warn, error, step, heading } from '../utils/logger';
 import { addProject } from '../utils/config';
@@ -62,7 +63,10 @@ export async function initCommand(name: string, options: InitOptions): Promise<v
 
   step('Copying template files');
   const copiedFiles = copyTemplate(targetDir, templateOptions);
-  success(`Copied ${copiedFiles.length} files`);
+  // npm never publishes a file named `.gitignore`, so no template can carry one and the CLI writes
+  // them here. See engine/gitignore.ts for why the content lives in code.
+  const writtenIgnores = writeProjectIgnores(targetDir);
+  success(`Copied ${copiedFiles.length + writtenIgnores.length} files`);
 
   step('Generating manifest');
   generateManifest(targetDir, templateOptions);

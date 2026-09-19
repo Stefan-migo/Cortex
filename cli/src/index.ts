@@ -16,7 +16,7 @@ const program = new Command();
 program
   .name('rapso')
   .description('Scaffold and manage project development workflows')
-  .version('1.0.0');
+  .version('1.0.1');
 
 program
   .command('init')

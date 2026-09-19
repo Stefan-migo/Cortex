@@ -1,5 +1,6 @@
 import { spawn, ChildProcess } from 'child_process';
 import { createInterface, Interface } from 'readline';
+import { warn } from './logger';
 
 interface PendingRequest {
   resolve: (value: any) => void;
@@ -25,22 +26,31 @@ export class MCPClient {
           stdio: ['pipe', 'pipe', 'pipe'],
         });
 
+        // Piped so a verbose server cannot write over our own stdout, and drained so it cannot
+        // fill the pipe and block: a full pipe stops the child, and a stopped child never answers.
+        this.process.stderr?.resume();
+
         this.rl = createInterface({ input: this.process.stdout! });
 
         this.rl.on('line', (line: string) => {
+          let msg: any;
           try {
-            const msg = JSON.parse(line);
-            if (msg.id != null && this.pending.has(msg.id)) {
-              const entry = this.pending.get(msg.id)!;
-              clearTimeout(entry.timer);
-              this.pending.delete(msg.id);
-              if (msg.error) {
-                entry.reject(new Error(msg.error.message || 'MCP error'));
-              } else {
-                entry.resolve(msg.result);
-              }
-            }
+            msg = JSON.parse(line);
           } catch {
+            // A line that is not JSON breaks the link between a request id and its answer. Saying
+            // so beats dropping it: the alternatives are an unexplained timeout, or silence.
+            warn(`MCP server sent a line that is not JSON: ${line.slice(0, 200)}`);
+            return;
+          }
+          if (msg.id != null && this.pending.has(msg.id)) {
+            const entry = this.pending.get(msg.id)!;
+            clearTimeout(entry.timer);
+            this.pending.delete(msg.id);
+            if (msg.error) {
+              entry.reject(new Error(msg.error.message || 'MCP error'));
+            } else {
+              entry.resolve(msg.result);
+            }
           }
         });
 
@@ -49,15 +59,17 @@ export class MCPClient {
           outerReject(err);
         });
 
-        this.process.on('exit', (code: number | null) => {
-          if (code !== null && code !== 0) {
-            const err = new Error(`MCP process exited with code ${code}`);
-            this.rejectAll(err);
-            outerReject(err);
-          }
+        this.process.on('exit', (code: number | null, signal: NodeJS.Signals | null) => {
+          // Every in-flight request dies with the process, a clean exit included: nothing will ever
+          // answer it, and waiting out each timer would report a timeout instead of the cause.
+          const err = new Error(`MCP process exited with ${code === null ? `signal ${signal}` : `code ${code}`}`);
+          this.rejectAll(err);
+          if (code !== 0) outerReject(err);
         });
 
-        this.process.stdin!.on('error', () => {
+        this.process.stdin!.on('error', (err: Error) => {
+          this.rejectAll(err);
+          outerReject(err);
         });
 
         const id = this.nextId++;
@@ -68,8 +80,14 @@ export class MCPClient {
 
         this.pending.set(id, {
           resolve: () => {
-            this.sendNotification('notifications/initialized');
-            outerResolve();
+            try {
+              this.sendNotification('notifications/initialized');
+              outerResolve();
+            } catch (err) {
+              // The handshake is not complete if the server never learns it is initialized, and a
+              // throw here would escape the readline handler instead of failing the call.
+              outerReject(err instanceof Error ? err : new Error(String(err)));
+            }
           },
           reject: outerReject,
           timer,
@@ -82,7 +100,7 @@ export class MCPClient {
           params: {
             protocolVersion: '2024-11-05',
             capabilities: {},
-            clientInfo: { name: 'rapso-cli', version: '1.0.0' },
+            clientInfo: { name: 'rapso-cli', version: '1.0.1' },
           },
         }) + '\n');
       } catch (err) {
@@ -92,6 +110,11 @@ export class MCPClient {
   }
 
   async callTool(name: string, args: any = {}): Promise<any> {
+    // Checked rather than asserted: this method is public, and calling it before `initialize()` or
+    // after `close()` used to fail with an uncontrolled runtime error instead of a clear one.
+    const stdin = this.process?.stdin;
+    if (!stdin) throw new Error('MCP client is not initialized');
+
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -101,16 +124,26 @@ export class MCPClient {
 
       this.pending.set(id, { resolve, reject, timer });
 
-      this.process!.stdin!.write(JSON.stringify({
-        jsonrpc: '2.0',
-        id,
-        method: 'tools/call',
-        params: { name, arguments: args },
-      }) + '\n');
+      try {
+        stdin.write(JSON.stringify({
+          jsonrpc: '2.0',
+          id,
+          method: 'tools/call',
+          params: { name, arguments: args },
+        }) + '\n');
+      } catch (err) {
+        // A request that never left the client must not sit in `pending` waiting out its timer.
+        clearTimeout(timer);
+        this.pending.delete(id);
+        reject(err instanceof Error ? err : new Error(String(err)));
+      }
     });
   }
 
   async close(): Promise<void> {
+    // Nothing answers an in-flight request once the process is gone. Settling them here stops their
+    // callers from waiting out a timer that reports the symptom instead of the cause.
+    this.rejectAll(new Error('MCP client closed'));
     this.rl?.close();
     if (this.process && !this.process.killed) {
       this.process.kill();
@@ -120,11 +153,9 @@ export class MCPClient {
   }
 
   private sendNotification(method: string, params?: any): void {
-    try {
-      const msg = { jsonrpc: '2.0', method, params };
-      this.process!.stdin!.write(JSON.stringify(msg) + '\n');
-    } catch {
-    }
+    const stdin = this.process?.stdin;
+    if (!stdin) throw new Error('MCP client is not initialized');
+    stdin.write(JSON.stringify({ jsonrpc: '2.0', method, params }) + '\n');
   }
 
   private rejectAll(err: Error): void {
