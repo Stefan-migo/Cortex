@@ -1,5 +1,5 @@
 import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'fs';
-import { execFileSync } from 'child_process';
+import { execFileSync, resolveExecutable } from '../utils/exec';
 import { basename, dirname, join, relative, resolve, sep } from 'path';
 import { ExpectedError } from '../utils/defect';
 import { sessionsDir, statePath, stateDir, SESSIONS_DIR_NAME, LEGACY_SESSIONS_DIR_NAME } from '../utils/state';
@@ -37,7 +37,7 @@ function gitPath(root: string, args: string[]): string {
 }
 
 function commandAvailable(command: string): boolean {
-  try { execFileSync('which', [command], { stdio: 'ignore' }); return true; } catch { return false; }
+  return resolveExecutable(command) !== null;
 }
 
 const CANONICAL_SKILLS = ['rapso-persona', 'rapso-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help'];
