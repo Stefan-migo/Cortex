@@ -8,10 +8,10 @@ How every component of the Rapsodia 2.5 executive system works, when to use it, 
 
 ```
                          ┌──────────────────────────┐
-                         │  FRONTAL LOBE (Planning)  │
-                         │     Gentle AI SDD (/sdd-*)│
-                         │     SDD change artifacts  │
-                         │     @Rapso-Planner       │
+                         │  FRONTAL LOBE (Planning) │
+                         │  ODD + SDD on request    │
+                         │  task doc + SDD artifacts│
+                         │  @Rapso-Planner          │
                          └──────────┬───────────────┘
                                     │ hands off change
           ┌─────────────────────────┼──────────────────────────┐
@@ -38,7 +38,7 @@ How every component of the Rapsodia 2.5 executive system works, when to use it, 
 ├──────────────────┼──────────────────────┼────────────────────┤
 │   Permissions    │  Read-only + research│ Full (edit, bash)  │
 │   Model          │  Claude Sonnet 4     │ Claude Sonnet 4    │
-│   Primary tool   │ rapso-session        │ /sdd-apply         │
+│   Primary tool   │ rapso-session        │ ODD task doc       │
 │   Memory         │  mem_session_start   │ mem_save results   │
 │   Code access    │  Read only           │ Edit + write       │
 │   When to use    │  Planning, research  │ Building, testing  │
@@ -47,9 +47,9 @@ How every component of the Rapsodia 2.5 executive system works, when to use it, 
 
 ---
 
-## 1. FRONTAL LOBE — Gentle AI SDD (Planning)
+## 1. FRONTAL LOBE — ODD (default) + Gentle AI SDD (opt-in)
 
-**What it is:** A structured spec-driven development workflow. Specs define WHAT before HOW.
+**What it is:** ODD is the default workflow. Gentle AI SDD is a structured spec-driven development workflow available on explicit request. Specs define WHAT before HOW.
 
 **Commands (invoked by @Rapso-Planner):**
 
@@ -63,7 +63,7 @@ How every component of the Rapsodia 2.5 executive system works, when to use it, 
 | `/sdd-verify` | Verify the implementation and artifacts | Verify report |
 | `/sdd-archive` | Close and preserve a completed change | Archive report |
 
-**When to use:** Every feature, every task. Always spec first, then build.
+**When to use:** ODD is the default for every feature. Gentle AI SDD is entered only when explicitly requested or when a proposal is accepted.
 
 ---
 
@@ -132,8 +132,8 @@ wiki/
 ```
 Step 1: GRAPH CHECK — query_graph before any edit
 Step 2: ATOMIC COMMIT — one concern per commit, ≤5 files
-Step 3: VERIFY — lint + typecheck + tests (block on failure)
-Step 4: SPEC CHECK — /sdd-verify after completion
+Step 3: VERIFY — the project's configured checks (never claim one that does not exist)
+Step 4: SPEC CHECK — only when SDD was explicitly used; /sdd-verify is optional diagnostics
 Step 5: MEMORY — mem_save key learnings
 ```
 
@@ -168,8 +168,8 @@ Step 5: MEMORY — mem_save key learnings
 │ RAPSO-DEVELOPER  │ Switch to Tab        │ Building, testing,   │
 │                  │                      │ implementing specs   │
 ├──────────────────┼──────────────────────┼──────────────────────┤
-│ GENTLE AI SDD    │ /sdd-new + /sdd-ff   │ Every feature task   │
-│ Frontal Lobe     │                      │                      │
+│ ODD (default)    │ rapso-session + doc  │ Every feature task   │
+│ Frontal Lobe     │ SDD: explicit request│                      │
 ├──────────────────┼──────────────────────┼──────────────────────┤
 │ GRAPHFY          │ query_graph before   │ Before editing,      │
 │ Parietal Lobe    │ every edit           │ after refactors      │
