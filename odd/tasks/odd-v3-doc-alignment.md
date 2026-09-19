@@ -64,8 +64,7 @@ Seven files. The repo's `.opencode/skills/rapso-persona/SKILL.md` is a **symlink
   Sites: `AGENTS.md:82`; `cli/src/template/AGENTS.md:82`; `.opencode/agents/rapso-developer.md:12-18,48-50` and its template counterpart; `cli/src/template/.opencode/skills/rapso-persona/SKILL.md:78`; `cli/src/template/USER-GUIDE.md:30-41,90`; `cli/src/template/SYSTEM-MAP.md:66,135-136,171-172`.
   ODD is the default; SDD is entered only on explicit request or accepted proposal; the spec-check step becomes conditional and `/sdd-verify` is named optional diagnostics. `SYSTEM-MAP.md:66` *"Every feature, every task. Always spec first, then build."* and `:171-172` *"GENTLE AI SDD … Every feature task"* are the strongest offenders.
 
-- [x] **T04 — Verify and deliver.**
-  `npm run typecheck`, `npm run build`, and a real `rapso init` into a throwaway fixture, then read the generated `AGENTS.md` to confirm the corrected text is what actually ships. Commit as reviewable work units and open the PR.
+- [ ] **T04 — Verify and deliver.** Verification and the work-unit commits are done — see Verification evidence. The PR is still pending explicit human authorization.
 
 ## Acceptance criteria
 
