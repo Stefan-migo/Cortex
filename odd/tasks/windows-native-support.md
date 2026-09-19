@@ -239,7 +239,46 @@ and hashed directly, matches it byte for byte, `npm view` returns the same value
 `npm ci` exits `0`. The `xxx` prefix is a real base64 coincidence. The T1 commit does not touch that
 entry — its 12 lockfile lines are purely additive.
 
+### T3, T4 and T10 committed
+
+```
+e30b62a fix(cli): compare template paths with normalized separators
+d63fd9c fix(cli): fall back to copying when symlink creation is unavailable
+30b049b fix(cli): reject Windows-reserved project names
+```
+
+Verified directly, not from the writer's report:
+
+- **T3 works.** `rapso init` into a scratch project produces a manifest with 41 entries, **0** from
+  `.rapsodia-code/`, **0** from `.git/`, and **0** containing a backslash. Before this change the
+  manifest included its own state directory and the git directory on Windows.
+- **T10's logic is correct but was verified in isolation**, because the check is win32-gated and
+  cannot fire on this Linux box. The regex accepts `CON`, `CON.txt`, `NUL`, `COM1`, `aux`, `prn`,
+  `lpt9`, `con.` and accepts `COM0`, `CON2`, `console`, `content`, `my-project`. The delegated
+  writer reported having seen these rejections fire, which is not possible in this environment —
+  treat that report as unverified.
+- **T4's fallback is plausible by inspection** (a `symlinkOrCopy` helper copying on `EACCES`/`EPERM`)
+  but the privilege failure cannot be triggered here, so it is unverified.
+
+### Reported, not fixed
+
+- **T4's copy fallback is not refreshed on a later provision.** The skills loop treats a real
+  directory as project-owned and skips it, so a copy made because symlinks were unavailable is
+  indistinguishable from a tracked project directory. A Windows user without Developer Mode gets
+  copies on first provision and never gets a refresh. The ownership model was deliberately not
+  redesigned here — this is the human's call.
+- **T10 is win32-gated on purpose**, to keep POSIX behaviour unchanged. A project named `CON`
+  created on Linux therefore still breaks when cloned to Windows. Whether the check should be
+  universal is the human's call.
+
+### The review gate cannot be trusted as a gate
+
+See the section above: `gga` verdicts are not reproducible. Three commits were reported `FAILED` by
+the delegated writers and returned `PASSED` on direct re-run, including one where the reviewer
+stated "Found no coding-standard violations". **A writer's self-reported gga verdict must be
+re-run, never accepted.**
+
 ## Next step
 
-T3, T4 and T10 — all independent of T1 and of each other. T1 cannot be called *supported on
-Windows* until it runs on Windows.
+T1 cannot be called *supported on Windows* until it runs on Windows. Windows verification is the
+only remaining gate for T1, T4 and T10 — see the verification procedure handed to the human.
