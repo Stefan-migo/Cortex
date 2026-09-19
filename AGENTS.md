@@ -69,8 +69,8 @@ These commands remain available when explicitly requested; ODD is the default co
 2. Agent detects `.rapsodia-code/prelude.md` and uses it as working context
 
 ### Work
-1. Planner uses `rapso-session` to seed `odd/tasks/<feature>.md`, then creates the worktree with `rapso worktree create <slug>`
-2. Planner hands the ODD task doc to Developer via `@Rapso-Developer`
+1. Planner closes planning with an ODD handoff (`rapso-session`). After explicit per-feature human consent, create the implementation worktree **first** (`rapso worktree create <slug>`, from `origin/main`); the ODD task doc `odd/tasks/<feature>.md` is created **inside** that worktree and committed on branch `odd/<slug>`, reaching main through the PR
+2. Planner hands the ODD handoff to Developer via `@Rapso-Developer`
 3. Developer runs graphify check before editing code
 4. Developer executes modified 5-Step Gate per task
 
@@ -78,8 +78,8 @@ These commands remain available when explicitly requested; ODD is the default co
 ```
 Step 1: GRAPH CHECK — query_graph before editing
 Step 2: ATOMIC COMMIT — one concern per commit, ≤5 files
-Step 3: VERIFY — lint + typecheck + tests (block on failure)
-Step 4: SPEC CHECK — /sdd-verify after completion
+Step 3: VERIFY — npm run typecheck + npm run build + manual scenarios (no lint script, no test harness)
+Step 4: SPEC CHECK — only when SDD was explicitly used (/sdd-verify is optional diagnostics under ODD)
 Step 5: FINALIZE — mem_save + rapso close --message "<summary>"
 ```
 

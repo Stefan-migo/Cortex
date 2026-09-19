@@ -27,17 +27,19 @@ The system loads automatically. Two agents are available, switch with Tab:
 2. Agent auto-runs `mem_session_start` and `mem_context` to restore context
 3. Discuss your goal with the agent
 
-### Build a Feature (SDD)
+### Build a Feature (ODD default)
 ```
 1. Use the `rapso-session` skill to discuss and structure the goal (Planner)
-2. /sdd-new                  → Start a structured change (Planner)
-3. /sdd-ff                   → Produce spec, design, and tasks artifacts (Planner)
-4. /sdd-status               → Check change state (Planner)
-   Then Tab to @Rapso-Developer
+2. Close with an ODD handoff; after explicit consent, create the worktree:
+   rapso worktree create <slug>       (from the main worktree)
+3. The ODD task doc odd/tasks/<feature>.md is created INSIDE that worktree
+4. Tab to @Rapso-Developer
 5. Developer executes via 5-Step Gate:
-   ← Graph check → Atomic commit → Verify → Spec check → Memory save
-6. /sdd-verify               → Verify the implementation and artifacts (Developer)
-7. /sdd-archive              → Close and preserve the completed change (Developer)
+   ← Graph check → Atomic commit → Verify → Spec check (SDD only) → Memory save
+6. Commit on branch odd/<slug> and open the PR
+
+Gentle AI SDD remains available when explicitly requested:
+   /sdd-new → /sdd-ff → /sdd-status → /sdd-apply → /sdd-verify → /sdd-archive
 ```
 
 ### End a Session
@@ -59,7 +61,7 @@ The system loads automatically. Two agents are available, switch with Tab:
 | `mem_session_end` | Session end |
 | `mem_session_summary` | Before closing |
 
-### Gentle AI SDD (Planning — Frontal Lobe)
+### Gentle AI SDD (Planning — opt-in, on explicit request)
 | Command | What it does |
 |---------|-------------|
 | `/sdd-new` | Start a structured change and its proposal |
@@ -86,8 +88,8 @@ The system loads automatically. Two agents are available, switch with Tab:
 Built into `@Rapso-Developer` — fires automatically on every task:
 1. **GRAPH CHECK** — query the knowledge graph before editing
 2. **ATOMIC COMMIT** — one concern per commit (≤5 files)
-3. **VERIFY** — lint + typecheck + tests (block on failure)
-4. **SPEC CHECK** — /sdd-verify after completion
+3. **VERIFY** — the project's configured checks (never claim one that does not exist)
+4. **SPEC CHECK** — only when SDD was explicitly used; /sdd-verify is optional diagnostics
 5. **MEMORY** — mem_save key learnings
 
 Plus a pre-commit hook enforces the ≤5-file atomicity gate mechanically.
@@ -97,7 +99,7 @@ Plus a pre-commit hook enforces the ≤5-file atomicity gate mechanically.
 ## Architecture (Brain Lobe Model)
 
 ```
-Frontal Lobe  → Gentle AI SDD (/sdd-*) — Planning
+Frontal Lobe  → ODD (rapso-session) + Gentle AI SDD on request — Planning
 Parietal Lobe → Graphify — Code understanding before edits
 Hippocampus   → Engram (MCP) — Persistent SQLite memory, 19 tools
 Occipital Lobe → wiki/ — Obsidian-readable snapshot from Engram

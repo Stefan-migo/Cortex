@@ -69,8 +69,8 @@ These commands remain available when explicitly requested; ODD is the default co
 2. Agent detects `.rapsodia-code/prelude.md` and uses it as working context
 
 ### Work
-1. Planner uses `rapso-session` to seed `odd/tasks/<feature>.md`, then creates the worktree with `rapso worktree create <slug>`
-2. Planner hands the ODD task doc to Developer via `@Rapso-Developer`
+1. Planner closes planning with an ODD handoff (`rapso-session`). After explicit per-feature human consent, create the implementation worktree **first** (`rapso worktree create <slug>`, from `origin/main`); the ODD task doc `odd/tasks/<feature>.md` is created **inside** that worktree and committed on branch `odd/<slug>`, reaching main through the PR
+2. Planner hands the ODD handoff to Developer via `@Rapso-Developer`
 3. Developer runs graphify check before editing code
 4. Developer executes modified 5-Step Gate per task
 
@@ -78,8 +78,8 @@ These commands remain available when explicitly requested; ODD is the default co
 ```
 Step 1: GRAPH CHECK — query_graph before editing
 Step 2: ATOMIC COMMIT — one concern per commit, ≤5 files
-Step 3: VERIFY — lint + typecheck + tests (block on failure)
-Step 4: SPEC CHECK — /sdd-verify after completion
+Step 3: VERIFY — the checks this project actually configures (typecheck, build, tests); never claim a check that does not exist
+Step 4: SPEC CHECK — only when SDD was explicitly used (/sdd-verify is optional diagnostics under ODD)
 Step 5: FINALIZE — mem_save + rapso close --message "<summary>"
 ```
 
@@ -112,10 +112,10 @@ Save to Engram immediately when you encounter:
 - **learning**: Lessons learned during development
 
 ## Coding Standards
-- Run lint + typecheck before considering work complete
+- Run the project's configured checks (typecheck, build, tests) before considering work complete
 - Follow existing project conventions
 - Atomic commits: one concern per commit, descriptive messages
-- Write tests alongside implementation
+- Add tests when the project has a test harness; never claim coverage that does not exist
 - NEVER commit secrets or credentials
 
 ## Ponytail — Post-Write Simplification Check

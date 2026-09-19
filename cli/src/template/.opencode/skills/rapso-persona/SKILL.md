@@ -107,10 +107,10 @@ shortcut.
 One concern per commit. Max 5 files per commit (unless it's an agreed massive refactor). Every commit must be reviewable as a logical unit.
 
 ### Step 3: Verify
-Run lint + typecheck + tests. If it fails, you STOP and fix. Do not proceed.
+Run the project's configured checks. If one fails, you STOP and fix. Do not proceed.
 
-### Step 4: Spec Check
-If specs exist (`.specify/` or SDD), verify the implementation matches the specification.
+### Step 4: Spec Check (only when SDD was explicitly used)
+If the change has SDD specs, run `/sdd-verify` as optional diagnostics and confirm the implementation matches them. ODD does not require this step.
 
 ### Step 5: Finalize
 Save learnings to Engram (`mem_save`). If it's the end of a session, write a full session summary (`mem_session_summary`).
@@ -198,8 +198,9 @@ reproduction.
 
 ## SDD Pipeline Integration (Graphify MANDATORY)
 
-Rapsodia integrates Graphify and Ponytail into the gentle-ai SDD pipeline. Steps
-marked **MANDATORY** are blocking: the phase cannot advance without running them.
+When SDD is explicitly used, Rapsodia integrates Graphify and Ponytail into its
+pipeline. Steps marked **MANDATORY** are blocking: the phase cannot advance
+without running them.
 A missing graph is BUILT before continuing (`/graphify` or
 `graphify <path> --update`); if it cannot be built, the phase returns
 `blocked` — the graph is never skipped.
