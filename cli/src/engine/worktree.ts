@@ -38,6 +38,16 @@ function gitPath(root: string, args: string[]): string {
 
 const CANONICAL_SKILLS = ['rapso-persona', 'rapso-session', 'ponytail-review', 'ponytail-audit', 'ponytail-debt', 'ponytail-help'];
 
+function symlinkOrCopy(source: string, link: string, recursive: boolean, symlinkTarget = relative(dirname(link), source)): void {
+  try {
+    symlinkSync(symlinkTarget, link);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code !== 'EACCES' && code !== 'EPERM') throw error;
+    cpSync(source, link, recursive ? { recursive: true } : undefined);
+  }
+}
+
 // The canonical skills live in the CLI template, because that is the only store the published
 // package ships. They used to live in `<repo>/skills/`, which `cli/package.json` never carried, so
 // a project created by `rapso init` received none of them. Resolving the source against the new
@@ -239,7 +249,7 @@ export function provisionWorktree(worktree: string, mainRoot: string): void {
       // A real directory is the project's own tracked copy; only a link is Rapsodia's to replace.
       if (existing && !existing.isSymbolicLink()) continue;
       if (existing) rmSync(link, { force: true });
-      symlinkSync(relative(skillsDir, source), link);
+      symlinkOrCopy(source, link, true);
     }
   }
 
@@ -248,7 +258,7 @@ export function provisionWorktree(worktree: string, mainRoot: string): void {
   for (const file of ['.env.local', 'projects.txt']) {
     const link = join(target, file);
     if (existsSync(link) || (() => { try { lstatSync(link); return true; } catch { return false; } })()) rmSync(link, { force: true });
-    if (existsSync(join(main, file))) symlinkSync(relative(target, main) + '/' + file, link);
+    if (existsSync(join(main, file))) symlinkOrCopy(join(main, file), link, false, join(relative(target, main), file));
   }
   mkdirSync(stateDir(target), { recursive: true });
   writeFileSync(statePath(target, 'worktree.json'), JSON.stringify({ branch: git(target, ['branch', '--show-current']), source: main, provisionedAt: new Date().toISOString() }, null, 2) + '\n');
