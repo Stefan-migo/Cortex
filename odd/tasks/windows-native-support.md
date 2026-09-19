@@ -281,4 +281,33 @@ re-run, never accepted.**
 ## Next step
 
 T1 cannot be called *supported on Windows* until it runs on Windows. Windows verification is the
-only remaining gate for T1, T4 and T10 — see the verification procedure handed to the human.
+only remaining gate for T1, T4 and T10.
+
+The branch is pushed: `odd/windows-native-support` at `2aa6202` on
+https://github.com/Stefan-migo/rapsodia-code. Note that this clone's `origin` still carries the
+retired `Stefan-migo/Cortex.git` URL, which GitHub redirects to `rapsodia-code`; the push therefore
+used the canonical URL explicitly rather than let a write depend on a redirect. The local remote URL
+has not been changed.
+
+**Windows verification procedure handed to the human.** Clone the branch into a path containing
+**spaces and parentheses**, then:
+
+1. `npm install && npm run build` in `cli/`
+2. `node dist/index.js worktree create wintest` — launches `npm ci` through cross-spawn from that
+   path. This is the primary test of T1.
+3. `node dist/index.js init wprobe --no-git --yes`, then check the manifest for `.rapsodia-code/`
+   and `.git/` entries — T3.
+4. `node dist/index.js init` for `CON`, `CON.txt`, `NUL`, `COM1` — must be refused; `okname` must
+   pass. This is **only** verifiable on Windows — T10.
+5. `Get-Item <worktree>\.opencode\skills\rapso-persona | Select LinkType` — empty means it copied,
+   proving the T4 fallback.
+
+Spaces and parentheses are not decorative: they are the exact input the hand-rolled escaper got
+wrong. Report Node, git and Windows versions, Developer Mode state, and the exit code plus full
+output of each step.
+
+**Remaining scope, deferred and still open:** T2 (`deps.ts` native detection), T5 (`session.ts`
+without `bash`), T6 (template scripts — delete the redundant ones rather than port), T7 (template
+tools), T8 (template `opencode.json` MCP commands), T9 (`rapso-init.sh` to a CLI subcommand),
+T11 (real Windows verification). Maintainer-only surfaces (`.githooks/**`, `scripts/**`) stay out
+of scope.
