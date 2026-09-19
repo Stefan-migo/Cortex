@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { randomBytes } from 'crypto';
-import { execFileSync } from 'child_process';
+import { execFileSync } from '../utils/exec';
 import { MCPClient } from '../utils/mcp';
 import { info, success, warn, step } from '../utils/logger';
 import { readProjectName, resolveGraphifyPaths } from './project';

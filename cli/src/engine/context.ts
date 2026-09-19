@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
-import { execFileSync } from 'child_process';
+import { execFileSync } from '../utils/exec';
 import { info, warn, step, success } from '../utils/logger';
 import { MCPClient } from '../utils/mcp';
 import { resolveGraphifyPaths, resolveProjectManifest } from './project';
