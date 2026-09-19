@@ -47,7 +47,7 @@ export function collectFiles(dir: string, baseDir: string): string[] {
     if (stat.isDirectory()) {
       files.push(...collectFiles(fullPath, baseDir));
     } else {
-      files.push(relative(baseDir, fullPath));
+      files.push(relative(baseDir, fullPath).replace(/\\/g, '/'));
     }
   }
   return files;

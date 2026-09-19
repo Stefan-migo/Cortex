@@ -32,8 +32,9 @@ function scrubUrl(value: string): string {
 
 function scrubValue(value: string, cwd: string, home: string): string | null {
   if (HAS_SCHEME.test(value)) return scrubUrl(value);
-  if (value === cwd || value.startsWith(`${cwd}/`)) return `<cwd>${value.slice(cwd.length)}`;
-  if (home && (value === home || value.startsWith(`${home}/`))) return `<home>${value.slice(home.length)}`;
+  const hasPathPrefix = (path: string): boolean => value === path || value.startsWith(`${path}/`) || value.startsWith(`${path}\\`);
+  if (hasPathPrefix(cwd)) return `<cwd>${value.slice(cwd.length)}`;
+  if (home && hasPathPrefix(home)) return `<home>${value.slice(home.length)}`;
   if (/^(?:\/|[A-Za-z]:[\\/])/.test(value)) return '<path>';
   return null;
 }
