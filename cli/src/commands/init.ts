@@ -17,6 +17,10 @@ interface InitOptions {
 
 function validateProjectName(name: string): string | null {
   if (!name || name.length === 0) return 'Project name cannot be empty';
+  if (process.platform === 'win32' && /[. ]$/.test(name)) return 'Project name cannot end with a dot or space on Windows';
+  if (process.platform === 'win32' && /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/i.test(name)) {
+    return 'Project name is reserved on Windows because it names a device';
+  }
   if (/[\s]/.test(name)) return 'Project name cannot contain spaces';
   if (/[<>:"/\\|?*\x00-\x1f]/.test(name)) return 'Project name contains invalid characters';
   if (name === '.' || name === '..') return 'Project name cannot be . or ..';
